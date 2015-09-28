@@ -1087,14 +1087,14 @@ checkOutputOverrun(_CORBA_ULong itemSize,
   return pd_actual.checkOutputOverrun(itemSize, nItems, align);
 }
 
-_CORBA_ULong
+size_t
 cdrValueChunkStream::currentInputPtr() const
 {
   copyStateToActual();
   return pd_actual.currentInputPtr();
 }
 
-_CORBA_ULong
+size_t
 cdrValueChunkStream::currentOutputPtr() const
 {
   copyStateToActual();

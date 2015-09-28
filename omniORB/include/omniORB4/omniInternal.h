@@ -101,6 +101,7 @@ _CORBA_MODULE omni
 _CORBA_MODULE_BEG
 
   typedef omni_ptr_arith_t ptr_arith_t;
+  typedef omni_s_size_t    s_size_t;
 
   enum alignment_t { ALIGN_1 = 1, ALIGN_2 = 2, ALIGN_4 = 4, ALIGN_8 = 8 };
 

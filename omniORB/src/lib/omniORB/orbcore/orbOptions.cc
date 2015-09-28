@@ -434,8 +434,9 @@ CORBA::Boolean
 orbOptions::getULong(const char* value, CORBA::ULong& result) {
 
   unsigned long v;
-  v = strtoul(value,0,10);
-  if (v == ULONG_MAX && errno == ERANGE) return 0;
+  char* end;
+  v = strtoul(value, &end, 10);
+  if (errno == ERANGE || end == value || *end != '\0') return 0;
   result = v;
   return 1;
 }
@@ -445,10 +446,33 @@ CORBA::Boolean
 orbOptions::getLong(const char* value, CORBA::Long& result) {
 
   long v;
-  v = strtol(value,0,10);
-  if (v == LONG_MAX && errno == ERANGE) return 0;
+  char* end;
+  v = strtol(value, &end, 10);
+  if (errno == ERANGE || end == value || *end != '\0') return 0;
   result = v;
   return 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+CORBA::Boolean
+orbOptions::getSizeT(const char* value, size_t& result) {
+
+#if defined (_WIN64)
+  __int64 v;
+  char* end;
+  v = _strtoui64(value, &end, 10);
+  if (errno == ERANGE || end == value || *end != '\0') return 0;
+  result = v;
+  return 1;
+
+#else
+  size_t v;
+  char* end;
+  v = strtoul(value, &end, 10);
+  if (errno == ERANGE || end == value || *end != '\0') return 0;
+  result = v;
+  return 1;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -471,7 +495,7 @@ orbOptions::addKVBoolean(const char* key, CORBA::Boolean value,
 ////////////////////////////////////////////////////////////////////////
 void
 orbOptions::addKVULong(const char* key, CORBA::ULong value,
-			 orbOptions::sequenceString& result) {
+                       orbOptions::sequenceString& result) {
 
   CORBA::String_var kv;
   CORBA::ULong l;
@@ -496,6 +520,28 @@ orbOptions::addKVLong(const char* key, CORBA::Long value,
   l = strlen(key) + 16;
   kv = CORBA::string_alloc(l);
   sprintf(kv,"%s = %ld",key,(long)value);
+
+  l = result.length();
+  result.length(l+1);
+  result[l] = kv._retn();
+}
+
+////////////////////////////////////////////////////////////////////////
+void
+orbOptions::addKVSizeT(const char* key, size_t value,
+                       orbOptions::sequenceString& result) {
+
+  CORBA::String_var kv;
+  CORBA::ULong l;
+
+  l = strlen(key) + 26;
+  kv = CORBA::string_alloc(l);
+
+#if defined (_WIN64)
+  sprintf(kv,"%s = %I64u",key,(unsigned __int64)value);
+#else
+  sprintf(kv,"%s = %lu",key,(unsigned long)value);
+#endif
 
   l = result.length();
   result.length(l+1);

@@ -52,7 +52,7 @@ GIOP::Version orbParameters::maxGIOPVersion = { 1, 2 };
 //
 //  Valid values = 1.0 | 1.1 | 1.2
 
-CORBA::ULong orbParameters::giopMaxMsgSize = 2048 * 1024;
+size_t orbParameters::giopMaxMsgSize = 2048 * 1024;
 //   This value defines the ORB-wide limit on the size of GIOP message 
 //   (excluding the header). If this limit is exceeded, the ORB will
 //   refuse to send or receive the message and raise a MARSHAL exception.
@@ -286,22 +286,40 @@ public:
 
   giopMaxMsgSizeHandler() : 
     orbOptions::Handler("giopMaxMsgSize",
-			"giopMaxMsgSize = n >= 8192",
+			"giopMaxMsgSize = n >= 8192 or n == 0",
 			1,
-			"-ORBgiopMaxMsgSize < n >= 8192 >") {}
+			"-ORBgiopMaxMsgSize < n >= 8192 or n == 0 >") {}
 
   void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
 
-    CORBA::ULong v;
-    if (!orbOptions::getULong(value,v) || v < 8192) {
+    size_t v;
+    
+    if (!orbOptions::getSizeT(value,v) || (v && v < 8192)) {
       throw orbOptions::BadParam(key(),value,
-				 "Invalid value, expect n >= 8192");
+				 "Invalid value, expect n >= 8192 or n == 0");
     }
-    orbParameters::giopMaxMsgSize = v;
+    if (v) {
+      orbParameters::giopMaxMsgSize = v;
+    }
+    else {
+      // Set to maximum signed value, to aid indirection code that
+      // calculates negative values.
+
+#if (SIZEOF_LONG == SIZEOF_PTR)
+      orbParameters::giopMaxMsgSize = LONG_MAX;
+#elif (SIZEOF_INT == SIZEOF_PTR)
+      orbParameters::giopMaxMsgSize = INT_MAX;
+#elif defined (_WIN64)
+      orbParameters::giopMaxMsgSize = _I64_MAX;
+#else
+#error "No suitable integer type available to calculate maximum" \
+  " message size"
+#endif
+    }
   }
 
   void dump(orbOptions::sequenceString& result) {
-    orbOptions::addKVULong(key(),orbParameters::giopMaxMsgSize,
+    orbOptions::addKVSizeT(key(),orbParameters::giopMaxMsgSize,
 			   result);
   }
 

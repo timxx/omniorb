@@ -220,13 +220,13 @@ cdrMemoryStream::setByteSwapFlag(CORBA::Boolean littleendian)
   pd_marshal_byte_swap = pd_unmarshal_byte_swap = (littleendian == ((CORBA::Boolean)omni::myByteOrder)) ? 0 : 1; 
 }
 
-CORBA::ULong
+size_t
 cdrMemoryStream::currentInputPtr() const
 {
   return ((omni::ptr_arith_t)pd_inb_mkr - (omni::ptr_arith_t)pd_bufp_8);
 }
 
-CORBA::ULong
+size_t
 cdrMemoryStream::currentOutputPtr() const
 {
   return ((omni::ptr_arith_t)pd_outb_mkr - (omni::ptr_arith_t)pd_bufp_8);
@@ -571,13 +571,13 @@ cdrCountingStream::fetchInputData(omni::alignment_t,size_t)
 {
 }
 
-CORBA::ULong
+size_t
 cdrCountingStream::currentInputPtr() const 
 {
-  return (CORBA::ULong) pd_total;
+  return pd_total;
 }
 
-CORBA::ULong
+size_t
 cdrCountingStream::currentOutputPtr() const 
 { 
   return 0;

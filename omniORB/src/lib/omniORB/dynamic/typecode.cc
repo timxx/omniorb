@@ -4864,7 +4864,7 @@ TypeCode_offsetTable::~TypeCode_offsetTable()
 
 // Routine to create a child, encapsulating offsetTable
 TypeCode_offsetTable::TypeCode_offsetTable(TypeCode_offsetTable* parent,
-					   CORBA::Long base_offset)
+					   omni::s_size_t        base_offset)
   : pd_table(0), pd_curr_offset(base_offset),
     pd_parent_table(parent),
     pd_parent_base_offset(parent->currentOffset() - base_offset)
@@ -4874,19 +4874,20 @@ TypeCode_offsetTable::TypeCode_offsetTable(TypeCode_offsetTable* parent,
 
 // Routine to add an offset->typecode mapping
 void
-TypeCode_offsetTable::addEntry(CORBA::Long offset, TypeCode_base* typecode)
+TypeCode_offsetTable::addEntry(omni::s_size_t offset, TypeCode_base* typecode)
 {
   // If this table is a wrapper round another then correct the offset and
   // pass on the request
-  if (pd_parent_table != 0)
+  if (pd_parent_table != 0) {
     pd_parent_table->addEntry(offset + pd_parent_base_offset, typecode);
+  }
   else
     {
       // Otherwise, just look in this table directly
       TypeCode_offsetEntry* new_entry = new TypeCode_offsetEntry;
 
-      new_entry->pd_next = pd_table;
-      new_entry->pd_offset = offset;
+      new_entry->pd_next     = pd_table;
+      new_entry->pd_offset   = offset;
       new_entry->pd_typecode = typecode;
 
       pd_table = new_entry;
@@ -4896,7 +4897,7 @@ TypeCode_offsetTable::addEntry(CORBA::Long offset, TypeCode_base* typecode)
 
 // Routines to retrieve typecode by offset or vica versa
 TypeCode_base*
-TypeCode_offsetTable::lookupOffset(CORBA::Long offset)
+TypeCode_offsetTable::lookupOffset(omni::s_size_t offset)
 {
   // If this table is a wrapper round another then correct
   // the offset and pass on the request
@@ -4909,14 +4910,14 @@ TypeCode_offsetTable::lookupOffset(CORBA::Long offset)
   if (orbParameters::acceptMisalignedTcIndirections && (offset & 0x3)) {
     omniORB::logs(1, "Warning: received TypeCode with "
                   "mis-aligned indirection.");
-    offset = (offset + 3) & 0xfffffffc;
+    offset = ((offset + 3) >> 2) << 2;
   }
 
   // Otherwise, just look in this table directly
   TypeCode_offsetEntry* entry = pd_table;
 
   while (entry != 0) {
-    if ((CORBA::Long)entry->pd_offset == offset)
+    if ((omni::s_size_t)entry->pd_offset == offset)
       return entry->pd_typecode;
 
     entry = entry->pd_next;
@@ -4928,7 +4929,7 @@ TypeCode_offsetTable::lookupOffset(CORBA::Long offset)
 
 CORBA::Boolean
 TypeCode_offsetTable::lookupTypeCode(const TypeCode_base*  tc,
-				     CORBA::Long &offset)
+				     omni::s_size_t&       offset)
 {
   // If this table is a wrapper round another then correct
   // the offset and pass on the request
@@ -5010,7 +5011,8 @@ TypeCode_marshaller::marshal(TypeCode_base* tc,
 
   // If this _exact_ typecode has already been marshalled into the stream
   // then just put in an indirection
-  CORBA::Long tc_offset;
+  omni::s_size_t tc_offset;
+
   if( orbParameters::useTypeCodeIndirections &&
       otbl->lookupTypeCode(tc, tc_offset) )
     {
@@ -5019,7 +5021,7 @@ TypeCode_marshaller::marshal(TypeCode_base* tc,
       tck_indirect >>= s;
 
       // Now write out the offset
-      CORBA::Long offset = tc_offset - (s.currentOutputPtr());
+      CORBA::Long offset = (CORBA::Long)(tc_offset - s.currentOutputPtr());
       offset >>= s;
     }
   else
@@ -5112,14 +5114,14 @@ TypeCode_marshaller::unmarshal(cdrStream& s,
       // Indirection typecode
     case 0xffffffff:
       {
-	CORBA::Long currpos = s.currentInputPtr();
-	CORBA::Long offset;
+        omni::s_size_t currpos = s.currentInputPtr();
+	CORBA::Long    offset;
 
 	// Read in the offset within the GIOP message
 	offset <<= s;
 
 	// Now look it up in the table
-	TypeCode_base* tc = otbl->lookupOffset(offset+currpos);
+	TypeCode_base* tc = otbl->lookupOffset(currpos + offset);
 	if (tc == 0)
 	  OMNIORB_THROW(MARSHAL,
 			MARSHAL_InvalidIndirection,
