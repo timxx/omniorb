@@ -1222,8 +1222,8 @@ private:
   friend class TypeCode_offsetTable;
 
   TypeCode_offsetEntry* pd_next;
-  CORBA::ULong pd_offset;
-  TypeCode_base* pd_typecode;
+  size_t                pd_offset;
+  TypeCode_base*        pd_typecode;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -1250,27 +1250,30 @@ public:
   //      i.e.  The offset passed to B->addEntry is relative to offset zero
   //            in table B.  The is automatically mapped to the corresponding
   //            offset in table A.
-  TypeCode_offsetTable(TypeCode_offsetTable* parent, CORBA::Long base_offset);
+  TypeCode_offsetTable(TypeCode_offsetTable* parent,
+                       omni::s_size_t        base_offset);
 
   // Routine to add an offset->typecode mapping
-  void addEntry(CORBA::Long offset, TypeCode_base* typecode);
+  void addEntry(omni::s_size_t offset, TypeCode_base* typecode);
 
   // Routines to retrieve typecode by offset or vica versa
-  TypeCode_base* lookupOffset(CORBA::Long offset);
-  CORBA::Boolean lookupTypeCode(const TypeCode_base* tc, CORBA::Long& offset);
+  TypeCode_base* lookupOffset(omni::s_size_t offset);
+
+  CORBA::Boolean lookupTypeCode(const TypeCode_base* tc,
+                                omni::s_size_t&      offset);
 
   // Routine to retrieve the current buffer offset
-  inline CORBA::Long currentOffset()   { return pd_curr_offset; }
-  inline void setOffset(CORBA::Long i) { pd_curr_offset = i;    }
+  inline omni::s_size_t currentOffset()             { return pd_curr_offset; }
+  inline void           setOffset(omni::s_size_t i) { pd_curr_offset = i;    }
 
 private:
   TypeCode_offsetEntry* pd_table;
-  CORBA::Long pd_curr_offset;
+  omni::s_size_t        pd_curr_offset;
 
   // Fields for use when this offsetTable is actually just a wrapper round
   // an existing offsetTable
   TypeCode_offsetTable* pd_parent_table;
-  CORBA::Long pd_parent_base_offset;
+  omni::s_size_t        pd_parent_base_offset;
 };
 
 //////////////////////////////////////////////////////////////////////

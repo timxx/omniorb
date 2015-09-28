@@ -3,7 +3,7 @@
 // giopImpl12.cc              Created on: 14/02/2001
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2002-2013 Apasphere Ltd
+//    Copyright (C) 2002-2015 Apasphere Ltd
 //    Copyright (C) 2001 AT&T Laboratories, Cambridge
 //
 //    This file is part of the omniORB library
@@ -78,8 +78,8 @@ public:
   static size_t outputRemaining(const giopStream*);
   static void getReserveSpace(giopStream*,omni::alignment_t,size_t);
   static void copyOutputData(giopStream*,void*, size_t,omni::alignment_t);
-  static CORBA::ULong currentInputPtr(const giopStream*);
-  static CORBA::ULong currentOutputPtr(const giopStream*);
+  static size_t currentInputPtr(const giopStream*);
+  static size_t currentOutputPtr(const giopStream*);
 
   friend class nonexistence;  // Just to make gcc shut up.
 
@@ -106,9 +106,9 @@ public:
 
   static void outputNewMessage(giopStream* g);
 
-  static void outputFlush(giopStream* g,CORBA::Boolean knownFragmentSize=0);
+  static void outputFlush(giopStream* g, CORBA::Boolean knownFragmentSize=0);
 
-  static void outputSetFragmentSize(giopStream*,CORBA::ULong);
+  static void outputSetFragmentSize(giopStream*, size_t);
 
   static inline CORBA::Boolean outputHasReachedLimit(giopStream* g) {
     return g->outEnd() == g->outputBufferStart() + 12;
@@ -978,7 +978,7 @@ giopImpl12::inputRemaining(giopStream* g) {
     return orbParameters::giopMaxMsgSize - currentInputPtr(g);
   }
   else {
-    return (g->inputFragmentToCome() + (g->inEnd() - g->inMkr()));
+    return g->inputFragmentToCome() + (g->inEnd() - g->inMkr());
   }
 }
 
@@ -1175,7 +1175,7 @@ giopImpl12::copyInputData(giopStream* g, void* b, size_t sz,
       else {
 	if (b && sz >= giopStream::directReceiveCutOff) {
 
-	  CORBA::ULong transz = g->inputFragmentToCome();
+	  size_t transz = g->inputFragmentToCome();
 	  if (transz > sz)
             transz = sz;
 
@@ -1202,13 +1202,11 @@ giopImpl12::copyInputData(giopStream* g, void* b, size_t sz,
 }
 
 ////////////////////////////////////////////////////////////////////////
-CORBA::ULong
+size_t
 giopImpl12::currentInputPtr(const giopStream* g) {
 
-  return  g->inputMessageSize() - 
-          g->inputFragmentToCome() -
-         ((omni::ptr_arith_t) g->pd_inb_end - 
-	  (omni::ptr_arith_t) g->pd_inb_mkr);
+  return (g->inputMessageSize() - g->inputFragmentToCome() -
+          (g->inEnd() - g->inMkr()));
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1830,10 +1828,9 @@ giopImpl12::sendLocateReply(giopStream* g,GIOP::LocateStatusType rc,
 size_t
 giopImpl12::outputRemaining(const giopStream* g) {
 
-  CORBA::ULong total = g->outputFragmentSize();
+  size_t total = g->outputFragmentSize();
   if (!total) {
-    CORBA::ULong avail = (CORBA::Long)orbParameters::giopMaxMsgSize -
-                         (CORBA::Long)currentOutputPtr(g);
+    size_t avail = orbParameters::giopMaxMsgSize - currentOutputPtr(g);
     
     // Adjust avail to exactly the same value as calculated in outputFlush().
     // See the comment in outputFlush() for the reason why.
@@ -1920,7 +1917,7 @@ giopImpl12::outputFlush(giopStream* g, CORBA::Boolean knownFragmentSize) {
     // Now determine how much space we have left.
     // If the message size has already reached orbParameters::giopMaxMsgSize,
     // outputHasReachedLimit() will return TRUE.
-    CORBA::ULong avail = orbParameters::giopMaxMsgSize - g->outputMessageSize();
+    size_t avail = orbParameters::giopMaxMsgSize - g->outputMessageSize();
 
     // Adjust avail to make sure that it a multiple of 8.
     // This preserves our invariant: g->pd_outb_end always align on 8 bytes
@@ -2062,16 +2059,14 @@ giopImpl12::copyOutputData(giopStream* g, void* b, size_t sz,
 
 
 ////////////////////////////////////////////////////////////////////////
-CORBA::ULong
+size_t
 giopImpl12::currentOutputPtr(const giopStream* g) {
 
-  CORBA::ULong fsz = (omni::ptr_arith_t) g->pd_outb_mkr - 
-                     ((omni::ptr_arith_t) g->pd_currentOutputBuffer + 
-		      g->pd_currentOutputBuffer->start);
+  size_t fsz = g->outMkr() - g->outputBufferStart();
 
   // Output offset is the sent message so far, plus the current buffer
   // minus 12 byte header.
-  CORBA::Long msz = g->outputMessageSize();
+  size_t msz = g->outputMessageSize();
   if (msz) {
     // At least one fragment has been output already; message has
     // been extended by the current fragment size minus its 16 byte
@@ -2087,7 +2082,7 @@ giopImpl12::currentOutputPtr(const giopStream* g) {
 
 ////////////////////////////////////////////////////////////////////////
 void
-giopImpl12::outputSetFragmentSize(giopStream* g,CORBA::ULong msz) {
+giopImpl12::outputSetFragmentSize(giopStream* g, size_t msz) {
 
   if (msz > orbParameters::giopMaxMsgSize) {
     OMNIORB_THROW(MARSHAL,MARSHAL_MessageSizeExceedLimitOnClient,

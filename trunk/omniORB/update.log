@@ -1,3 +1,31 @@
+Mon Sep 28 13:58:14 BST 2015 dgrisby
+====================================
+
+- Support vast messages.
+
+include/omniORB4/CORBA_sysdep.h
+include/omniORB4/cdrStream.h
+include/omniORB4/internal/giopStream.h
+include/omniORB4/internal/giopStreamImpl.h
+include/omniORB4/internal/orbOptions.h
+include/omniORB4/internal/orbParameters.h
+include/omniORB4/internal/typecode.h
+include/omniORB4/internal/valueTrackerImpl.h
+include/omniORB4/omniInternal.h
+src/lib/omniORB/dynamic/typecode.cc
+src/lib/omniORB/dynamic/valueTracker.cc
+src/lib/omniORB/dynamic/valueType.cc
+src/lib/omniORB/orbcore/cdrMemoryStream.cc
+src/lib/omniORB/orbcore/cdrStreamAdapter.cc
+src/lib/omniORB/orbcore/cdrValueChunkStream.cc
+src/lib/omniORB/orbcore/giopImpl10.cc
+src/lib/omniORB/orbcore/giopImpl11.cc
+src/lib/omniORB/orbcore/giopImpl12.cc
+src/lib/omniORB/orbcore/giopStream.cc
+src/lib/omniORB/orbcore/giopStreamImpl.cc
+src/lib/omniORB/orbcore/orbOptions.cc
+
+
 Mon Sep 28 13:56:54 BST 2015 dgrisby
 ====================================
 

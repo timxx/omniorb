@@ -202,8 +202,8 @@ public:
   // Post-condition:
   //   g->pd_inb_mkr and g->pd_inb_end are updated accordingly.
 
-  CORBA::ULong (*currentInputPtr)(const giopStream* g);
-  CORBA::ULong (*currentOutputPtr)(const giopStream* g);
+  size_t (*currentInputPtr)(const giopStream* g);
+  size_t (*currentOutputPtr)(const giopStream* g);
 
   giopStreamImpl(const GIOP::Version&);
   ~giopStreamImpl();

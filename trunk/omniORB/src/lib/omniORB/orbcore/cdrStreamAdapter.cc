@@ -125,14 +125,14 @@ maybeReserveOutputSpace(omni::alignment_t align, size_t required)
   return pd_actual.maybeReserveOutputSpace(align, required);
 }
 
-_CORBA_ULong
+size_t
 cdrStreamAdapter::currentInputPtr() const
 {
   copyStateToActual();
   return pd_actual.currentInputPtr();
 }
 
-_CORBA_ULong
+size_t
 cdrStreamAdapter::currentOutputPtr() const
 {
   copyStateToActual();

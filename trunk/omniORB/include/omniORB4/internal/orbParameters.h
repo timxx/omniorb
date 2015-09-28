@@ -72,7 +72,7 @@ _CORBA_MODULE_VAR _core_attr GIOP::Version maxGIOPVersion;
 //
 //  Valid values = 1.0 | 1.1 | 1.2
 
-_CORBA_MODULE_VAR _core_attr CORBA::ULong giopMaxMsgSize;
+_CORBA_MODULE_VAR _core_attr size_t giopMaxMsgSize;
 //   This value defines the ORB-wide limit on the size of GIOP message 
 //   (excluding the header). If this limit is exceeded, the ORB will
 //   refuse to send or receive the message and raise a MARSHAL exception.
