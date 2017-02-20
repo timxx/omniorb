@@ -1,9 +1,9 @@
 // -*- Mode: C++; -*-
-//                            Package   : omniORB2
+//                            Package   : omniORB
 // omniInternal.h             Created on: 6/2/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2003-2009 Apasphere Ltd
+//    Copyright (C) 2003-2017 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
@@ -43,6 +43,7 @@
 #include <omnithread.h>
 #include <omniORB4/finalCleanup.h>
 #include <omniORB4/CORBA_basetypes.h>
+#include <omniORB4/errorFuncs.h>
 #include <omniORB4/seqTemplatedecls.h>
 #include <omniORB4/templatedecls.h>
 #include <omniORB4/valueTemplatedecls.h>

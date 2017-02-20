@@ -1,5 +1,5 @@
 dnl -*- M4 -*-
-AC_INIT(omniORB, 4.2.1, bugs@omniorb-support.com)
+AC_INIT(omniORB, 5.0.0, bugs@omniorb-support.com)
 
 AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR(bin/scripts/omkdirhier)
@@ -139,6 +139,7 @@ OMNI_DISABLE_ALLOCA
 OMNI_DISABLE_LONGDOUBLE
 OMNI_DISABLE_ATOMIC
 OMNI_ENABLE_ZIOP
+OMNI_ENABLE_CXX11
 
 
 dnl ** Compiler name
@@ -290,6 +291,7 @@ AC_CONFIG_FILES(src/appl/GNUmakefile
                 src/lib/omniORB/python3/omniidl_be/cxx/skel/GNUmakefile
                 src/lib/omniORB/python3/omniidl_be/GNUmakefile
                 src/lib/omniORB/python3/GNUmakefile
+                src/lib/omniORB/base/GNUmakefile
                 src/lib/omniORB/orbcore/GNUmakefile
                 src/lib/omniORB/orbcore/ssl/GNUmakefile
                 src/lib/omniORB/connections/GNUmakefile
@@ -331,12 +333,13 @@ AC_CONFIG_FILES(contrib/GNUmakefile
                 contrib/pkgconfig/GNUmakefile)
 
 AC_OUTPUT([
-contrib/pkgconfig/omnithread3.pc
-contrib/pkgconfig/omniORB4.pc
-contrib/pkgconfig/omniDynamic4.pc
-contrib/pkgconfig/omniCOS4.pc
-contrib/pkgconfig/omniCOSDynamic4.pc
-contrib/pkgconfig/omniConnectionMgmt4.pc
-contrib/pkgconfig/omniZIOP4.pc
-contrib/pkgconfig/omniZIOPDynamic4.pc
+contrib/pkgconfig/omnithread.pc
+contrib/pkgconfig/omniBase5.pc
+contrib/pkgconfig/omniORB5.pc
+contrib/pkgconfig/omniDynamic5.pc
+contrib/pkgconfig/omniCOS5.pc
+contrib/pkgconfig/omniCOSDynamic5.pc
+contrib/pkgconfig/omniConnectionMgmt5.pc
+contrib/pkgconfig/omniZIOP5.pc
+contrib/pkgconfig/omniZIOPDynamic5.pc
 ])

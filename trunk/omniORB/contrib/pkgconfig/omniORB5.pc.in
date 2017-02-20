@@ -6,10 +6,10 @@ datadir=@datadir@
 idldir=${datadir}/idl/omniORB
 omniidl=@bindir@/omniidl
 
-Name: omniORB4
+Name: omniORB5
 Description: CORBA Object Request Broker.
 Version: @PACKAGE_VERSION@
-Requires: omnithread3
-Libs: -L${libdir} -lomniORB4
+Requires: omniBase5
+Libs: -L${libdir} -lomniORB5
 Cflags: -I${includedir}
 unloadable_stubs=-DOMNI_UNLOADABLE_STUBS

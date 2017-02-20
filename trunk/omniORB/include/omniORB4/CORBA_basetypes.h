@@ -1,9 +1,9 @@
 // -*- Mode: C++; -*-
-//                            Package   : omniORB2
+//                            Package   : omniORB
 // CORBA_basetypes.h          Created on: 30/1/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2013 Apasphere Ltd
+//    Copyright (C) 2013-2017 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories - Cambridge Ltd
 //
 //    This file is part of the omniORB library
@@ -351,19 +351,5 @@ typedef _CORBA_LONGDOUBLE_DECL    _CORBA_LongDouble;
 
 #endif   // VMS float test
 #endif   // !defined(NO_FLOAT)
-
-class cdrStream;
-
-extern void _CORBA_new_operator_return_null();
-extern void _CORBA_bound_check_error();
-extern void _CORBA_marshal_sequence_range_check_error(cdrStream&);
-extern _CORBA_Boolean _CORBA_use_nil_ptr_as_nil_objref();
-extern void _CORBA_null_string_ptr(_CORBA_Boolean);
-extern void _CORBA_invoked_nil_pseudo_ref();
-extern void _CORBA_invoked_nil_objref();
-extern _CORBA_Boolean
-_CORBA_use_nil_ptr_as_nil_pseudo_objref(const char* objType);
-extern void _CORBA_bad_param_freebuf();
-
 
 #endif // __CORBA_BASETYPES_H__

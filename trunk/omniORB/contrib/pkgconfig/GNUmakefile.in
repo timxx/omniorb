@@ -6,9 +6,9 @@ INSTALL=@INSTALL@
 
 INSTALLDIR = $(INSTALLLIBDIR)/pkgconfig
 
-PKGFILES = omnithread3.pc omniORB4.pc omniDynamic4.pc \
-           omniCOS4.pc omniCOSDynamic4.pc omniConnectionMgmt4.pc \
-           omniZIOP4.pc omniZIOPDynamic4.pc
+PKGFILES = omnithread.pc omniBase5.pc omniORB5.pc omniDynamic5.pc \
+           omniCOS5.pc omniCOSDynamic5.pc omniConnectionMgmt5.pc \
+           omniZIOP5.pc omniZIOPDynamic5.pc
 
 include $(TOP)/mk/beforeauto.mk
 

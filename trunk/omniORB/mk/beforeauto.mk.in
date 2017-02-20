@@ -445,11 +445,17 @@ OMNITHREAD_PLATFORM_LIB = $(filter-out $(patsubst %,$(LibSearchPattern),\
 
 CorbaImplementation = OMNIORB
 
+lib_depend := $(patsubst %,$(LibPattern),omniBase$(OMNIORB_MAJOR_VERSION))
+omniBase_lib_depend := $(GENERATE_LIB_DEPEND)
+
 lib_depend := $(patsubst %,$(LibPattern),omniORB$(OMNIORB_MAJOR_VERSION))
 omniORB_lib_depend := $(GENERATE_LIB_DEPEND)
 
 lib_depend := $(patsubst %,$(LibPattern),omniDynamic$(OMNIORB_MAJOR_VERSION))
 omniDynamic_lib_depend := $(GENERATE_LIB_DEPEND)
+
+OMNIORB_BASE_DLL_NAME = $(patsubst %,$(LibSearchPattern),\
+                        omniBase$(OMNIORB_MAJOR_VERSION))
 
 OMNIORB_DLL_NAME = $(patsubst %,$(LibSearchPattern),\
                    omniORB$(OMNIORB_MAJOR_VERSION))
@@ -465,11 +471,11 @@ OMNIORB_CPPFLAGS = -D__OMNIORB$(OMNIORB_MAJOR_VERSION)__ \
 
 OMNIORB_IDL_OUTPUTDIR_PATTERN = -C%
 
-OMNIORB_LIB = $(OMNIORB_DLL_NAME) $(OMNIORB_DYNAMIC_DLL_NAME)
-OMNIORB_LIB_NODYN = $(OMNIORB_DLL_NAME)
+OMNIORB_LIB = $(OMNIORB_BASE_DLL_NAME) $(OMNIORB_DLL_NAME) $(OMNIORB_DYNAMIC_DLL_NAME)
+OMNIORB_LIB_NODYN = $(OMNIORB_BASE_DLL_NAME) $(OMNIORB_DLL_NAME)
 
-OMNIORB_LIB_NODYN_DEPEND = $(omniORB_lib_depend)
-OMNIORB_LIB_DEPEND = $(omniORB_lib_depend) $(omniDynamic_lib_depend)
+OMNIORB_LIB_NODYN_DEPEND = $(omniBase_lib_depend) $(omniORB_lib_depend)
+OMNIORB_LIB_DEPEND = $(omniBase_lib_depend) $(omniORB_lib_depend) $(omniDynamic_lib_depend)
 
 OMNIORB_STATIC_STUB_OBJS = \
 	$(CORBA_INTERFACES:%=$(CORBA_STUB_DIR)/%SK.o)
@@ -743,6 +749,14 @@ endif
 
 ifeq (@ENABLE_ZIOP@,yes)
 EnableZIOP = 1
+endif
+
+#
+# Enable C++11 mapping?
+#
+
+ifeq (@ENABLE_CXX11@,yes)
+EnableCXX11 = 1
 endif
 
 

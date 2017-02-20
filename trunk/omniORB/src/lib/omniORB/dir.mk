@@ -7,7 +7,7 @@ ifndef EmbeddedSystem
 SUBDIRS = $(PYSUBDIR)
 endif
 
-SUBDIRS += orbcore
+SUBDIRS += base orbcore
 
 ifndef OrbCoreOnly
 SUBDIRS += dynamic codesets connections

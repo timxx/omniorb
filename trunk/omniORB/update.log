@@ -1,3 +1,49 @@
+Mon 20 Feb 22:51:39 GMT 2017 dgrisby
+====================================
+
+- Start migrating common code into the omniBase5 library.
+
+acinclude.m4
+aclocal.m4
+configure.ac
+configure
+contrib/pkgconfig/GNUmakefile.in
+contrib/pkgconfig/omniBase5.pc.in
+contrib/pkgconfig/omniCOS4.pc.in
+contrib/pkgconfig/omniCOS5.pc.in
+contrib/pkgconfig/omniCOSDynamic4.pc.in
+contrib/pkgconfig/omniCOSDynamic5.pc.in
+contrib/pkgconfig/omniConnectionMgmt4.pc.in
+contrib/pkgconfig/omniConnectionMgmt5.pc.in
+contrib/pkgconfig/omniDynamic4.pc.in
+contrib/pkgconfig/omniDynamic5.pc.in
+contrib/pkgconfig/omniORB4.pc.in
+contrib/pkgconfig/omniORB5.pc.in
+contrib/pkgconfig/omniZIOP4.pc.in
+contrib/pkgconfig/omniZIOP5.pc.in
+contrib/pkgconfig/omniZIOPDynamic4.pc.in
+contrib/pkgconfig/omniZIOPDynamic5.pc.in
+contrib/pkgconfig/omnithread.pc.in
+contrib/pkgconfig/omnithread3.pc.in
+include/omniORB4/CORBA_basetypes.h
+include/omniORB4/CORBA_sysdep.h
+include/omniORB4/GNUmakefile.in
+include/omniORB4/acconfig.h.in
+include/omniORB4/errorFuncs.h
+include/omniORB4/omniInternal.h
+include/omniORB4/omniORB.h
+mk/beforeauto.mk.in
+mk/version.mk
+src/lib/omniORB/base
+src/lib/omniORB/base/GNUmakefile.in
+src/lib/omniORB/base/GNUmakefile
+src/lib/omniORB/base/dir.mk
+src/lib/omniORB/base/logIOstream.cc
+src/lib/omniORB/dir.mk
+src/lib/omniORB/orbcore/dir.mk
+src/lib/omniORB/orbcore/logIOstream.cc
+
+
 Mon Sep 28 13:58:14 BST 2015 dgrisby
 ====================================
 
