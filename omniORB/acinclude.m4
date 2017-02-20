@@ -476,6 +476,23 @@ fi
 ])
 
 
+dnl Lock tracing
+AC_DEFUN([OMNI_ENABLE_CXX11],
+[AC_CACHE_CHECK(whether to support the C++11 mapping,
+omni_cv_enable_cxx11,
+[AC_ARG_ENABLE(cxx11,
+               AC_HELP_STRING([--enable-cxx11],
+                  [enable C++11 mapping (default disable-cxx11)]),
+               omni_cv_enable_cxx11=$enableval,
+               omni_cv_enable_cxx11=no)
+])
+AC_SUBST(ENABLE_CXX11, $omni_cv_enable_cxx11)
+if test "$omni_cv_enable_cxx11" = "yes"; then
+  AC_DEFINE(OMNIORB_ENABLE_CXX11,,[define if you want to support the C++11 mapping])
+fi
+])
+
+
 
 dnl
 dnl Tests from http://www.gnu.org/software/ac-archive/

@@ -3,7 +3,7 @@
 // logIOstream.cc             Created on: 31/3/1998
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2002-2012 Apasphere Ltd
+//    Copyright (C) 2002-2017 Apasphere Ltd
 //    Copyright (C) 1998-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
@@ -54,7 +54,7 @@
 #define PREFIX "omniORB: "
 
 static FILE*             logfile = stderr;
-static CORBA::String_var logfilename;
+static _CORBA_String_var logfilename;
 
 
 OMNI_USING_NAMESPACE(omni)
@@ -237,7 +237,7 @@ omniORB::logger::operator<<(double n)
 #endif
 
 
-static void pp_key(omniORB::logger& l, const CORBA::Octet*, int);
+static void pp_key(omniORB::logger& l, const _CORBA_Octet*, int);
 
 
 omniORB::logger&
@@ -449,7 +449,7 @@ static char cm[] = { '0', '1', '2', '3', '4', '5', '6', '7',
 		     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 
-static int is_poa_key(const CORBA::Octet* key, int keysize)
+static int is_poa_key(const _CORBA_Octet* key, int keysize)
 {
   const char* k = (const char*) key;
   const char* kend = k + keysize;
@@ -472,13 +472,13 @@ static int is_poa_key(const CORBA::Octet* key, int keysize)
 }
 
 
-static int is_boa_key(const CORBA::Octet* key, int keysize)
+static int is_boa_key(const _CORBA_Octet* key, int keysize)
 {
   return keysize == sizeof(omniOrbBoaKey);
 }
 
 
-static char* pp_poa_key(const CORBA::Octet* key, int keysize)
+static char* pp_poa_key(const _CORBA_Octet* key, int keysize)
 {
   // output: root/poa/name<key>
 
@@ -506,7 +506,7 @@ static char* pp_poa_key(const CORBA::Octet* key, int keysize)
 
   k++;
   *s++ = '<';
-  CORBA::ULong idsize = kend - k;
+  _CORBA_ULong idsize = kend - k;
   if (idsize == 12) {
     // Persistent POA key (we hope)
 
@@ -519,9 +519,9 @@ static char* pp_poa_key(const CORBA::Octet* key, int keysize)
     *s++ = '/';
   }
   if( idsize == 4 ) {
-    CORBA::ULong val = 0;
+    _CORBA_ULong val = 0;
     while (idsize--)
-      val += ((CORBA::ULong)((unsigned char)*k++)) << (idsize * 8);
+      val += ((_CORBA_ULong)((unsigned char)*k++)) << (idsize * 8);
 
     sprintf(s, "%lu", (unsigned long) val);
     s += strlen(s);
@@ -538,7 +538,7 @@ static char* pp_poa_key(const CORBA::Octet* key, int keysize)
 
 
 
-static char* pp_boa_key(const CORBA::Octet* key, int keysize)
+static char* pp_boa_key(const _CORBA_Octet* key, int keysize)
 {
   // output: boa<key-in-hex>
 
@@ -561,7 +561,7 @@ static char* pp_boa_key(const CORBA::Octet* key, int keysize)
 }
 
 
-static char* pp_key(const CORBA::Octet* key, int keysize)
+static char* pp_key(const _CORBA_Octet* key, int keysize)
 {
   // output: key<keystring>
 
@@ -583,7 +583,7 @@ static char* pp_key(const CORBA::Octet* key, int keysize)
 }
 
 
-static void pp_key(omniORB::logger& l, const CORBA::Octet* key, int keysize)
+static void pp_key(omniORB::logger& l, const _CORBA_Octet* key, int keysize)
 {
   char* p;
 

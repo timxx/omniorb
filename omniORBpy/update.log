@@ -1,3 +1,12 @@
+Mon 20 Feb 22:51:39 GMT 2017 dgrisby
+====================================
+
+- Start migrating common code into the omniBase5 library.
+
+mk/beforeauto.mk.in
+mk/version.mk
+
+
 Mon Sep 28 13:58:14 BST 2015 dgrisby
 ====================================
 

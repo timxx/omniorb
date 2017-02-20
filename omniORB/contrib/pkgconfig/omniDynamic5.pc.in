@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: omniDynamic4
+Name: omniDynamic5
 Description: CORBA Object Request Broker - Dynamic Library.
 Version: @PACKAGE_VERSION@
-Requires: omniORB4
-Libs: -L${libdir} -lomniDynamic4
+Requires: omniORB5
+Libs: -L${libdir} -lomniDynamic5
 Cflags:
