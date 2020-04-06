@@ -399,8 +399,7 @@ void SocketCollection::wakeUp()
 
 void
 SocketHolder::setSelectable(int            now,
-			    CORBA::Boolean data_in_buffer,
-			    CORBA::Boolean deprecated_hold_lock)
+			    CORBA::Boolean data_in_buffer)
 {
   OMNIORB_ASSERT(pd_belong_to);
   omni_tracedmutex_lock l(pd_belong_to->pd_collection_lock);
@@ -786,8 +785,7 @@ void SocketCollection::wakeUp()
 
 void
 SocketHolder::setSelectable(int            now,
-			    CORBA::Boolean data_in_buffer,
-			    CORBA::Boolean deprecated_hold_lock)
+			    CORBA::Boolean data_in_buffer)
 {
   OMNIORB_ASSERT(pd_belong_to);
   omni_tracedmutex_lock l(pd_belong_to->pd_collection_lock);
@@ -1170,8 +1168,7 @@ void SocketCollection::wakeUp()
 
 void
 SocketHolder::setSelectable(int            now,
-			    CORBA::Boolean data_in_buffer,
-			    CORBA::Boolean deprecated_hold_lock)
+			    CORBA::Boolean data_in_buffer)
 {
   OMNIORB_ASSERT(pd_belong_to);
   omni_tracedmutex_lock l(pd_belong_to->pd_collection_lock);
