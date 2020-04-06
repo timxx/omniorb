@@ -22,7 +22,9 @@ EXTRA_LIBS    = $(SOCKET_LIB) \
                 $(patsubst %,$(LibNoDebugSearchPattern),advapi32) \
                 $(patsubst %,$(LibNoDebugSearchPattern),user32) \
                 $(patsubst %,$(LibNoDebugSearchPattern),gdi32)
+vpath %.cc $(VPATH):$(VPATH:%=%/..)
 SHARED_ONLY_OBJS = msvcdllstub.o
+
 DIR_CPPFLAGS += -D"NTArchitecture"
 MSVC_STATICLIB_CXXNODEBUGFLAGS += -D_WINSTATIC
 MSVC_STATICLIB_CXXDEBUGFLAGS += -D_WINSTATIC

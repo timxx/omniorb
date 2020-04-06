@@ -14,9 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
+along with this program.  If not, see http://www.gnu.org/licenses/
 
  In other words, you are welcome to use, share and improve this program.
  You are forbidden to forbid anyone else to use, share and improve
@@ -8034,7 +8032,7 @@ macroexpand (hp, op)
       else
 	parse_error = macarg (NULL_PTR, 0);
       if (parse_error) {
-	error_with_line (line_for_error (start_line), parse_error);
+	error_with_line (line_for_error (start_line), "%s", parse_error);
 	break;
       }
       i++;
@@ -8976,8 +8974,12 @@ vwarning_with_line (line, msg, args)
       break;
     }
 
-  if (ip != NULL)
-    fprintf (stderr, line ? "%s:%d: " : "%s: ", ip->nominal_fname, line);
+  if (ip != NULL) {
+    if (line)
+      fprintf (stderr, "%s:%d: ", ip->nominal_fname, line);
+    else
+      fprintf (stderr, "%s: ", ip->nominal_fname);
+  }
   fprintf (stderr, "warning: ");
   vfprintf (stderr, msg, args);
   fprintf (stderr, "\n");

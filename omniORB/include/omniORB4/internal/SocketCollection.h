@@ -10,19 +10,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -66,7 +64,7 @@ public:
 
   void setSelectable(int now,
 		     CORBA::Boolean data_in_buffer,
-		     CORBA::Boolean hold_lock=0);
+		     CORBA::Boolean deprecated_hold_lock=0);
   // Indicate that this socket should be watched for readability.
   //
   // If now is 1, immediately make the socket selectable (if the
@@ -80,8 +78,10 @@ public:
   // If data_in_buffer is true, the socket is considered to already
   // have data available to read.
   //
-  // If hold_lock is true, the associated SocketCollection's lock is
-  // already held.
+  // deprecated_hold_lock used to be used to indicate that the caller
+  // already held the associated SocketCollection's lock during a
+  // notifyReadable callback. The lock is no longer held in callbacks,
+  // but the parameter is retained for backwards compatibility.
 
   void clearSelectable();
   // Indicate that this socket should not be watched any more.
@@ -138,6 +138,8 @@ private:
   SocketHolder**       	pd_prev;
 };
 
+typedef omnivector<SocketHolder*> SocketHolderVec;
+
 
 //
 // SocketCollection manages a collection of sockets.
@@ -152,7 +154,7 @@ public:
   virtual CORBA::Boolean notifyReadable(SocketHolder*) = 0;
   // Callback used by Select(). If it returns false, something has
   // gone very wrong with the collection and exits the Select loop.
-  // This method is called while holding pd_collection_lock.
+  // No locks are held during the call.
 
   CORBA::Boolean isSelectable(SocketHandle_t sock);
   // Indicates whether the given socket can be selected upon.
@@ -233,6 +235,17 @@ private:
   SocketHolder*        pd_collection;
   CORBA::Boolean       pd_changed;
 
+  inline void sendNotifications(SocketHolderVec& to_notify)
+  {
+    SocketHolderVec::iterator it  = to_notify.begin();
+    SocketHolderVec::iterator end = to_notify.end();
+  
+    for (; it != end; ++it)
+      notifyReadable(*it);
+
+    to_notify.clear();
+  }
+  
   friend class SocketHolder;
 };
 

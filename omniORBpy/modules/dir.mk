@@ -133,7 +133,7 @@ else
 
 ifdef Win32Platform
 
-PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(string.lower(sys.prefix))')"
+PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(sys.prefix.lower())')"
 PYPREFIX  := $(subst program files,progra~1,$(subst \,/,$(PYPREFIX1)))
 PYVERSION := $(shell $(PYTHON) -c 'import sys; sys.stdout.write(sys.version[:3])')
 PYINCDIR  := $(PYPREFIX)/include
@@ -518,8 +518,14 @@ endif
 SUBDIRS = codesets connections
 
 ifdef OPEN_SSL_ROOT
-SUBDIRS += sslTP
+SUBDIRS += httpTP sslTP
+
+ifdef EnableHTTPCrypto
+SUBDIRS += httpCrypto
 endif
+
+endif
+
 
 ifdef EnableZIOP
 SUBDIRS += ziop

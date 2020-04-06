@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -122,7 +120,7 @@ cdrStream::marshalRawString(const char* s)
     // No characters from the string will fit in the current buffer.
     // The length might fit, but we can't put it in this buffer since
     // in a chunked stream it must stay with the string contents.
-    len = strlen(s) + 1;
+    len = (CORBA::ULong)strlen(s) + 1;
     declareArrayLength(omni::ALIGN_4, len+4);
     len >>= *this;
     put_octet_array((const _CORBA_Octet*)s, len);
@@ -139,16 +137,18 @@ cdrStream::marshalRawString(const char* s)
     // Good -- the whole string fit in the buffer.
     *current++ = *s;
 
-    len = (omni::ptr_arith_t)current - (omni::ptr_arith_t)pd_outb_mkr;
+    len = (_CORBA_ULong)((omni::ptr_arith_t)current -
+                         (omni::ptr_arith_t)pd_outb_mkr);
     pd_outb_mkr = (void*)current;
 
     *lenp = pd_marshal_byte_swap ? Swap32(len) : len;
   }
   else {
     // Some of the string did not fit.
-    len = (omni::ptr_arith_t)current - (omni::ptr_arith_t)pd_outb_mkr;
+    len = (_CORBA_ULong)((omni::ptr_arith_t)current -
+                         (omni::ptr_arith_t)pd_outb_mkr);
     pd_outb_mkr = (void*)current;
-    _CORBA_ULong rest = strlen(s) + 1;
+    _CORBA_ULong rest = (_CORBA_ULong)strlen(s) + 1;
 
     len += rest;
     if ((omni::ptr_arith_t)lenp < (omni::ptr_arith_t)pd_outb_end)

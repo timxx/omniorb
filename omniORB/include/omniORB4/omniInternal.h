@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -82,8 +80,8 @@ class omniObjAdapter;
 //   the variable name stays the same with compatible shared library, e.g.
 //   2.5.1.
 //
-extern _core_attr const char* omniORB_4_2;
-extern _dyn_attr  const char* omniORB_4_2_dyn;
+extern _core_attr const char* omniORB_4_3;
+extern _dyn_attr  const char* omniORB_4_3_dyn;
 extern _core_attr const _CORBA_ULong omniORB_TAG_ORB_TYPE; // ATT\x00
 
 class Strand;
@@ -136,8 +134,9 @@ _CORBA_MODULE_BEG
   _CORBA_MODULE_FN inline _CORBA_ULong hash(const _CORBA_Octet* key,
 					    int keysize)
   {
-    _CORBA_ULong n = 0;
-    while( keysize-- )  n = ((n << 5) ^ (n >> 27)) ^ *key++;
+    // FNV-1a hash
+    _CORBA_ULong n = 0x811c9dc5;
+    while (keysize--) n = (n ^ *key++) * 0x1000193;
     return n;
   }
   // Computes a hash of the object key.  The caller must ensure

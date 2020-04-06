@@ -19,9 +19,7 @@
 #  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  along with this program.  If not, see http://www.gnu.org/licenses/
 
 """C++ templates for the .hh file"""
 
@@ -1006,12 +1004,12 @@ case @discrimvalue@: @name@(_value.@name@()); break;
 
 union_ctor_bool_default = """\
 #ifndef HAS_Cplusplus_Bool
-  default: break;
+default: @name@(_value.@name@()); break;
 #endif
 """
 
 union_ctor_default = """\
-  default: break;
+default: break;
 """
 
 union = """\
@@ -1114,6 +1112,7 @@ _pd__d = @default@;
 union_implicit_default = """\
 void _default()
 {
+  _release_member();
   _pd__initialised = 1;
   _pd__d = @arbitraryDefault@;
   _pd__default = 1;
@@ -1430,7 +1429,7 @@ void _release_member () {
   switch(_pd__d) {
     @cases@
   } 
-  _pd__initialised = false;
+  _pd__initialised = 0;
 }
 """
 
@@ -1554,11 +1553,11 @@ public:
   @tie_name@(_omniT& t)
     : pd_obj(&t), pd_poa(0), pd_rel(0) {}
   @tie_name@(_omniT& t, ::PortableServer::POA_ptr p)
-    : pd_obj(&t), pd_poa(p), pd_rel(0) {}
+    : pd_obj(&t), pd_poa(::PortableServer::POA::_duplicate(p)), pd_rel(0) {}
   @tie_name@(_omniT* t, _CORBA_Boolean r=1)
     : pd_obj(t), pd_poa(0), pd_rel(r) {}
   @tie_name@(_omniT* t, ::PortableServer::POA_ptr p,_CORBA_Boolean r=1)
-    : pd_obj(t), pd_poa(p), pd_rel(r) {}
+    : pd_obj(t), pd_poa(::PortableServer::POA::_duplicate(p)), pd_rel(r) {}
   ~@tie_name@() {
     if (pd_poa)  ::CORBA::release(pd_poa);
     if (pd_rel)  delete pd_obj;

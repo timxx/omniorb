@@ -1,6 +1,6 @@
 READ ME FIRST!
 
-This is omniORB 4.2.1
+This is omniORB 5.0.x development branch.
 
 omniORB is copyright Apasphere Ltd, AT&T Laboratories Cambridge and
 others. It is free software. The programs in omniORB are distributed
@@ -22,7 +22,8 @@ README.win32.txt - contains important information on building and
                    using omniORB on Windows NT and Windows 95.
 
 README.unix.txt  - contains important information on building and
-                   using omniORB on Unix / Linux platforms.
+                   using omniORB on Unix / Linux platforms, including
+                   cross-compilation
 
 Other readmes live the the readmes/ subdirectory. See if there is one
 for your platform.
@@ -74,16 +75,13 @@ specification 2.6 of the Common Object Request Broker Architecture
   other ORBs.
 
 
-Missing features
+Related projects
 ================
 
-The following features are missing from omniORB. We are not currently
-planning on adding support for these features.
+For some very dynamic situations, you may wish to use an Interface
+Repository. The omniifr project provides one for omniORB:
 
-- omniORB does not have its own Interface Repository. However, the
-  omniifr project aims to create one. See
-
-    http://sourceforge.net/projects/omniifr/
+    https://github.com/omniorb/omniifr
 
 
 Installation	
@@ -120,8 +118,7 @@ Recommended Additional Documentation
 omniORB is based on several OMG specifications. They may be downloaded
 from
 
-  http://www.omg.org/technology/documents/corba_spec_catalog.htm
-
+  https://www.omg.org/spec/CORBA/
 
 
 Contact and support
@@ -131,12 +128,12 @@ If you have any queries, suggestions and problems in using omniORB,
 the best place to ask is on the omniORB mailing list. See here for
 subscription details and archives:
 
-  http://omniorb.sourceforge.net/list.html
+  https://www.omniorb.net/list.html
 
 
 Commercial support is available for omniORB. For details, see
 
-  http://www.omniorb-support.com/
+  https://www.omniorb-support.com/
 
 
 For general queries and discussion about CORBA, try the newsgroup

@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -108,7 +106,7 @@ orbOptions::reset() {
 
 ////////////////////////////////////////////////////////////////////////
 void
-orbOptions::visit() throw(orbOptions::BadParam) {
+orbOptions::visit() {
 
   omnivector<HandlerValuePair*>::iterator i = pd_values.begin();
   omnivector<HandlerValuePair*>::iterator last = pd_values.end();
@@ -122,8 +120,7 @@ orbOptions::visit() throw(orbOptions::BadParam) {
 void
 orbOptions::addOption(const char* key,
 		      const char* value,
-		      orbOptions::Source source) throw (orbOptions::Unknown,
-							orbOptions::BadParam) {
+		      orbOptions::Source source) {
 
   if (!pd_handlers_sorted) sortHandlers();
 
@@ -150,8 +147,7 @@ orbOptions::addOption(const char* key,
 
 ////////////////////////////////////////////////////////////////////////
 void
-orbOptions::addOptions(const char* options[][2]) throw (orbOptions::Unknown,
-							orbOptions::BadParam) {
+orbOptions::addOptions(const char* options[][2]) {
 
   for (int i=0; options[i][0]; i++) {
     addOption(options[i][0],options[i][1],fromArray);
@@ -172,8 +168,7 @@ orbOptions::move_args(int& argc,char **argv,int idx,int nargs)
 
 ////////////////////////////////////////////////////////////////////////
 void
-orbOptions::extractInitOptions(int& argc,char** argv) 
-  throw (orbOptions::Unknown,orbOptions::BadParam) {
+orbOptions::extractInitOptions(int& argc,char** argv) {
 
   if (!pd_handlers_sorted) sortHandlers();
 
@@ -237,8 +232,7 @@ orbOptions::extractInitOptions(int& argc,char** argv)
 
 ////////////////////////////////////////////////////////////////////////
 void
-orbOptions::getTraceLevel(int argc, char** argv)
-  throw (orbOptions::Unknown,orbOptions::BadParam) {
+orbOptions::getTraceLevel(int argc, char** argv) {
 
   int i;
   for (i=0; i<argc; i++) {
@@ -280,8 +274,7 @@ orbOptions::getTraceLevel(int argc, char** argv)
 
 ////////////////////////////////////////////////////////////////////////
 const char*
-orbOptions::getConfigFileName(int argc, char** argv, const char* fname)
-  throw (orbOptions::Unknown,orbOptions::BadParam) {
+orbOptions::getConfigFileName(int argc, char** argv, const char* fname) {
 
   for (int i=0; i<argc; i++) {
     if (!strcmp(argv[i], "-ORBconfigFile")) {
@@ -298,7 +291,7 @@ orbOptions::getConfigFileName(int argc, char** argv, const char* fname)
 
 ////////////////////////////////////////////////////////////////////////
 void
-orbOptions::importFromEnv() throw (orbOptions::Unknown,orbOptions::BadParam) {
+orbOptions::importFromEnv() {
   
   if (!pd_handlers_sorted) sortHandlers();
 

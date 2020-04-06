@@ -61,10 +61,12 @@ cp -v $src/bin/x86_win32/omniORB*_rt.dll $dest/bin/x86_win32
 cp -v $src/bin/x86_win32/omnicpp.exe $dest/bin/x86_win32
 cp -v $src/bin/x86_win32/omniidl.exe $dest/bin/x86_win32
 cp -v $src/bin/x86_win32/omnisslTP*_rt.dll $dest/bin/x86_win32
+cp -v $src/bin/x86_win32/omnihttp*_rt.dll $dest/bin/x86_win32
 cp -v $src/bin/x86_win32/omnithread*_rt.dll $dest/bin/x86_win32
 
 mkdir -p $dest/lib/python
 cp -v $src/lib/python/*.py* $dest/lib/python
+cp -rv $src/lib/python/__pycache__ $dest/lib/python
 cp -rv $src/lib/python/CosNaming $dest/lib/python
 cp -rv $src/lib/python/CosNaming__POA $dest/lib/python
 cp -rv $src/lib/python/omniORB $dest/lib/python
@@ -72,6 +74,7 @@ cp -rv $src/lib/python/omniidl $dest/lib/python
 
 mkdir -p $dest/lib/python/omniidl_be
 cp -v $src/lib/python/omniidl_be/*.py* $dest/lib/python/omniidl_be
+cp -rv $src/lib/python/omniidl_be/__pycache__ $dest/lib/python/omniidl_be
 
 mkdir -p $dest/lib/x86_win32
 cp -v $src/lib/x86_win32/*.pyd $dest/lib/x86_win32

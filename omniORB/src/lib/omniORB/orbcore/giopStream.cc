@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -391,7 +389,7 @@ giopStream::sleepOnRdLockAlways()
     pd_strand->rdcond.wait();
   }
   else {
-      hastimeout = !(pd_strand->rdcond.timedwait(pd_deadline));
+    hastimeout = !(pd_strand->rdcond.timedwait(pd_deadline));
   }
 
   pd_strand->rd_n_justwaiting--;
@@ -468,14 +466,42 @@ giopStream::notifyCommFailure(CORBA::Boolean,
 }
 
 ////////////////////////////////////////////////////////////////////////
+static inline
+const char*
+strandEndpoint(giopStrand* strand)
+{
+#ifndef OMNIORB_NO_EXCEPTION_LOGGING
+  if (strand->connection)
+    return strand->connection->peeraddress();
+  else if (strand->address)
+    return strand->address->address();
+
+#endif
+  return 0;
+}
+
 void
-giopStream::CommFailure::_raise(CORBA::ULong minor,
+giopStream::CommFailure::_raise(CORBA::ULong            minor,
 				CORBA::CompletionStatus status,
-				CORBA::Boolean retry,
-				const char* filename,
-				CORBA::ULong linenumber,
-				const char* message,
-				giopStrand* strand)
+				CORBA::Boolean          retry,
+				const char*             filename,
+				CORBA::ULong            linenumber,
+				const char*             message,
+				giopStrand*             strand)
+{
+  _raise(minor, status, retry, filename, linenumber, message,
+         strandEndpoint(strand));
+}
+
+////////////////////////////////////////////////////////////////////////
+void
+giopStream::CommFailure::_raise(CORBA::ULong            minor,
+				CORBA::CompletionStatus status,
+				CORBA::Boolean          retry,
+				const char*             filename,
+				CORBA::ULong            linenumber,
+				const char*             message,
+				const char*             endpoint)
 {
   if (status != CORBA::COMPLETED_NO) retry = 0;
 
@@ -483,14 +509,8 @@ giopStream::CommFailure::_raise(CORBA::ULong minor,
   if (omniORB::traceExceptions) {
     {
       omniORB::logger l;
-      l << message << ": ";
-      if (strand->connection)
-	l << strand->connection->peeraddress();
-      else if (strand->address)
-	l << strand->address->address();
-      else
-	l << "[unknown endpoint]";
-      l << '\n';
+      l << message << ": " << (endpoint ? endpoint : "[unknown endpoint]")
+        << '\n';
     }
     {
       omniORB::logger l;
@@ -695,9 +715,11 @@ giopStream::errorOnReceive(int rc, const char* filename, CORBA::ULong lineno,
 			   giopStream_Buffer* buf,CORBA::Boolean heldlock,
 			   const char* message)
 {
-  CORBA::ULong minor;
-  CORBA::Boolean retry;
-
+  CORBA::ULong      minor;
+  CORBA::Boolean    retry;
+  CORBA::String_var endpoint(strandEndpoint(pd_strand));
+  
+  
   notifyCommFailure(heldlock,minor,retry);
   if (rc == 0) {
     // Timeout.
@@ -708,8 +730,22 @@ giopStream::errorOnReceive(int rc, const char* filename, CORBA::ULong lineno,
   pd_strand->state(giopStrand::DYING);
   if (buf) giopStream_Buffer::deleteBuffer(buf);
 
+  if (pd_strand->state() == giopStrand::DYING &&
+      pd_strand->isBiDir() && pd_strand->isClient()) {
+
+    if (omniORB::trace(30)) {
+      omniORB::logger l;
+      l << "Error on client receiving from bi-directional connection on strand "
+	<< (void*)pd_strand << ". Will scavenge it.\n";
+    }
+    {
+      omni_optional_lock sync(*omniTransportLock, heldlock, heldlock);
+      pd_strand->startIdleCounter();
+    }
+  }
+
   CommFailure::_raise(minor,(CORBA::CompletionStatus)completion(),retry,
-		      filename,lineno, message, pd_strand);
+		      filename,lineno, message, endpoint);
   // never reaches here.
 }
 
@@ -730,11 +766,14 @@ giopStream::ensureSaneHeader(const char* filename, CORBA::ULong lineno,
 
     // Terrible! This is not a GIOP header.
     pd_strand->state(giopStrand::DYING);
+
+    CORBA::String_var endpoint(strandEndpoint(pd_strand));
+
     notifyCommFailure(0,minor,retry);
     giopStream_Buffer::deleteBuffer(buf);
     CommFailure::_raise(minor,(CORBA::CompletionStatus)completion(),retry,
 			filename,lineno,
-			"Input message is not a GIOP message", pd_strand);
+			"Input message is not a GIOP message", endpoint);
     // never reaches here.
   }
   // Get the message size from the buffer
@@ -763,8 +802,10 @@ giopStream::inputMessage()
   OMNIORB_ASSERT(pd_rdlocked);
 
   if (pd_strand->state() == giopStrand::DYING) {
-    CORBA::ULong minor;
-    CORBA::Boolean retry;
+    CORBA::ULong      minor;
+    CORBA::Boolean    retry;
+    CORBA::String_var endpoint(strandEndpoint(pd_strand));
+
     notifyCommFailure(0,minor,retry);
     CORBA::CompletionStatus status;
     if (pd_strand->orderly_closed) {
@@ -774,7 +815,7 @@ giopStream::inputMessage()
       status = (CORBA::CompletionStatus)completion();
     }
     CommFailure::_raise(minor,status,retry,__FILE__,__LINE__,
-			"Connection is dying", pd_strand);
+			"Connection is dying", endpoint);
     // never reaches here.
   }
 
@@ -952,14 +993,18 @@ giopStream::inputChunk(CORBA::ULong maxsize)
     // in is another message. This indicates something seriously
     // wrong with the data sent by the other end.
     pd_strand->state(giopStrand::DYING);
-    CORBA::ULong minor;
-    CORBA::Boolean retry;
+
+    CORBA::ULong      minor;
+    CORBA::Boolean    retry;
+    CORBA::String_var endpoint(strandEndpoint(pd_strand));
+
     notifyCommFailure(0,minor,retry);
     CommFailure::_raise(minor,(CORBA::CompletionStatus)completion(),retry,
 			__FILE__,__LINE__,
 			"New message received in the middle of an existing "
-			"message", pd_strand);
+			"message", endpoint);
     // never reaches here.
+    buf = 0; // avoid compiler warning
   }
   else if (pd_strand->spare) {
     buf = pd_strand->spare;
@@ -1013,13 +1058,16 @@ giopStream::inputCopyChunk(void* dest, CORBA::ULong size)
     // in is another message. This indicates something seriously
     // wrong with the data sent by the other end.
     pd_strand->state(giopStrand::DYING);
-    CORBA::ULong minor;
-    CORBA::Boolean retry;
+
+    CORBA::ULong      minor;
+    CORBA::Boolean    retry;
+    CORBA::String_var endpoint(strandEndpoint(pd_strand));
+
     notifyCommFailure(0,minor,retry);
     CommFailure::_raise(minor,(CORBA::CompletionStatus)completion(),retry,
 			__FILE__,__LINE__,
 			"New message received in the middle of an existing "
-			"message (bulk receive)", pd_strand);
+			"message (bulk receive)", endpoint);
     // never reaches here.
   }
 
@@ -1125,8 +1173,9 @@ void
 giopStream::errorOnSend(int rc, const char* filename, CORBA::ULong lineno,
 			CORBA::Boolean heldlock, const char* message)
 {
-  CORBA::ULong   minor;
-  CORBA::Boolean retry;
+  CORBA::ULong      minor;
+  CORBA::Boolean    retry;
+  CORBA::String_var endpoint(strandEndpoint(pd_strand));
 
   notifyCommFailure(heldlock,minor,retry);
   if (rc == 0) {
@@ -1140,8 +1189,22 @@ giopStream::errorOnSend(int rc, const char* filename, CORBA::ULong lineno,
     pd_strand->state(giopStrand::DYING);
   }
 
+  if (pd_strand->state() == giopStrand::DYING &&
+      pd_strand->isBiDir() && pd_strand->isClient()) {
+
+    if (omniORB::trace(30)) {
+      omniORB::logger l;
+      l << "Error on client sending to bi-directional connection on strand "
+	<< (void*)pd_strand << ". Will scavenge it.\n";
+    }
+    {
+      omni_optional_lock sync(*omniTransportLock, heldlock, heldlock);
+      pd_strand->startIdleCounter();
+    }
+  }
+
   CommFailure::_raise(minor,(CORBA::CompletionStatus)completion(),retry,
-		      filename,lineno,message,pd_strand);
+		      filename,lineno,message,endpoint);
   // never reaches here.
 }
 
@@ -1218,8 +1281,9 @@ giopStream::openConnection()
     message = "Connection is in dying state";
   }
 
-  CORBA::ULong   minor;
-  CORBA::Boolean retry;
+  CORBA::ULong      minor;
+  CORBA::Boolean    retry;
+  CORBA::String_var endpoint(strandEndpoint(pd_strand));
 
   notifyCommFailure(0, minor, retry);
   if (timed_out) {
@@ -1232,7 +1296,7 @@ giopStream::openConnection()
   pd_strand->state(giopStrand::DYING);
 
   CommFailure::_raise(minor, (CORBA::CompletionStatus)completion(), retry,
-		      __FILE__, __LINE__, message, pd_strand);
+		      __FILE__, __LINE__, message, endpoint);
 
   return 0; // dummy return
 }

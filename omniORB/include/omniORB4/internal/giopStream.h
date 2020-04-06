@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -78,7 +76,7 @@ struct giopStream_Buffer {
 
   inline void setLast(void* mkr)
   {
-    last = (omni::ptr_arith_t)mkr - (omni::ptr_arith_t)this;
+    last = (CORBA::ULong)((omni::ptr_arith_t)mkr - (omni::ptr_arith_t)this);
   }
 
   inline CORBA::ULong dataSize() const
@@ -300,14 +298,22 @@ public:
       return *this;
     }
 
-    static void _raise(CORBA::ULong minor,
+    static void _raise(CORBA::ULong            minor,
 		       CORBA::CompletionStatus status,
-		       CORBA::Boolean retry,
-		       const char* filename,
-		       CORBA::ULong linenumber,
-		       const char* message,
-		       giopStrand* strand);
+		       CORBA::Boolean          retry,
+		       const char*             filename,
+		       CORBA::ULong            linenumber,
+		       const char*             message,
+		       giopStrand*             strand);
 
+    static void _raise(CORBA::ULong            minor,
+		       CORBA::CompletionStatus status,
+		       CORBA::Boolean          retry,
+		       const char*             filename,
+		       CORBA::ULong            linenumber,
+		       const char*             message,
+		       const char*             endpoint);
+    
   private:
     CORBA::ULong            pd_minor;
     CORBA::CompletionStatus pd_status;
@@ -561,7 +567,8 @@ private:
   }
 
   inline CORBA::ULong bufferedOutputSize() const {
-    return (omni::ptr_arith_t)pd_outb_mkr - pd_currentOutputBuffer->bufStart();
+    return (CORBA::ULong)((omni::ptr_arith_t)pd_outb_mkr -
+                          pd_currentOutputBuffer->bufStart());
   }
 
   inline void setOutputLastOffset() {

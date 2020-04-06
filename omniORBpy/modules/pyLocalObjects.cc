@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -379,10 +377,17 @@ Py_ServantActivator::incarnate(const PortableServer::ObjectId& oid,
 		  CORBA::COMPLETED_MAYBE);
   }
   PortableServer::POA::_duplicate(poa);
+
+#if (PY_VERSION_HEX < 0x03000000) // Python 2
   argtuple = Py_BuildValue((char*)"s#N",
 			   (const char*)oid.NP_data(), oid.length(),
 			   omniPy::createPyPOAObject(poa));
-
+#else
+  argtuple = Py_BuildValue((char*)"y#N",
+			   (const char*)oid.NP_data(), oid.length(),
+			   omniPy::createPyPOAObject(poa));
+#endif
+  
   // Do the up-call
   pyservant = PyEval_CallObject(method, argtuple);
   Py_DECREF(method);
@@ -490,12 +495,23 @@ Py_ServantActivator::etherealize(const PortableServer::ObjectId& oid,
 		  CORBA::COMPLETED_NO);
   }
   PortableServer::POA::_duplicate(poa);
+
+#if (PY_VERSION_HEX < 0x03000000) // Python 2
   argtuple = Py_BuildValue((char*)"s#NNii",
 			   (const char*)oid.NP_data(), oid.length(),
 			   omniPy::createPyPOAObject(poa),
 			   pyos->pyServant(),
 			   (int)cleanup_in_progress,
 			   (int)remaining_activations);
+#else
+  argtuple = Py_BuildValue((char*)"y#NNii",
+			   (const char*)oid.NP_data(), oid.length(),
+			   omniPy::createPyPOAObject(poa),
+			   pyos->pyServant(),
+			   (int)cleanup_in_progress,
+			   (int)remaining_activations);
+#endif
+  
   // Do the up-call
   result = PyEval_CallObject(method, argtuple);
   Py_DECREF(method);
@@ -537,11 +553,19 @@ Py_ServantLocator::preinvoke(const PortableServer::ObjectId& oid,
 		  CORBA::COMPLETED_NO);
   }
   PortableServer::POA::_duplicate(poa);
+
+#if (PY_VERSION_HEX < 0x03000000) // Python 2
   argtuple = Py_BuildValue((char*)"s#Ns",
 			   (const char*)oid.NP_data(), oid.length(),
 			   omniPy::createPyPOAObject(poa),
 			   operation);
-
+#else
+  argtuple = Py_BuildValue((char*)"y#Ns",
+			   (const char*)oid.NP_data(), oid.length(),
+			   omniPy::createPyPOAObject(poa),
+			   operation);
+#endif
+  
   // Do the up-call
   rettuple = PyEval_CallObject(method, argtuple);
   Py_DECREF(method);
@@ -660,12 +684,23 @@ Py_ServantLocator::postinvoke(const PortableServer::ObjectId& oid,
 		  CORBA::COMPLETED_NO);
   }
   PortableServer::POA::_duplicate(poa);
+
+#if (PY_VERSION_HEX < 0x03000000) // Python 2
   argtuple = Py_BuildValue((char*)"s#NsNN",
 			   (const char*)oid.NP_data(), oid.length(),
 			   omniPy::createPyPOAObject(poa),
 			   operation,
 			   (PyObject*)cookie,
 			   pyos->pyServant());
+#else
+  argtuple = Py_BuildValue((char*)"y#NsNN",
+			   (const char*)oid.NP_data(), oid.length(),
+			   omniPy::createPyPOAObject(poa),
+			   operation,
+			   (PyObject*)cookie,
+			   pyos->pyServant());
+#endif
+
   // Do the up-call
   result = PyEval_CallObject(method, argtuple);
   Py_DECREF(method);

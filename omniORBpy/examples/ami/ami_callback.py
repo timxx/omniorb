@@ -22,31 +22,31 @@ obj = orb.string_to_object(ior)
 eo = obj._narrow(Example.Echo)
 
 if eo is None:
-    print "Object reference is not an Example::Echo"
+    print("Object reference is not an Example::Echo")
     sys.exit(1)
 
 
 class SimpleHandler(object):
     def __init__(self):
-        print "SimpleHandler init"
+        print("SimpleHandler init")
         self.done = False
 
     def __del__(self):
-        print "SimpleHandler del"
+        print("SimpleHandler del")
 
     def echoString(self, result):
-        print "echoString result:", result
+        print("echoString result:", result)
         self.done = True
 
     def echoString_excep(self, holder):
         try:
             holder.raise_exception()
 
-        except CORBA.Exception, ex:
-            print "echoString exception:", ex
+        except CORBA.Exception as ex:
+            print("echoString exception:", ex)
 
         else:
-            print "raise_exception didn't raise an exception!"
+            print("raise_exception didn't raise an exception!")
 
         self.done = True
 
@@ -54,11 +54,11 @@ class SimpleHandler(object):
 handler = SimpleHandler()
 
 # Invoke the echoString operation using callback AMI
-print "Send..."
+print("Send...")
 eo.sendc_echoString(handler, "Hello with a callback")
 
 while not handler.done:
-    print "Not done yet..."
+    print("Not done yet...")
     time.sleep(1)
 
 orb.destroy()

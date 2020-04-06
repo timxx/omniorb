@@ -19,9 +19,7 @@
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free
-#    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-#    MA 02111-1307, USA
+#    License along with this library. If not, see http://www.gnu.org/licenses/
 #
 #
 # Description:
@@ -33,5 +31,12 @@ Import this module before calling CORBA.ORB_init() to make extra char
 and wchar code sets available.
 """
 
-import _omnipy
-import _omnicodesets
+import omniORB
+
+if omniORB.omniorb_dll_path is not None:
+    with os.add_dll_directory(omniorb_dll_path):
+        import _omnipy
+        import _omnicodesets
+else:
+    import _omnipy
+    import _omnicodesets

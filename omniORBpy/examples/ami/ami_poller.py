@@ -22,22 +22,22 @@ obj = orb.string_to_object(ior)
 eo = obj._narrow(Example.Echo)
 
 if eo is None:
-    print "Object reference is not an Example::Echo"
+    print("Object reference is not an Example::Echo")
     sys.exit(1)
 
 # Invoke the echoString operation using polling AMI
-print "Send..."
+print("Send...")
 poller = eo.sendp_echoString("Hello with a poller")
 
 # Poll with a timeout of 100 ms
 while not poller.is_ready(100):
-    print "Not ready..."
+    print("Not ready...")
 
 result = poller.echoString(0)
-print "The result was:", result
+print("The result was:", result)
 
 # Invoke again
-print "Send 2..."
+print("Send 2...")
 poller = eo.sendp_echoString("Hello again")
 
 # Poll with a timeout of 1 second
@@ -45,9 +45,9 @@ try:
     result = poller.echoString(1000)
 
 except CORBA.TIMEOUT:
-    print "Timed out"
+    print("Timed out")
 
 else:
-    print "The second result was:", result
+    print("The second result was:", result)
 
 orb.destroy()

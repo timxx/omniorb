@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Versions of ORB object ref functions which deal with Python
@@ -216,7 +214,7 @@ omniPy::createPyPseudoObjRef(const CORBA::Object_ptr objref)
 #else
       if (!PyCapsule_CheckExact(pyf)) {
 	omniORB::logs(1, "WARNING: Entry in _omnipy.pseudoFns "
-		      "is not a PyCObject.");
+		      "is not a PyCapsule.");
 	continue;
       }
       omniORBpyPseudoFn f = (omniORBpyPseudoFn)PyCapsule_GetPointer(pyf, 0);

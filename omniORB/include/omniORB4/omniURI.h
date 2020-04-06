@@ -3,30 +3,28 @@
 // omniURI.h                  Created on: 2000/04/03
 //                            Author    : Duncan Grisby (dpg1)
 //
-//    Copyright (C) 2005-2006 Apasphere Ltd
+//    Copyright (C) 2005-2019 Apasphere Ltd
 //    Copyright (C) 2000      AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
 //      Parsing for object reference URIs
-//	*** PROPRIETARY INTERFACE ***
+//      *** PROPRIETARY INTERFACE ***
 //
 
 #ifndef _omniURI_h_
@@ -44,15 +42,24 @@ public:
   // The omniURI class contains all functions which manipulate object
   // URIs, and convert them to-and-from CORBA::Objects.
 
-  static char* buildURI(const char*   prefix,
-			const char*   host,
-			CORBA::UShort port);
+  static char* unescape(const char*& c, unsigned int& size);
+  // Unescape an escaped path component. Updates c to point to the
+  // next character after the escaped characters; size is set to the
+  // size of the unescaped value.
+
+  static char* buildURI(const char*    prefix,
+                        const char*    host,
+                        CORBA::UShort  port,
+                        const char*    path = 0,
+                        CORBA::Boolean always_port = 1);
   // Build a URI with the prefix, containing the host and port,
-  // properly escaping the host if need be.
+  // properly escaping the host if need be. If path is set, it is
+  // added to the end, with no escaping. If always_port is false, does
+  // not include the port if it is zero.
 
   static char* extractHostPort(const char*    addr,
-			       CORBA::UShort& port,
-			       const char**   rest = 0);
+                               CORBA::UShort& port,
+                               const char**   rest = 0);
   // Extract host and port from the part of a URI containing the
   // address. If rest is non-zero, the pointer is set to the address
   // of the character following the port number, otherwise anything
@@ -60,11 +67,22 @@ public:
   // the address is invalid.
 
   static char* extractHostPortRange(const char*    addr,
-				    CORBA::UShort& port_min,
-				    CORBA::UShort& port_max);
+                                    CORBA::UShort& port_min,
+                                    CORBA::UShort& port_max);
   // Extract host and port range from the part of a URI containing the
   // address. Accepts a port range in the form min-max. Returns zero
   // if the address is invalid.
+
+  static CORBA::Boolean extractURL(const char*    url,
+                                   char*&         scheme,
+                                   char*&         host,
+                                   CORBA::UShort& port,
+                                   char*&         path,
+                                   char*&         fragment);
+  // Extract scheme, host, port, path and fragment from a URL. If no
+  // port is present in the URL, sets port to zero. path and fragment
+  // are not unescaped. Returns true if the URL was valid, false if
+  // not.
 
   static CORBA::Boolean validHostPort(const char* addr);
   // True if addr is a valid host:port; false otherwise.
@@ -78,7 +96,7 @@ public:
   //  Does not throw any exceptions.
 
   static CORBA::Object_ptr stringToObject(const char*  uri,
-					  unsigned int cycles = 0);
+                                          unsigned int cycles = 0);
   // Converts the given URI to an object reference. Currently supports
   // IOR:, corbaloc: and corbaname: URIs.
   //
@@ -101,7 +119,7 @@ public:
     //  Does not throw any exceptions.
 
     virtual CORBA::Object_ptr toObject(const char* uri,
-				       unsigned int cycles) = 0;
+                                       unsigned int cycles) = 0;
     // Convert the given URI to an object reference. If the processing
     // involves a (potential) recursive call to stringToObject(),
     // cycles should be incremented.
@@ -114,6 +132,11 @@ public:
     virtual ~URIHandler();
   };
 
+  static void registerURIHandler(URIHandler* h);
+  static void unregisterURIHandler(URIHandler* h);
+  // Register / unregister a URI handler.
+ 
+  
   // The following functions implement the stringified name operations
   // of CosNaming::NamingContextExt. They are available here to avoid
   // the overhead of remote calls just to do some string bashing.

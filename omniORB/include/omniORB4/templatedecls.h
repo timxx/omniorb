@@ -4,23 +4,22 @@
 //                            Author    : Sai Lai Lo (sll)
 //
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
+//    Copyright (C) 2018      Apasphere Ltd.
 //
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -180,7 +179,7 @@ public:
 					  _CORBA_ULong length_,
 					  T** value,
 					  _CORBA_Boolean release_ = 0)
-    : pd_max(max), pd_len(length_)
+    : pd_max(max), pd_len(length_), pd_rel(release_)
   {
     if( length_ > max )  _CORBA_bound_check_error();
     pd_buf = new ElemT[length_];
@@ -792,40 +791,63 @@ class _CORBA_ConstrType_Fix_Var {
 public:
   typedef _CORBA_ConstrType_Fix_Var<T> T_var;
 
-  inline _CORBA_ConstrType_Fix_Var()  {}
-  inline _CORBA_ConstrType_Fix_Var(T* p) { pd_data = *p; delete p; }
-  inline _CORBA_ConstrType_Fix_Var(const T& d) { pd_data = d; }
-  inline _CORBA_ConstrType_Fix_Var(const T_var& p) {
-    pd_data = p.pd_data;
+  inline _CORBA_ConstrType_Fix_Var() : pd_data(0) {}
+  inline _CORBA_ConstrType_Fix_Var(T* p) : pd_data(p) { }
+  inline _CORBA_ConstrType_Fix_Var(const T& d) {
+    pd_data = new T;
+    if( !pd_data )  _CORBA_new_operator_return_null();
+    *pd_data = d;
   }
-  inline ~_CORBA_ConstrType_Fix_Var()  {}
+  inline _CORBA_ConstrType_Fix_Var(const T_var& p) {
+    if( !p.pd_data )  pd_data = 0;
+    else {
+      pd_data = new T;
+      if( !pd_data )  _CORBA_new_operator_return_null();
+      *pd_data = *p.pd_data;
+    }
+  }
+  inline ~_CORBA_ConstrType_Fix_Var()  { if( pd_data )  delete pd_data; }
+
   inline T_var& operator= (T* p) {
-    if (p != &pd_data) {
-      pd_data = *p;
-      delete p;
+    if( p != pd_data ) {
+      if( pd_data )  delete pd_data;
+      pd_data = p;
     }
     return *this;
   }
   inline T_var& operator= (const T_var& p) {
-    if (&p != this)
-      pd_data = p.pd_data;
-
+    if( &p == this )  return *this;
+    if( p.pd_data ) {
+      if( !pd_data ) {
+	pd_data = new T;
+	if( !pd_data )  _CORBA_new_operator_return_null();
+      }
+      *pd_data = *p.pd_data;
+    }
+    else {
+      if( pd_data )  delete pd_data;
+      pd_data = 0;
+    }
     return *this;
   }
   inline T_var& operator= (const T& p) {
-    if (&p != &pd_data)
-      pd_data = p;
+    if( &p == pd_data )  return *this;
 
+    if( !pd_data ) {
+      pd_data = new T;
+      if( !pd_data )  _CORBA_new_operator_return_null();
+    }
+    *pd_data = p;
     return *this;
   }
-  inline T* operator->() const { return (T*) &pd_data; }
+  inline T* operator->() const { return (T*) pd_data; }
 
   //#if defined(__GNUG__) && __GNUG__ == 2 && __GNUC_MINOR__ == 7
 #if defined(__GNUG__)
-  inline operator T& () const       { return (T&) pd_data; }
+  inline operator T& () const       { return (T&) *pd_data; }
 #else
-  inline operator const T& () const { return pd_data; }
-  inline operator T& ()             { return pd_data; }
+  inline operator const T& () const { return *pd_data; }
+  inline operator T& ()             { return *pd_data; }
 #endif
   // This conversion operator is necessary to support the implicit conversion
   // when this var type is used as the IN or INOUT argument of an operation.
@@ -838,13 +860,13 @@ public:
   // inline operator const T* () const { return pd_data; }
   // inline operator T* () { return pd_data; }
 
-  const T& in() const { return pd_data; }
-  T& inout() { return pd_data; }
-  T& out() { return pd_data; }
-  T _retn() { return pd_data; }
+  const T& in() const { return *pd_data; }
+  T& inout() { return *pd_data; }
+  T& out() { return *pd_data; }
+  T _retn() { return *pd_data; }
 
 protected:
-  T pd_data;
+  T* pd_data;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -859,8 +881,8 @@ class _CORBA_ConstrType_Variable_Var {
 public:
   typedef _CORBA_ConstrType_Variable_Var<T> T_var;
 
-  inline _CORBA_ConstrType_Variable_Var() { pd_data = 0; }
-  inline _CORBA_ConstrType_Variable_Var(T* p) { pd_data = p; }
+  inline _CORBA_ConstrType_Variable_Var() : pd_data(0) { }
+  inline _CORBA_ConstrType_Variable_Var(T* p) : pd_data(p) { }
   inline _CORBA_ConstrType_Variable_Var(const T_var& p) {
     if( !p.pd_data )  pd_data = 0;
     else {
@@ -873,8 +895,10 @@ public:
   inline ~_CORBA_ConstrType_Variable_Var() {  if( pd_data )  delete pd_data; }
 
   inline T_var& operator= (T* p) {
-    if( pd_data )  delete pd_data;
-    pd_data = p;
+    if( p != pd_data ) {
+      if( pd_data )  delete pd_data;
+      pd_data = p;
+    }
     return *this;
   }
 

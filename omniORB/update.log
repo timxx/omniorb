@@ -1,5 +1,11 @@
-Mon 20 Feb 22:51:39 GMT 2017 dgrisby
-====================================
+Mon  6 Apr 01:25:17 BST 2020
+============================
+
+- Massive merge from 4_3 branch.
+
+
+Mon 20 Feb 22:51:39 GMT 2017
+============================
 
 - Start migrating common code into the omniBase5 library.
 
@@ -44,8 +50,8 @@ src/lib/omniORB/orbcore/dir.mk
 src/lib/omniORB/orbcore/logIOstream.cc
 
 
-Mon Sep 28 13:58:14 BST 2015 dgrisby
-====================================
+Mon Sep 28 13:58:14 BST 2015
+============================
 
 - Support vast messages.
 
@@ -72,7 +78,7 @@ src/lib/omniORB/orbcore/giopStreamImpl.cc
 src/lib/omniORB/orbcore/orbOptions.cc
 
 
-Mon Sep 28 13:56:54 BST 2015 dgrisby
-====================================
+Mon Sep 28 13:56:54 BST 2015
+============================
 
 Start of the omniORB 5 development branch.

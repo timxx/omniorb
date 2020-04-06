@@ -18,35 +18,35 @@ import _GlobalIDL, _GlobalIDL__POA
 
 class Echo_i (_GlobalIDL__POA.Echo):
     def __init__(self):
-        print "Echo_i created."
+        print("Echo_i created.")
 
     def __del__(self):
-        print "Echo_i deleted."
+        print("Echo_i deleted.")
 
     def echoString(self, mesg):
-        print "echoString() called with message:", mesg
+        print("echoString() called with message:", mesg)
         return mesg
 
 class ServantActivator_i (PortableServer.ServantActivator):
     def __init__(self):
-        print "ServantActivator_i created"
+        print("ServantActivator_i created")
 
     def __del__(self):
-        print "ServantActivator_i deleted"
+        print("ServantActivator_i deleted")
 
     def incarnate(self, oid, poa):
-        print "incarnate(): oid:", oid, "poa:", poa._get_the_name()
+        print("incarnate(): oid:", oid, "poa:", poa._get_the_name())
         ei = Echo_i()
         return ei
 
     def etherealize(self, oid, poa, serv, cleanup_in_progress,
                     remaining_activations):
-        print "etherealize called"
+        print("etherealize called")
         try:
             name = poa._get_the_name()
-        except CORBA.OBJECT_NOT_EXIST, ex:
+        except CORBA.OBJECT_NOT_EXIST as ex:
             name = "<dead poa>"
-        print "etherealize(): oid:", oid, "poa:", name
+        print("etherealize(): oid:", oid, "poa:", name)
 
 
 # Initialise the ORB and activate the root POA.
@@ -73,8 +73,8 @@ child.set_servant_manager(sai)
 del sai
 
 # Create an object reference with no servant
-eo = child.create_reference_with_id("MyEcho", CORBA.id(_GlobalIDL.Echo))
-print orb.object_to_string(eo)
+eo = child.create_reference_with_id(b"MyEcho", CORBA.id(_GlobalIDL.Echo))
+print(orb.object_to_string(eo))
 
 # Run, or do some local calls...
 if not (len(sys.argv) > 1 and sys.argv[1] == "-l"):
@@ -82,34 +82,34 @@ if not (len(sys.argv) > 1 and sys.argv[1] == "-l"):
 
 time.sleep(1)
 
-print "Calling..."
+print("Calling...")
 
 # On this invocation, the servant will be activated
-print eo.echoString("Hello from same address space")
+print(eo.echoString("Hello from same address space"))
 time.sleep(1)
 
 # This invocation uses the local case optimisation, since the servant
 # is now active
-print eo.echoString("Hello again")
+print(eo.echoString("Hello again"))
 time.sleep(1)
 
 # Deactivating the object causes a call to etherealize(), and the
 # servant is deleted.
-print "Deactivating the object..."
+print("Deactivating the object...")
 child.deactivate_object("MyEcho")
-print "Deactivated."
+print("Deactivated.")
 time.sleep(1)
 
 # This invocation activates the servant again
-print eo.echoString("Hello again again")
+print(eo.echoString("Hello again again"))
 time.sleep(1)
 
 # Destroying the child POA causes the servant to be etherealized again
-print "Destroying child POA..."
+print("Destroying child POA...")
 child.destroy(1, 1)
 del child
-print "Child POA Destroyed."
+print("Child POA Destroyed.")
 
-print "Destroying ORB..."
+print("Destroying ORB...")
 orb.destroy()
-print "ORB destroyed."
+print("ORB destroyed.")

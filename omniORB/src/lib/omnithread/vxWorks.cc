@@ -755,6 +755,13 @@ omni_thread* omni_thread::self(void)
 }
 
 
+unsigned long
+omni_thread::plat_id()
+{
+	return (unsigned long)taskIdSelf();
+}
+
+
 void omni_thread::yield(void)
 {
 	taskDelay(NO_WAIT);

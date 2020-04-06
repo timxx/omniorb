@@ -3,7 +3,7 @@
 # __init__.py                Created on: 1999/07/19
 #                            Author    : Duncan Grisby (dpg1)
 #
-#    Copyright (C) 2002-2014 Apasphere Ltd
+#    Copyright (C) 2002-2019 Apasphere Ltd
 #    Copyright (C) 1999 AT&T Laboratories Cambridge
 #
 #    This file is part of the omniORBpy library
@@ -20,9 +20,7 @@
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free
-#    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-#    MA 02111-1307, USA
+#    License along with this library. If not, see http://www.gnu.org/licenses/
 #
 #
 # Description:
@@ -123,19 +121,26 @@ Returns a tuple of Python module names corresponding to the IDL module
 names declared in the file. The modules can be accessed through
 sys.modules."""
 
+    import subprocess
+
     if not os.path.isfile(idlname):
         raise ImportError("File " + idlname + " does not exist")
 
-    if args is None: args = _omniidl_args
-    if inline:
-        inline_str = "-Wbinline "
-    else:
-        inline_str = ""
+    if args is None:
+        args = _omniidl_args
 
-    argstr  = " ".join(args)
     modname = os.path.basename(idlname).replace(".", "_")
-    pipe    = os.popen("omniidl -q -bpython -Wbstdout " + inline_str + \
-                       argstr + " " + idlname)
+
+    cmd = ["omniidl", "-bpython", "-Wbstdout"]
+
+    if inline:
+        cmd.append("-Wbinline")
+
+    cmd.extend(args)
+    cmd.append(idlname)
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     try:
         tempname  = tempfile.mktemp()
         tempnamec = tempname + "c"
@@ -143,20 +148,24 @@ sys.modules."""
             tempname  = tempfile.mktemp()
             tempnamec = tempname + "c"
 
-        m = imp.load_module(modname, pipe, tempname,
-                            (".idl", "r", imp.PY_SOURCE))
+        mod    = imp.load_source(modname, tempname, proc.stdout)
+        errors = proc.stderr.read()
+        status = proc.wait()
+
     finally:
         # Get rid of byte-compiled file
         if os.path.isfile(tempnamec):
             os.remove(tempnamec)
 
-        # Close the pipe
-        if pipe.close() is not None:
-            del sys.modules[modname]
-            raise ImportError("Error spawning omniidl")
+    if status:
+        if not isinstance(errors, str):
+            errors = errors.decode("utf-8")
+
+        raise ImportError(errors)
+
     try:
-        m.__file__ = idlname
-        mods = m._exported_modules
+        mod.__file__ = idlname
+        mods = mod._exported_modules
 
         for mod in mods:
             for m in (mod, skeletonModuleName(mod)):
@@ -171,7 +180,7 @@ sys.modules."""
         return mods
 
     except (AttributeError, KeyError):
-        del sys.modules[modname]
+        sys.modules.pop(modname, None)
         raise ImportError("Invalid output from omniidl")
 
 
@@ -302,6 +311,10 @@ Make stubs for the Interface Repository appear in the CORBA module"""
 #   myIPAddresses
 #   setPersistentServerIdentifier
 #   locationForward
+#   currentCallInfo
+#   registerConnectionInfoFn
+#   traceConnectionInfo
+#   connectionEventToString
 
 from _omnipy.omni_func import *
 
@@ -443,7 +456,19 @@ def newEmptyClass():
     class __dummy(object): pass
     return __dummy
 
- 
+
+# Docstring setting
+def setDocString(obj, doc):
+    try:
+        if isinstance(obj, types.UnboundMethodType):
+            obj = obj.im_func
+        obj.__doc__ = doc
+
+    except AttributeError:
+        # Python 2 does not permit __doc__ assignment to a new-style class
+        pass
+
+
 # Classes to support IDL type mapping
 
 class EnumItem(object):
@@ -546,6 +571,9 @@ class Union(object):
             self.__setattr__(k, kw[k])
 
     def __getattr__(self, mem):
+        if mem[0] == "_":
+            raise AttributeError(mem)
+
         try:
             cmem = self._d_to_m[self._d]
             if mem == cmem:

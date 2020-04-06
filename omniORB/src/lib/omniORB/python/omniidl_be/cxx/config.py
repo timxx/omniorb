@@ -19,9 +19,7 @@
 #  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  along with this program.  If not, see http://www.gnu.org/licenses/
 #
 # Description:
 #
@@ -31,7 +29,7 @@ state = {
     # Name of this program
     'Program Name':          'omniidl (C++ backend)',
     # Relevant omniORB C++ library version
-    'Library Version':       'omniORB_4_2',
+    'Library Version':       'omniORB_4_3',
     # Suffix of generated header file
     'HH Suffix':             '.hh',
     # Suffix of generated Skeleton file

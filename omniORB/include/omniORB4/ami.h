@@ -8,19 +8,17 @@
 //    This file is part of the omniORB library.
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //
@@ -151,12 +149,12 @@ public:
 
   inline ::CORBA::Boolean _remFromSet(omni_tracedcondition* set_cond)
   {
-    ASSERT_OMNI_TRACEDMUTEX_HELD(sd_lock, 1);
+    ASSERT_OMNI_TRACEDMUTEX_HELD(omniAsyncCallDescriptor::sd_lock, 1);
 
-    if (pd_set_cond)
+    if (pd_set_cond != set_cond)
       return 0;
     
-    pd_set_cond = set_cond;
+    pd_set_cond = 0;
     return 1;
   }
 
@@ -177,7 +175,7 @@ public:
 
   inline ::CORBA::Boolean _lockedIsReady()
   {
-    ASSERT_OMNI_TRACEDMUTEX_HELD(sd_lock, 1);
+    ASSERT_OMNI_TRACEDMUTEX_HELD(omniAsyncCallDescriptor::sd_lock, 1);
     return pd_ready ? 1 : 0;
   }
 

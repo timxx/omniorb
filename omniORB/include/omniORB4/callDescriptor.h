@@ -10,19 +10,17 @@
 //    This file is part of the omniORB library.
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 //    Object that encapsulates a call to be performed
@@ -45,6 +43,7 @@
 class omniObjRef;
 class omniServant;
 class omniCurrent;
+class omniCallHandle;
 
 OMNI_NAMESPACE_BEGIN(omni)
 class omniOrbPOA;
@@ -94,7 +93,8 @@ public:
       pd_current_address(0),
       pd_objref(0),
       pd_poa(0),
-      pd_localId(0)
+      pd_localId(0),
+      pd_callHandle(0)
   {}
 
   virtual ~omniCallDescriptor() {}
@@ -217,12 +217,17 @@ public:
   // Current support //
   /////////////////////
 
+  static omniCallDescriptor* current();
+  // Return the call descriptor for the current thread.
+  
   inline void objref(omniObjRef* o)           { pd_objref = o; }
   inline omniObjRef* objref()                 { return pd_objref; }
   inline void poa(_OMNI_NS(omniOrbPOA*) poa_) { pd_poa = poa_; }
   inline _OMNI_NS(omniOrbPOA*) poa()          { return pd_poa; }
   inline void localId(omniLocalIdentity* lid) { pd_localId = lid; }
   inline omniLocalIdentity* localId()         { return pd_localId; }
+  inline void callHandle(omniCallHandle* ch)  { pd_callHandle = ch; }
+  inline omniCallHandle* callHandle()         { return pd_callHandle; }
 
 
   //////////////////////////////
@@ -271,7 +276,8 @@ private:
 
   _OMNI_NS(omniOrbPOA*)        pd_poa;
   omniLocalIdentity*           pd_localId;
-  // Both always set on the way through the POA during an upcall.
+  omniCallHandle*              pd_callHandle;
+  // Always set on the way through the POA during an upcall.
 
   ////////////////////////////
   // Deadline for this call //
@@ -381,13 +387,13 @@ public:
       completeCallback();
   }
 
-  inline bool isComplete()
+  inline _CORBA_Boolean isComplete()
   {
     omni_tracedmutex_lock l(sd_lock);
     return pd_complete;
   }
 
-  inline bool lockedIsComplete()
+  inline _CORBA_Boolean lockedIsComplete()
   {
     ASSERT_OMNI_TRACEDMUTEX_HELD(sd_lock, 1);
     return pd_complete;

@@ -17,14 +17,11 @@ ABSTOP = $(shell cd $(TOP); pwd)
 #
 # Python set-up
 #
-# You must set a path to a Python 1.5.2 or later interpreter. If you
-# do not wish to make a complete installation, you may download a
-# minimal Python from
-# http://sourceforge.net/project/showfiles.php?group_id=51138&package_id=48638
-# In that case, uncomment the first line below.
+# You must set a path to a Python interpreter, either version 2.7 or
+# version 3.5 or later.
 
-#PYTHON = $(ABSTOP)/$(BINDIR)/omnipython
-#PYTHON = /cygdrive/c/Python26/python
+#PYTHON = /cygdrive/c/Python27/python
+#PYTHON = /cygdrive/c/Python36/python
 
 
 # Use the following set of flags to build and use multithreaded DLLs
@@ -72,7 +69,7 @@ OMNINAMES_LOG_DEFAULT_LOCATION = C:\\temp
 
 # Add the location of the Open SSL library
 
-# To build the SSL transport, OPEN_SSL_ROOT must be defined and points to
+# To build the SSL transport, OPEN_SSL_ROOT must be defined and point to
 # the top level directory of the openssl library. The default is to disable
 # the build.
 #
@@ -80,18 +77,24 @@ OMNINAMES_LOG_DEFAULT_LOCATION = C:\\temp
 #
 
 OPEN_SSL_CPPFLAGS = -I$(OPEN_SSL_ROOT)/include
+
 OPEN_SSL_LIB = $(patsubst %,$(LibPathPattern),$(OPEN_SSL_ROOT)/lib) \
-               ssleay32.lib libeay32.lib
+               libssl.lib libcrypto.lib
+
+# Previous OpenSSL versions used these library names:
+
+#OPEN_SSL_LIB = $(patsubst %,$(LibPathPattern),$(OPEN_SSL_ROOT)/lib) \
+#               ssleay32.lib libeay32.lib
+
 OMNIORB_SSL_LIB += $(OPEN_SSL_LIB)
 OMNIORB_SSL_CPPFLAGS += $(OPEN_SSL_CPPFLAGS)
 
 
-# To build experimental ZIOP support, EnableZIOP must be defined and
-# ZLIB_ROOT must be set to the path to the zlib install. See also the
-# OMNIORB_ENABLE_ZIOP define in include/omniORB4/CORBA_sysdep_trad.h.
+# To build ZIOP support, EnableZIOP must be defined and ZLIB_ROOT must
+# be set to the path to the zlib install.
 
 #EnableZIOP = 1
-#ZLIB_ROOT = /cygdrive/c/zlib-1.2.7
+#ZLIB_ROOT = /cygdrive/c/zlib-1.2.11
 
 ZLIB_CPPFLAGS = -I$(ZLIB_ROOT)
 ZLIB_LIB = $(patsubst %,$(LibPathPattern),$(ZLIB_ROOT)) zdll.lib

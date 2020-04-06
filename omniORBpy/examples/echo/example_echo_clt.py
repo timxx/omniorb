@@ -22,14 +22,14 @@ obj = orb.string_to_object(ior)
 eo = obj._narrow(Example.Echo)
 
 if eo is None:
-    print "Object reference is not an Example::Echo"
+    print("Object reference is not an Example::Echo")
     sys.exit(1)
 
 # Invoke the echoString operation
 message = "Hello from Python"
 result  = eo.echoString(message)
 
-print "I said '%s'. The object said '%s'." % (message,result)
+print("I said '%s'. The object said '%s'." % (message,result))
 
 # Destroy the ORB to clean up
 orb.destroy()

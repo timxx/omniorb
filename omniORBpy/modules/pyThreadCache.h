@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -87,7 +85,16 @@ public:
   static inline CacheNode* acquire()
   {
     CacheNode* cn;
-#if PY_VERSION_HEX >= 0x02030000
+
+#if defined(PYPY_VERSION)
+    // PyPy does not have PyGILState_GetThisThreadState, but also gets
+    // unhappy id we switch states, so we just use PyGILState_Ensure.
+    cn = new CacheNode;
+    cn->gilstate = PyGILState_Ensure();
+    return cn;
+
+#elif PY_VERSION_HEX >= 0x02030000
+
     PyThreadState* tstate = PyGILState_GetThisThreadState();
     if (tstate) {
       cn = 0;
@@ -106,9 +113,14 @@ public:
   // Release the global interpreter lock
   static inline void release(CacheNode* cn)
   {
+#if defined(PYPY_VERSION)
+    PyGILState_Release(cn->gilstate);
+    delete cn;
+#else
     PyEval_SaveThread();
     if (cn)
       releaseNode(cn);
+#endif
   }
 
 

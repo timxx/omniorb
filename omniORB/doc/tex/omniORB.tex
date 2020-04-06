@@ -61,20 +61,7 @@
  {\end{itemize}}
 
 % URL-like things:
-\usepackage[T1]{url}
-\newcommand{\email}{\begingroup \urlstyle{sf}\Url}
-\newcommand{\file}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\envvar}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\makevar}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\corbauri}{\begingroup \urlstyle{tt}\Url}
-%BEGIN LATEX
-\newcommand{\weburl}{\begingroup \urlstyle{sf}\Url}
-%END LATEX
-%HEVEA\def\weburl{\begingroup%
-%HEVEA\def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
-%HEVEA\urlstyle{tt}%
-%HEVEA\Url}
-
+\usepackage{omniURLDefs}
 
 % Mark-up for configuration options
 \newcommand{\confopt}[2]
@@ -175,7 +162,7 @@
 \vfill
 
 { \Huge
-The omniORB version 4.2\\[4mm]
+The omniORB version 4.3\\[4mm]
 Users' Guide
 }
 
@@ -217,9 +204,7 @@ of the Common Object Request Broker Architecture
 (CORBA)~\cite{corba26-spec} specification. Where possible, backward
 compatibility has been maintained back to specification 2.0. It passed
 the Open Group CORBA compliant testsuite (for CORBA 2.1) and was one
-of the three ORBs to be granted the CORBA brand in June
-1999\footnote{More information can be found at
-\weburl{http://www.opengroup.org/press/7jun99_b.htm}}.
+of the three ORBs to be granted the CORBA brand in June 1999.
 
 This user guide tells you how to use omniORB to develop CORBA
 applications. It assumes a basic understanding of CORBA.
@@ -336,10 +321,11 @@ following is a list of the most significant missing features.
 
 \begin{itemize}
 
-\item omniORB does not have its own Interface Repository. However, it
-can act as a client to an IfR. The omniifr project
-(\weburl{http://omniifr.sourceforge.net/}) aims to create an IfR for
-omniORB.
+\item For some very dynamic uses of CORBA, you may need an Interface
+  Repository. omniORB does not have its own one, but it can act as a
+  client to an IfR. The omniifr project
+  (\url{https://github.com/omniorb/omniifr}) aims to create an IfR
+  for omniORB.
 
 \item omniORB supports interceptors, but not the standard Portable
 Interceptor API.
@@ -1602,7 +1588,7 @@ largely syntax changes, rather than semantic differences.
 
 \section{omniORB 4.0 compatibility}
 
-omniORB 4.2 is source-code compatible with omniORB 4.0, with four
+omniORB 4.3 is source-code compatible with omniORB 4.0, with four
 exceptions:
 
 \begin{enumerate}
@@ -1650,17 +1636,17 @@ exceptions:
 
 \section{omniORB 4.1 compatibility}
 
-omniORB 4.2 is source-code compatible with omniORB 4.1 with one
+omniORB 4.3 is source-code compatible with omniORB 4.1 with one
 exception:
 
 \begin{enumerate}
 
 \item When omniORB 4.1 and earlier detected a timeout condition, they
   would throw the \code{CORBA::TRANSIENT} system exception. omniORB
-  4.2 supports the \code{CORBA::TIMEOUT} system exception that was
-  introduced with the CORBA Messaging specification. Application code
-  that caught \code{CORBA::TRANSIENT} to handle timeout situations
-  should be updated to catch \code{CORBA::TIMEOUT}
+  4.2 and later support the \code{CORBA::TIMEOUT} system exception
+  that was introduced with the CORBA Messaging specification.
+  Application code that caught \code{CORBA::TRANSIENT} to handle
+  timeout situations should be updated to catch \code{CORBA::TIMEOUT}
   instead. Alternatively, to avoid code changes, omniORB can be
   configured to throw \code{CORBA::TRANSIENT} for timeouts, by setting
   the \code{throwTransient\dsc{}OnTimeout} parameter to \code{1}. See
@@ -1906,6 +1892,20 @@ The native code set the application is using for \type{wchar} and
 \type{wstring}. See chapter~\ref{chap:codesets}.
 
 
+\confopt{defaultCharCodeSet}{\textit{none}}
+
+The default code set used for \type{char} and \type{string} if the
+server does not specify it in its IORs. See
+chapter~\ref{chap:codesets}.
+
+
+\confopt{defaultWCharCodeSet}{\textit{none}}
+
+The default code set used for \type{wchar} and \type{wstring} if the
+server does not specify it in its IORs. See
+chapter~\ref{chap:codesets}.
+
+
 \confopt{copyValuesInLocalCalls}{1}
 
 Determines whether valuetype parameters in local calls are copied or
@@ -2033,7 +2033,7 @@ each individual call attempt.
 
 \confopt{throwTransientOnTimeout}{0}
 
-omniORB 4.2 supports the \code{CORBA::TIMEOUT} exception that is part
+omniORB 4.3 supports the \code{CORBA::TIMEOUT} exception that is part
 of the CORBA Messaging specification. By default, that is the
 exception thrown when timeouts occur. Previous omniORB releases did
 not have the \code{CORBA::TIMEOUT} exception, and instead used
@@ -2117,6 +2117,32 @@ address to contact an object after a failure. If \code{false} (the
 default), the current address will be retried in certain
 circumstances.
 
+\confopt{resolveNamesForTransportRules}{1}
+
+If \code{true}, names in IORs will be resolved when evaluating client
+transport rules, and remembered from then on; if \code{false}, names
+will not be resolved until connect time. Client transport rules based
+on IP address will therefore not match, but some platforms can use
+external knowledge to pick the best address to use if given a name to
+connect to.
+
+\confopt{retainAddressOrder}{1}
+
+For IORs with multiple addresses, determines how the address to
+connect to is chosen. When first establishing a connection, the
+addresses are ordered according to the client transport rules (after
+resolving names if \code{resolveNamesFor\dsc{}TransportRules} is
+\code{true}), and the addresses are tried in priority order until one
+connects successfully. For as long as there is at least one connection
+open to the address, new connections continue to use the same address.
+
+After a failure, or after all open connections have been scavenged and
+closed, this parameter determines the address used to reconnect on the
+next call. If this parameter is \code{true} (the default), the address
+order and chosen address within the order is remembered; if
+\code{false}, a new connection attempt causes re-evaluation of the
+order (in case name resolutions change), and the highest priority
+address is tried first.
 
 \confopt{bootstrapAgentHostname}{\textit{none}}
 
@@ -2613,7 +2639,7 @@ The functions are equivalent to their counterparts for
 omniORB version 4.1 and earlier did not have the \code{CORBA::TIMEOUT}
 exception, and threw \code{CORBA::TRANSIENT} instead. If the
 \code{throwTransientOnTimeout} configuration parameter is set to
-\code{1}, omniORB 4.2 reverts to this behaviour, and calls the
+\code{1}, omniORB 4.3 reverts to this behaviour, and calls the
 transient exception handler instead of the timeout exception handler.
 
 The timeout exception handler is used when a CORBA call times out. It
@@ -3561,7 +3587,7 @@ shutdown inside the omniORB server.
 omniORB can support multiple network transports. All platforms
 (usually) have a TCP transport available. Unix platforms support a
 Unix domain socket transport. Platforms with the OpenSSL library
-available can support an SSL transport.
+available can support an SSL and HTTP(s) transport.
 
 Servers must be configured in two ways with regard to transports: the
 transports and interfaces on which they listen, and the details that
@@ -3622,7 +3648,7 @@ for more details about endpoint publishing.
 
 Sometimes it is useful to restrict a server to listen on one of a
 range of ports, rather than pinning it to one particular port or
-allowing the OS to choose an ephemeral port. omniORB 4.2 introduces
+allowing the OS to choose an ephemeral port. omniORB 4.2 introduced
 the ability to specify a range of ports using a hyphen. e.g.\ to
 listen on a port between 5000 and 5010 inclusive:
 
@@ -3843,7 +3869,8 @@ tried. Each rule has the form:
 2. & \code{tcp}  & Use a TCP transport\\
 3. & \code{ssl}  & Use an SSL transport\\
 4. & \code{unix} & Use a Unix socket transport\\
-5. & \code{bidir}& Connections to this address can be used
+5. & \code{http} & Use an HTTP transport\\
+6. & \code{bidir}& Connections to this address can be used
                    bidirectionally (see section~\ref{sec:bidir})\\
 \end{tabular}
 
@@ -3907,7 +3934,7 @@ client is not on the intranet:
 
 \noindent In the absence of any explicit rules, the server uses the
 implicit rule of `\code{* unix,\dsc{}ssl,tcp}', meaning any kind of
-connection is accepted from any client.
+connection (other than HTTP) is accepted from any client.
 
 
 \section{Bidirectional GIOP}
@@ -4007,6 +4034,187 @@ certificate file before the \verb|-----BEGIN CERTIFICATE-----| marker.
 
 If need be, create more certificates for servers and clients in the
 same way.
+
+
+\section{HTTP, HTTPS and WebSocket transport}
+\label{sec:httptransport}
+
+omniORB includes an omniORB-specific HTTP transport. It works by
+encapsulating GIOP messages into HTTP messages, which can make it
+easier to transport through firewalls and proxies that understand HTTP
+but not GIOP. It supports the use of HTTP proxies, reverse proxies and
+load balancers. It can optionally establish WebSocket connections,
+which avoid many of the limitations of pure HTTP, but are not quite as
+widely accepted.
+
+To use the HTTP transport, you must link with the \file{omnihttpTP}
+library.
+
+\subsection{HTTP limitations}
+
+Normal client-server CORBA calls match the semantics of HTTP---the
+client sends a request and blocks waiting for the server to respond,
+meaning that in simple uses, the communication is pure, valid HTTP,
+and can therefore safely pass through proxies. However, there are a
+number of situations in which GIOP semantics do not match HTTP. In
+these cases, the communication works if an omniORB client is connected
+directly to an omniORB server, but can fail if a proxy or other system
+is interpreting the HTTP messages along the communication path:
+
+\begin{itemize}
+
+  \item If the \code{oneCallPerConnection} configuration parameter is
+    set to the non-default value of false, a multi-threaded client can
+    send multiple concurrent calls on a single connection, meaning
+    multiple HTTP requests are made without waiting for each to
+    receive a reply.
+
+  \item If bidirectional GIOP is enabled, the server can send a
+    message to the client that is not in response to a client request.
+
+  \item Web proxies can choose to open new connections at any time,
+    and therefore the client's idea of the lifetime of a connection
+    does not necessarily match what the server sees. This means that
+    codeset information, which is only transmitted on the first call on a
+    connection, may be missing from the point of view of the server.
+
+  \item Some web proxies and load balancers routinely close
+    connections after a client has sent a request, without sending the
+    request on to the server. The client therefore sees the connection
+    fail, but cannot know that the server did not receive the
+    request. It therefore has to fail the call with a
+    \code{COMM\_FAILURE} exception with completion status
+    \code{COMPLETED\_MAYBE}. Application code must be prepared to
+    handle the situation.
+    
+\end{itemize}
+
+To minimise these issues with proxies, it is safest to keep
+\code{oneCallPerConnection} set to true, avoid bidirectional GIOP, and
+make use of the \code{defaultCharCodeSet} and
+\code{defaultWCharCodeSet} parameters to choose suitable codesets.
+
+Alternatively, clients can `upgrade' the HTTP connection to a
+WebSockets connection, in which cases messages are sent in a binary
+framing format that \emph{does} permit the use of full GIOP semantics.
+Upgrading an HTTP connection to a WebSockets connection requires that
+all intermediary servers (proxies, load balancers, etc.)  support the
+WebSocket protocol, so there are some environments in which plain HTTP
+communication succeeds but WebSockets fail.
+
+
+\subsection{Endpoint and transport rule specification}
+
+The HTTP transport uses endpoint URIs of the form
+\code{giop:http:}\textit{url}, where the \textit{url} is a full
+\code{http://}, \code{https://}, \code{ws://} or \code{wss://}
+URL. That means the URIs appear to duplicate the `http':
+
+\begin{quote}
+  \code{giop:http:http://server.example.com:8000/call}\\
+  \code{giop:http:https://secure.example.com:443/invoke}\\
+  \code{giop:http:ws://websocket.example.com:8080/ws}\\
+  \code{giop:http:wss://websocket-secure.example.com:8443/ws}
+\end{quote}
+
+\noindent The path part of the URL can be set to any value. On the
+client side, the client makes an HTTP \code{POST} request to the URL,
+specifying the path; the server checks that the path matches what it
+expects. The ability to specify a path this way can be helpful when
+configuring path-based routing in load balancer configurations.
+
+If no port is specified on the server endpoint, the server uses an
+ephemeral port; it does not default to 80 or 443.
+
+Servers always support upgrade of connections to WebSocket. The use of
+a \code{ws://} or \code{wss://} URL determines the URL that is
+published in object references, and thus whether clients will attempt
+to use WebSockets or not.
+
+The transport specification `\code{http}' is not in the default client
+or server transport rules (as described in
+section~\ref{sec:clientRule}). To enable the use of HTTP, the client
+and server transport rules could for example contain `\code{*
+  unix,tcp,ssl,http}'.
+
+
+\subsection{HTTP proxies}
+
+Clients can connect via a web proxy. The \code{httpProxy}
+configuration can be set to an http or https proxy URL. If the proxy
+requires basic authentication, the \code{httpProxyUsername} and
+\code{httpProxyPassword} parameters can be set.
+
+When connecting through a proxy, the behaviour depends on whether the
+client is connecting to an HTTP or HTTPS server, and whether it is
+attempting to use WebSockets. When connecting with plain HTTP, the
+request is sent directly to the proxy, and the proxy forwards it at an
+HTTP level. In this situation, it is essential that only pure
+HTTP-compliant messages are sent.
+
+When connecting to an HTTPS server or upgrading the connection to
+WebSockets, the client makes a \code{CONNECT} request to the proxy. If
+accepted by the proxy, that opens a transparent tunnel through to the
+server. In that situation, as long as nothing else intercepts and
+attempts to interpret the data, the omniORB client is in effect
+directly connected to the omniORB server, and there is more chance
+that transfers that are not strictly legal HTTP will succeed.
+
+
+\subsection{HTTPS keys and certificates}
+
+Support for HTTPS uses the same concepts as the SSL transport. For
+each configuration option with a name starting `\code{ssl}', there is
+an equivalent option starting `\code{https}'.
+
+
+\subsection{In-message encryption}
+
+In some environments, the use of HTTPS is not sufficient to guarantee
+end-to-end security between client and server. There are at least two
+situations in which that can arise:
+
+\begin{itemize}
+  \item Some transparent web proxies intercept HTTPS connections and
+    act as a decrypting man-in-the-middle. For that to work, the
+    client and server must accept the proxy's certificates of course,
+    but that may be the only way for the client to connect to the
+    server.
+
+  \item On the server side, it can be useful to have a load balancer
+    that performs HTTPS off-load in front of the server. In that case,
+    the client connects with HTTPS, but the server sees a plain HTTP
+    connection.
+\end{itemize}
+
+To ensure message security in those cases, the HTTP transport supports
+in-message encryption, with pluggable encryption implementations. See
+\file{include/omniORB4/httpCrypto.h} for the interfaces. The
+\file{omnihttpCrypto} library provides an implementation that uses
+AES-256 for message encryption and RSA with pre-shared public keys for
+key transfer. To use it, on the server side, registering the public
+keys of two known clients:
+
+\begin{cxxlisting}
+httpCryptoManager_AES_RSA* manager = new httpCryptoManager_AES_RSA();
+manager->init("server-ident", "server_private.pem", true);
+manager->addClient("client-ident1", "client1_public.pem", true);
+manager->addClient("client-ident2", "client2_public.pem", true);
+
+httpContext::crypto_manager = manager;
+\end{cxxlisting}
+
+\noindent and on the client:
+
+\begin{cxxlisting}
+httpCryptoManager_AES_RSA* manager = new httpCryptoManager_AES_RSA();
+manager->init("client-ident1", "client1_private.pem", true);
+manager->addServer("http://server.example.com:8000/call",
+                   "server_public.pem", true);
+
+httpContext::crypto_manager = manager;
+\end{cxxlisting}
+
 
 
 \section{ZIOP}
@@ -4320,6 +4528,31 @@ the form \code{\textit{filename}}.
 \end{description}
 
 
+\subsection{HTTP URLs}
+
+If the omniORB-specific HTTP transport is enabled (see
+section~\ref{sec:httptransport}), then HTTP URLs are also
+supported. The format is
+
+\begin{quote}
+\textit{scheme}%
+\corbauri{://}%
+<\textit{host}>%
+[\corbauri{:}\textit{port}]%
+\corbauri{/}%
+<\textit{path}>%
+\corbauri{#}%
+<\textit{object key}>
+\end{quote}
+
+\noindent Where \textit{scheme} is one of \corbauri{http},
+\corbauri{https}, \corbauri{ws} or \corbauri{wss}. For example:
+
+\begin{quote}
+\corbauri{http://myhost.example.com/call#MyObjectKey}\\
+\corbauri{wss://myhost.example.com/websocket#MyObjectKey}\\
+\end{quote}
+
 
 \subsection{Resolve initial references}
 
@@ -4631,6 +4864,49 @@ select characters outside the first plane without having to use UTF-16
 surrogates\footnote{If you have no idea what this means, don't
 worry---you're better off not knowing unless you \emph{really} have
 to.}.
+
+
+\section{Default code sets}
+
+The way code set conversion is meant to work in CORBA communication is
+that each client and server has a \term{native} code set that it uses
+for character data in application code, and supports a number of
+\term{transmission} code sets that is uses for communication. When a
+client connects to a server, the client picks one of the server's
+transmission code sets to use for the interaction. For that to work,
+the client plainly has to know the server's supported transmission
+code sets.
+
+Code set information from servers is embedded in IORs. A client with
+an IOR from a server should therefore know what transmission code sets
+the server supports. This approach can fail for two reasons:
+
+\begin{enumerate}
+  \item A \corbauri{corbaloc} URI (see chapter~\ref{chap:ins}) does
+    not contain any code set information.
+
+  \item Some badly-behaved servers that do support code set conversion
+    fail to put codeset information in their IORs.
+\end{enumerate}
+
+Similarly, a badly-behaved client may fail to specify codeset
+information when it first uses a connection to a server, meaning that
+the server does not know the transmission codeset used by the client.
+
+The CORBA standard says that if a server has not specified
+transmission code set information, clients must assume that they only
+support ISO-8859-1 for char and string, and do not support wchar and
+wstring at all. Similarly, a server that does not receive codeset
+information from a client must assume that the client is using
+ISO-8859-1 for char and string, and will not sent wchar and wstring.
+The effect is that \code{DATA\_CONVERSION} or \code{BAD\_PARAM}
+exceptions are thrown.
+
+To avoid these issues, omniORB allows you to configure \term{default}
+code sets that are assumed to be supported by the other end of the
+communication, if they are not otherwise known. Set
+\code{defaultCharCodeSet} for char and string data, and
+\code{defaultWCharCodeSet} for wchar and wstring data.
 
 
 \section{Code set library}
@@ -5686,7 +5962,7 @@ interfaces cannot be used in omniORB.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{chap:ami}
 
-omniORB 4.2 supports Asynchronous Method Invocation, AMI, as defined
+omniORB 4.3 supports Asynchronous Method Invocation, AMI, as defined
 in the CORBA Messaging specification. It supports both the polling and
 callback models of asynchronous calls. Note that omniORB does not
 support the other parts of the Messaging specification such as Quality
@@ -6125,18 +6401,16 @@ There are a number of useful online resources related to omniORB:
 
 \begin{itemize}
 
-\item \url{http://omniorb.sourceforge.net/} is the main omniORB web
+\item \url{https://www.omniorb.net/} is the main omniORB web
   site.
-
-\item The omniORB FAQ is at \url{http://omniorb.sourceforge.net/faq.html}
 
 \item The omniORB mailing list is the first port of call for questions
   that are not answered in this document or in the FAQ. Subscription
   information and archives are at
-  \url{http://omniorb.sourceforge.net/list.html}
+  \url{https://www.omniorb.net/list.html}
 
 \item Commercial support is available from
-  \url{http://www.omniorb-support.com/}
+  \url{https://www.omniorb-support.com/}
 
 \end{itemize}
 

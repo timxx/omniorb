@@ -10,7 +10,7 @@ OBJS =    pysslTP.o
 DIR_CPPFLAGS += $(patsubst %,-I%/include,$(OMNIORB_ROOT))
 DIR_CPPFLAGS += $(patsubst %,-I%/include/omniORB4/internal,$(OMNIORB_ROOT))
 DIR_CPPFLAGS += $(patsubst %,-I%/include/omniORB4/internal,$(IMPORT_TREES))
-DIR_CPPFLAGS += -I../include
+DIR_CPPFLAGS += -I../../include
 DIR_CPPFLAGS += $(OPEN_SSL_CPPFLAGS)
 
 
@@ -83,7 +83,7 @@ else
 
 ifdef Win32Platform
 
-PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(string.lower(sys.prefix))')"
+PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(sys.prefix.lower())')"
 PYPREFIX  := $(subst program files,progra~1,$(subst \,/,$(PYPREFIX1)))
 PYVERSION := $(shell $(PYTHON) -c 'import sys; sys.stdout.write(sys.version[:3])')
 PYINCDIR  := $(PYPREFIX)/include

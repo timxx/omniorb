@@ -10,19 +10,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -2489,6 +2487,10 @@ TypeCode_struct::NP_unmarshalComplexParams(cdrStream& s,
     _ptr->pd_name   = s.unmarshalRawString();
     _ptr->pd_nmembers <<= s;
 
+    if (!s.checkInputOverrun(1, _ptr->pd_nmembers))
+      OMNIORB_THROW(MARSHAL, MARSHAL_PassEndOfMessage,
+                    (CORBA::CompletionStatus)s.completion());
+    
     // We need to initialised the members of <pd_members> to zero
     // to ensure we can destroy this properly in the case of an
     // exception being thrown.
@@ -2921,6 +2923,10 @@ TypeCode_except::NP_unmarshalComplexParams(cdrStream& s,
     _ptr->pd_name   = s.unmarshalRawString();
     _ptr->pd_nmembers <<= s;
 
+    if (!s.checkInputOverrun(1, _ptr->pd_nmembers))
+      OMNIORB_THROW(MARSHAL, MARSHAL_PassEndOfMessage,
+                    (CORBA::CompletionStatus)s.completion());
+    
     // We need to initialised the members of <pd_members> to zero
     // to ensure we can destroy this properly in the case of an
     // exception being thrown.
@@ -3317,6 +3323,10 @@ TypeCode_enum::NP_unmarshalComplexParams(cdrStream &s,
   CORBA::ULong len;
   len <<= s;
 
+  if (!s.checkInputOverrun(1, len))
+    OMNIORB_THROW(MARSHAL, MARSHAL_PassEndOfMessage,
+                  (CORBA::CompletionStatus)s.completion());
+  
   _ptr->pd_members.length(len);
   char** buffer = _ptr->pd_members.get_buffer(0);
 
@@ -3634,6 +3644,10 @@ TypeCode_union::NP_unmarshalComplexParams(cdrStream &s,
   CORBA::ULong memberCount;
   memberCount <<= s;
 
+  if (!s.checkInputOverrun(1, memberCount))
+    OMNIORB_THROW(MARSHAL, MARSHAL_PassEndOfMessage,
+                  (CORBA::CompletionStatus)s.completion());
+  
   _ptr->pd_members.length(memberCount);
 
   // Read in the different labels, names and types
@@ -4143,6 +4157,10 @@ TypeCode_value::NP_unmarshalComplexParams(cdrStream& s,
     }
     _ptr->pd_nmembers <<= s;
 
+    if (!s.checkInputOverrun(1, _ptr->pd_nmembers))
+      OMNIORB_THROW(MARSHAL, MARSHAL_PassEndOfMessage,
+                    (CORBA::CompletionStatus)s.completion());
+    
     // We need to initialise the members of <pd_members> to zero
     // to ensure we can destroy this properly in the case of an
     // exception being thrown.

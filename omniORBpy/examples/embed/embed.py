@@ -10,7 +10,7 @@ import _embed
 # Define an implementation of the Echo interface
 class Echo_i (_GlobalIDL__POA.Echo):
     def echoString(self, mesg):
-        print "Python upcall '" + mesg + "'"
+        print("Python upcall '" + mesg + "'")
         return mesg
 
 # Initialise the ORB
@@ -30,14 +30,14 @@ obj = _embed.getObjRef(orb)
 eo  = obj._narrow(_GlobalIDL.Echo)
 
 if eo is None:
-    print "Failed to narrow Echo object:", ior
+    print("Failed to narrow Echo object:", ior)
     sys.exit(1)
 
-print "\nPython calling C++..."
+print("\nPython calling C++...")
 ret = eo.echoString("Hello from Python")
-print "The object said '" + ret + "'"
+print("The object said '" + ret + "'")
 
-print "\n"
+print("\n")
 
 
 # Test 2: C++ calls Python
@@ -46,8 +46,8 @@ ei  = Echo_i()
 eo  = ei._this()
 ior = orb.object_to_string(eo)
 
-print "\nC++ calling Python..."
+print("\nC++ calling Python...")
 
 _embed.putObjRef(eo)
 
-print "\nTest done"
+print("\nTest done")

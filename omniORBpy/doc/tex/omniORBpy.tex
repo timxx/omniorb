@@ -62,19 +62,7 @@
  {\end{itemize}}
 
 % URL-like things:
-\usepackage[T1]{url}
-\newcommand{\email}{\begingroup \urlstyle{sf}\Url}
-\newcommand{\file}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\envvar}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\makevar}{\begingroup \urlstyle{tt}\Url}
-\newcommand{\corbauri}{\begingroup \urlstyle{tt}\Url}
-%BEGIN LATEX
-\newcommand{\weburl}{\begingroup \urlstyle{sf}\Url}
-%END LATEX
-%HEVEA\def\weburl{\begingroup%
-%HEVEA\def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
-%HEVEA\urlstyle{tt}%
-%HEVEA\Url}
+\usepackage{omniURLDefs}
 
 
 % Mark-up for configuration options
@@ -176,7 +164,7 @@
 \vfill
 
 { \Huge
-The omniORBpy version 4.2\\[4mm]
+The omniORBpy version 4.3\\[4mm]
 User's Guide
 }
 
@@ -215,7 +203,7 @@ Duncan Grisby\\
 
 omniORBpy is an Object Request Broker (ORB) that implements the CORBA
 2.6 Python mapping~\cite{pythonmapping}. It works in conjunction with
-omniORB for C++, version 4.2.
+omniORB for C++, version 4.3.
 
 This user guide tells you how to use omniORBpy to develop CORBA
 applications using Python. It assumes a basic understanding of CORBA,
@@ -269,10 +257,11 @@ The following is a list of the most significant missing features.
 
 \begin{itemize}
 
-\item omniORB does not have its own Interface Repository. However, it
-  can act as a client to an IfR. The omniifr project
-  (\weburl{http://omniifr.sourceforge.net/}) aims to create an IfR for
-  omniORB.
+\item For some very dynamic uses of CORBA, you may need an Interface
+  Repository. omniORB does not have its own one, but it can act as a
+  client to an IfR. The omniifr project
+  (\weburl{https://github.com/omniorb/omniifr}) aims to create an IfR
+  for omniORB.
 
 \item omniORB supports interceptors, but not the standard Portable
   Interceptor API. Interceptor facilities available from Python code
@@ -1650,6 +1639,20 @@ The native code set the application is using for \type{wchar} and
 \type{wstring}. See chapter~\ref{chap:codesets}.
 
 
+\confopt{defaultCharCodeSet}{\textit{none}}
+
+The default code set used for \type{char} and \type{string} if the
+server does not specify it in its IORs. See
+chapter~\ref{chap:codesets}.
+
+
+\confopt{defaultWCharCodeSet}{\textit{none}}
+
+The default code set used for \type{wchar} and \type{wstring} if the
+server does not specify it in its IORs. See
+chapter~\ref{chap:codesets}.
+
+
 \confopt{copyValuesInLocalCalls}{1}
 
 Determines whether valuetype parameters in local calls are copied or
@@ -1777,8 +1780,8 @@ each individual call attempt.
 
 \confopt{throwTransientOnTimeout}{0}
 
-omniORB 4.2 supports the \code{CORBA::TIMEOUT} exception that is part
-of the CORBA Messaging specification. By default, that is the
+omniORB 4.2 and later support the \code{CORBA::TIMEOUT} exception that
+is part of the CORBA Messaging specification. By default, that is the
 exception thrown when timeouts occur. Previous omniORB releases did
 not have the \code{CORBA::TIMEOUT} exception, and instead used
 \code{CORBA::TRANSIENT}. If this parameter is set \code{true}, omniORB
@@ -1854,6 +1857,32 @@ address to contact an object after a failure. If \code{false} (the
 default), the current address will be retried in certain
 circumstances.
 
+\confopt{resolveNamesForTransportRules}{1}
+
+If \code{true}, names in IORs will be resolved when evaluating client
+transport rules, and remembered from then on; if \code{false}, names
+will not be resolved until connect time. Client transport rules based
+on IP address will therefore not match, but some platforms can use
+external knowledge to pick the best address to use if given a name to
+connect to.
+
+\confopt{retainAddressOrder}{1}
+
+For IORs with multiple addresses, determines how the address to
+connect to is chosen. When first establishing a connection, the
+addresses are ordered according to the client transport rules (after
+resolving names if \code{resolveNamesFor\dsc{}TransportRules} is
+\code{true}), and the addresses are tried in priority order until one
+connects successfully. For as long as there is at least one connection
+open to the address, new connections continue to use the same address.
+
+After a failure, or after all open connections have been scavenged and
+closed, this parameter determines the address used to reconnect on the
+next call. If this parameter is \code{true} (the default), the address
+order and chosen address within the order is remembered; if
+\code{false}, a new connection attempt causes re-evaluation of the
+order (in case name resolutions change), and the highest priority
+address is tried first.
 
 \confopt{bootstrapAgentHostname}{\textit{none}}
 
@@ -2249,7 +2278,7 @@ are propagated to application code by default.
 omniORB version 4.1 and earlier did not have the \code{CORBA.TIMEOUT}
 exception, and threw \code{CORBA.TRANSIENT} instead. If the
 \code{throwTransientOnTimeout} configuration parameter is set to
-\code{1}, omniORB 4.2 reverts to this behaviour, and calls the
+\code{1}, omniORB 4.3 reverts to this behaviour, and calls the
 transient exception handler instead of the timeout exception handler.
 
 The timeout exception handler is used when a CORBA call times out. It
@@ -2379,9 +2408,16 @@ The definitions used by the C++ API are in the \file{omniORBpy.h}
 header. An example of its use is in \file{examples/embed/}.
 
 The API is accessed through a singleton structure containing function
-pointers. A pointer to the API struct is stored as a \code{PyCObject}
-in the \module{\_omnipy} module with the name \code{API}. It can be
-accessed with code like:
+pointers. In Python 3.x, a pointer to the API struct is stored in a
+\code{PyCapsule} named \code{\_omnipy.API}. Access it with code like:
+
+\begin{cxxlisting}
+omniORBpyAPI* api = (omniORBpyAPI*)PyCapsule_Import("_omnipy.API", 0);
+\end{cxxlisting}
+
+\noindent In Python 2.x, a pointer to the API struct is stored as a
+\code{PyCObject} in the \module{\_omnipy} module with the name
+\code{API}. It can be accessed with code like:
 
 \begin{cxxlisting}
 PyObject*     omnipy = PyImport_ImportModule((char*)"_omnipy");
@@ -3122,7 +3158,7 @@ for more details about endpoint publishing.
 
 Sometimes it is useful to restrict a server to listen on one of a
 range of ports, rather than pinning it to one particular port or
-allowing the OS to choose an ephemeral port. omniORB 4.2 introduces
+allowing the OS to choose an ephemeral port. omniORB 4.2 introduced
 the ability to specify a range of ports using a hyphen. e.g.\ to
 listen on a port between 5000 and 5010 inclusive:
 
@@ -3509,6 +3545,146 @@ certificate file before the \verb|-----BEGIN CERTIFICATE-----| marker.
 
 If need be, create more certificates for servers and clients in the
 same way.
+
+
+\section{HTTP and HTTPS transport}
+
+omniORB includes an omniORB-specific HTTP and HTTPS transport. It
+works by encapsulating GIOP messages into HTTP messages, which can
+make it easier to transport through firewalls and proxies that
+understand HTTP but not GIOP. It supports the use of HTTP proxies and
+reverse proxies.
+
+To use the HTTP transport from Python you must import the
+\code{omniORB.httpTP} module before calling \op{CORBA.ORB\_init}.
+
+Normal client-server CORBA calls match the semantics of HTTP---the
+client sends a request and blocks waiting for the server to respond,
+meaning that in simple uses, the communication is pure, valid HTTP,
+and can therefore safely pass through proxies. However, there are a
+number of situations in which GIOP semantics do not match HTTP. In
+these cases, the communication works if an omniORB client is connected
+directly to an omniORB server, but can fail if a proxy or other system
+is interpreting the HTTP messages along the communication path:
+
+\begin{itemize}
+
+  \item If the \code{oneCallPerConnection} configuration parameter is
+    set to the non-default value of false, a multi-threaded client can
+    send multiple concurrent calls on a single connection, meaning
+    multiple HTTP requests are made without waiting for each to
+    receive a reply.
+
+  \item If bidirectional GIOP is enabled, the server can send a
+    message to the client that is not in response to a client request.
+
+  \item Web proxies can choose to open new connections at any time,
+    and therefore the client's idea of the lifetime of a connection
+    does not necessarily match what the server sees. This means that
+    codeset information, which is only transmitted on the first call on a
+    connection, may be missing from the point of view of the server.
+\end{itemize}
+
+To avoid these issues with proxies, it is safest to keep
+\code{oneCallPerConnection} set to true, avoid bidirectional GIOP, and
+make use of the \code{defaultCharCodeSet} and \code{defaultWCharCodeSet}
+parameters to choose suitable codesets.
+
+\subsection{Endpoint and transport rule specification}
+
+The HTTP transport uses endpoint URIs of the form
+\code{giop:http:}\textit{url}, where the \textit{url} is a full
+\code{http://} or \code{https://} URL. That means the URIs appear to
+duplicate the `http':
+
+\begin{quote}
+  \code{giop:http:http://server.example.com:8000/call}\\
+  \code{giop:http:https://secure.example.com:443/invoke}
+\end{quote}
+
+The path part of the URL can be set to any value. On the client side,
+the client makes an HTTP \code{POST} request to the URL, specifying
+the path; the server checks that the path matches what it expects. The
+ability to specify a path this way can be helpful when configuring
+path-based routing in load balancer configurations.
+
+If no port is specified on the server endpoint, the server uses an
+ephemeral port; it does not default to 80 or 443.
+
+The transport specification `\code{http}' is not in the default client
+or server transport rules (as described in
+section~\ref{sec:clientRule}). To enable the use of HTTP, the client
+and server transport rules could for example contain `\code{*
+  unix,tcp,ssl,http}'.
+
+
+\subsection{HTTP proxies}
+
+Clients can connect via a web proxy. The \code{httpProxy}
+configuration can be set to an http or https proxy URL. If the proxy
+requires basic authentication, the \code{httpProxyUsername} and
+\code{httpProxyPassword} parameters can be set.
+
+When connecting through a proxy, the behaviour depends on whether the
+client is connecting to an HTTP or HTTPS server. When connecting to
+HTTP, the request is sent directly to the proxy, and the proxy
+forwards it at an HTTP level. In this situation, it is essential that
+only pure HTTP-compliant messages are sent.
+
+When connecting to an HTTPS server, the client makes a \code{CONNECT}
+request to the proxy. If accepted by the proxy, that opens a
+transparent tunnel through to the server. In that situation, as long
+as nothing else intercepts and attempts to interpret the data, the
+omniORB client is in effect directly connected to the omniORB server,
+and there is more chance that transfers that are not strictly legal
+HTTP will succeed.
+
+\subsection{HTTPS keys and certificates}
+
+Support for HTTPS uses the same concepts as the SSL transport. For
+each configuration option with a name starting `\code{ssl}', there is
+an equivalent option starting `\code{https}'.
+
+\subsection{In-message encryption}
+
+In some environments, the use of HTTPS is not sufficient to guarantee
+end-to-end security between client and server. There are at least two
+situations in which that can arise:
+
+\begin{itemize}
+  \item Some transparent web proxies intercept HTTPS connections and
+    act as a decrypting man-in-the-middle. For that to work, the
+    client and server must accept the proxy's certificates of course,
+    but that may be the only way for the client to connect to the
+    server.
+
+  \item On the server side, it can be useful to have a load balancer
+    that performs HTTPS off-load in front of the server. In that case,
+    the client connects with HTTPS, but the server sees a plain HTTP
+    connection.
+\end{itemize}
+
+To ensure message security in those cases, the HTTP transport supports
+in-message encryption. Import \code{omniORB.httpCrypto} to enable the
+an encryption implementation that uses AES-256 for message encryption
+and RSA with pre-shared public keys for key transfer. To use it, on
+the server side, registering the public keys of two known clients:
+
+\begin{pylisting}
+from omniORB import httpCrypto
+httpCrypto.init("server-ident", "server_private.pem", True)
+httpCrypto.addClient("client-ident1", "client1_public.pem", True)
+httpCrypto.addClient("client-ident2", "client2_public.pem", True)
+\end{pylisting}
+
+\noindent and on the client:
+
+\begin{pylisting}
+from omniORB import httpCrypto
+httpCrypto.init("client-ident1", "client1_private.pem", True)
+httpCrypto.addServer("http://server.example.com:8000/call",
+                     "server_public.pem", True)
+\end{pylisting}
 
 
 \section{ZIOP}
@@ -4070,19 +4246,55 @@ that come with omniORB are not sufficient.
 
 For the ORB to know how to handle strings given to it by the
 application, it must know what code set they are represented with, so
-it can properly translate them if need be. The default is ISO 8859-1
-(Latin 1). A different code sets can be chosen at initialisation time
-with the \code{nativeCharCodeSet} parameter. The supported code sets
-are printed out at initialisation time if the ORB traceLevel is 15 or
-greater.
+it can properly translate them if need be.
 
-For most applications, the default is fine. Some applications may need
-to set the native char code set to UTF-8, allowing the full Unicode
-range to be supported in strings.
+For Python 2.x, the default is ISO 8859-1 (Latin 1). A different code
+set can be chosen at initialisation time with the
+\code{nativeCharCodeSet} parameter. The supported code sets are
+printed out at initialisation time if the ORB traceLevel is 15 or
+greater. Some applications may need to set the native char code set to
+UTF-8, allowing the full Unicode range to be supported in strings.
 
-In omniORBpy, wchar and wstring are always represented by the Python
-Unicode type, so there is no need to select a native code set for
-wchar.
+In Python 3.x, all Python strings are Unicode, so it always behaves as
+if the native char code set is UTF-8.
+
+wchar and wstring are always represented by the Python Unicode type,
+so there is no need to select a native code set for wchar.
+
+
+\section{Default code sets}
+
+The way code set conversion is meant to work in CORBA communication is
+that each client and server has a \term{native} code set that it uses
+for character data in application code, and supports a number of
+\term{transmission} code sets that is uses for communication. When a
+client connects to a server, the client picks one of the server's
+transmission code sets to use for the interaction. For that to work,
+the client plainly has to know the server's supported transmission
+code sets.
+
+Code set information from servers is embedded in IORs. A client with
+an IOR from a server should therefore know what transmission code sets
+the server supports. This approach can fail for two reasons:
+
+\begin{enumerate}
+  \item A \corbauri{corbaloc} URI (see chapter~\ref{chap:ins}) does
+    not contain any code set information.
+
+  \item Some badly-behaved servers that do support code set conversion
+    fail to put codeset information in their IORs.
+\end{enumerate}
+
+The CORBA standard says that if a server has not specified
+transmission code set information, clients must assume that they only
+support ISO-8859-1 for char and string, and do not support wchar and
+wstring at all. The effect is that client code receives
+\code{DATA\_CONVERSION} or \code{BAD\_PARAM} exceptions.
+
+To avoid this issue, omniORB allows you to configure \term{default}
+code sets that are used as a server's transmission code sets if they
+are not otherwise known. Set \code{defaultCharCodeSet} for char and
+string data, and \code{defaultWCharCodeSet} for wchar and wstring data.
 
 
 \section{Code set library}
@@ -4108,10 +4320,12 @@ C++ documentation for details.
 omniORBpy has limited interceptor support. Interceptors permit the
 application to insert processing at various points along the call
 chain, as requests are processed. The Portable Interceptors API is not
-yet supported.
+supported.
 
-Interceptors are registered using functions in the
-\code{omniORB.interceptors} module:
+\section{Request interceptors}
+
+Interceptors for incoming and outgoing requests are registered using
+functions in the \code{omniORB.interceptors} module:
 
 \begin{pylisting}
   addClientSendRequest()
@@ -4149,6 +4363,34 @@ is initialised. Attempting to call them later results in a
 \code{BAD\_INV\_ORDER} exception.
 
 
+\section{Thread interceptors}
+
+Thread interceptors are registered using functions in the
+\code{omniORB.interceptors} module:
+
+\begin{pylisting}
+  addAssignUpcallThread
+  addAssignAMIThread
+\end{pylisting}
+
+To register thread interceptors, call the relevant registration
+function with a callable argument. The callable can be a simple
+function that returns None, or a generator that yields once. When a
+thread is assigned to perform server upcalls or AMI calls, the
+corresponding function is called. If it is a simple function, the
+function is called when the thread is assigned. If it is a generator,
+it is called when the thread is assigned, yields to permit the thread
+to execute, and then resumes when the thread is unassigned. For
+example:
+
+\begin{pylisting}
+def upcallInterceptor():
+    print("This thread is about to be used to call into server code")
+    yield
+    print("The thread has finished")
+
+omniORB.interceptors.addAssignUpcallThread(upcallInterceptor)
+\end{pylisting}
 
 
 
@@ -4336,11 +4578,11 @@ trying to share plain values with values inside Anys.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{chap:ami}
 
-omniORB 4.2 supports Asynchronous Method Invocation, AMI, as defined
-in the CORBA Messaging specification. It supports both the polling and
-callback models of asynchronous calls. Note that omniORB does not
-support the other parts of the Messaging specification such as Quality
-of Service, Routing and Persistent requests.
+omniORB 4.2 and later support Asynchronous Method Invocation, AMI, as
+defined in the CORBA Messaging specification. It supports both the
+polling and callback models of asynchronous calls. Note that omniORB
+does not support the other parts of the Messaging specification such
+as Quality of Service, Routing and Persistent requests.
 
 While omniORB mainly targets the 2.6 version of the CORBA
 specification, the AMI support follows the CORBA Messaging
@@ -4430,18 +4672,16 @@ There are a number of useful online resources related to omniORB:
 
 \begin{itemize}
 
-\item \url{http://omniorb.sourceforge.net/} is the main omniORB web
+\item \url{https://www.omniorb.net/} is the main omniORB web
   site.
-
-\item The omniORB FAQ is at \url{http://omniorb.sourceforge.net/faq.html}
 
 \item The omniORB mailing list is the first port of call for questions
   that are not answered in this document or in the FAQ. Subscription
   information and archives are at
-  \url{http://omniorb.sourceforge.net/list.html}
+  \url{https://www.omniorb.net/list.html}
 
 \item Commercial support is available from
-  \url{http://www.omniorb-support.com/}
+  \url{https://www.omniorb-support.com/}
 
 \end{itemize}
 

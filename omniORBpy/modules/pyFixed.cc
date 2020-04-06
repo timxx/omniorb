@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Implementation of Fixed type for Python
@@ -246,6 +244,7 @@ extern "C" {
     case Py_NE: r = cmp != 0; break;
     case Py_GT: r = cmp >  0; break;
     case Py_GE: r = cmp >= 0; break;
+    default:    r = 0;
     };
     
     PyObject* r_o = r ? Py_True : Py_False;

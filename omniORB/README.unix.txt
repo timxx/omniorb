@@ -29,29 +29,12 @@ The directory structure of this distribution looks as follows:
 ./src/appl/utils                  : source files for utilities
 ./src/examples                    : source files for examples
 
-If this is a pre-compiled binary distribution, the binaries are located in the
-following directories:
-
-./lib                             : static and shared libraries
-./bin                             : executables
-
 
 Configuration
 =============
 
-There are two ways to configure omniORB. The easiest is usually to use
-the Autoconf configure script; if that fails, or you have a good
-reason, manual configuration based on platform files is possible.
-
-
-Autoconf configuration
-======================
-
-On most Unix platforms, omniORB should be configured using the
-Autoconf configure script, that tries to figure out the specifics of
-your machine.
-
-The Autoconf build does not currently work for cross compiling.
+omniORB's build is configured using the Autoconf configure script,
+that tries to figure out the specifics of your machine.
 
 Although you can run configure and make in the main omniORB source
 directory, you are strongly advised to build in a different
@@ -124,11 +107,46 @@ Once omniORB is configured, build it with "make", then install it with
 "make install". You must use GNU make.
 
 
+Cross-compilation
+=================
+
+The configure script and make files support cross-compilation. The
+normal build makes various tools that are used later in the build, in
+particular omniidl. When cross-compiling, the tools must already be
+available for your native platform. To cross-compile, use these steps:
+
+ 1. configure, build and install omniORB for your native platform. As
+    recommended above, use a build subdirectory rather than building
+    in the source tree.
+
+    Make a note of the first few lines output by the configure script
+    that tell you the build system type. For example
+    "x86_64-unknown-linux-gnu".
+
+ 2. Add the ${prefix}/bin directory to your PATH so omniidl and other
+    tools are available.
+
+ 3. In a new build directory (e.g. build-cross), run the configure
+    script with arguments for cross-compiling. e.g. to compile on an
+    x86-64 Linux machine, cross-compiling for ARM:
+
+    cd build-cross
+    ../configure CC=cross-cc CXX=cross-cxx \
+                 --prefix=/home/example/cross-inst
+                 --build=x86_64-unknown-linux-gnu \
+                 --host=arm-unknown-linux-gnu
+
+    The essential part to trigger a cross compile is to specify both
+    --build and --host.
+
+ 4. Run make as usual.
+
+
 Configuring the Naming service
 ==============================
 
-You also have to configure the omniORB runtime and the naming service,
-consult the user guides in ./doc for details. For a quick start,
+You also have to configure the omniORB runtime and the naming service.
+Consult the user guides in ./doc for details. For a quick start,
 follow these steps:
 
     o Set the environment variable OMNINAMES_DATADIR to a directory where
@@ -226,72 +244,3 @@ Documentation
 
 You should read the omniORB and the naming service user guides. Follow
 the instructions in the guides to complete the configuration process.
-
-
-Manual configuration with platform files
-========================================
-
-Ignore this section unless you are absolutely certain that you should
-be using the old build environment.
-
-To build using the old omniORB build environment, follow these steps:
- 
-  1. Select the appropriate platform configuration file
-  ------------------------------------------------------
-
-  Edit ./config/config.mk to select the appropriate platform file
-
-      e.g. For Solaris 2.5 onwards and with Sunspro C++
-      
-            platform = sun4_sosV_5.5
-
-  All the platform files are in ./mk/platforms.
-
-  If you are using gcc or the default compiler for your platform is
-  gcc, it is most likely that you have to edit the CXX and CC make
-  variables in the platform file. Some old versions of gcc do not have
-  proper support for multithreaded exception handling, and thus cannot
-  be used for omniORB. Moreover, the gcc compiler has to be configured
-  with the --enable-threads option or else the code generated does not
-  work reliably. The default version of gcc compiler that comes with
-  your platform may not be the right version.
-
-
-  2. Set the location of a Python interpreter
-  -------------------------------------------
-
-  Edit ./mk/platforms/<platform>.mk, where <platform> is the platform
-  name you set in config.mk.
-
-  Uncomment the 'PYTHON =' line, and set it to the path of your Python
-  interpreter.
-
-  If you do not have Python 2.5 or higher, you can download the full
-  source distribution from
-
-   http://www.python.org/download/
-
-
-  3. Building and installing
-  --------------------------
-
-  The makefiles in this distribution only work with GNU make. Make
-  sure that you have the program installed and invoke it directly.
-
-  To build and install everything, go into the directory ./src and
-  type 'make export'. If all goes well, the libraries and executables
-  will be installed into ./lib/<platform>/ and ./bin/<platform>/.
-
-
-  4. Add omniORB libraries to search path
-  ---------------------------------------
-
-  Since the shared libraries libomniORB4.so and libomnithread.so are not in
-  the directories searched by the dynamic loader by default, you must add 
-  the library directory to the search path. For example:
- 
-    On Solaris 2.5
-       $ LD_LIBRARY_PATH=<absolute pathname of ./lib/sun4_sosV_5.5>
-       $ export LD_LIBRARY_PATH
- 
-

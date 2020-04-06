@@ -29,7 +29,7 @@ endif
 
 ifdef AIX
 ifdef Compiler_GCC
-extralibs += $(OMNITHREAD_LIB)
+extralibs += $(OMNIORB_LIB_NODYN)
 endif
 endif
 
@@ -89,7 +89,7 @@ else
 
 ifdef Win32Platform
 
-PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(string.lower(sys.prefix))')"
+PYPREFIX1 := "$(shell $(PYTHON) -c 'import sys,string; sys.stdout.write(sys.prefix.lower())')"
 PYPREFIX  := $(subst program files,progra~1,$(subst \,/,$(PYPREFIX1)))
 PYVERSION := $(shell $(PYTHON) -c 'import sys; sys.stdout.write(sys.version[:3])')
 PYINCDIR  := $(PYPREFIX)/include

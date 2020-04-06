@@ -18,9 +18,7 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
-//  USA.
+//  along with this program.  If not, see http://www.gnu.org/licenses/
 //
 //
 // Lists contents of an IOR.
@@ -845,6 +843,17 @@ print_tag_omniorb_unix_trans(const IOP::TaggedComponent& c)
 
 static
 void
+print_tag_omniorb_http_trans(const IOP::TaggedComponent& c)
+{
+  cdrEncapsulationStream e(c.component_data, 1);
+
+  CORBA::String_var url = e.unmarshalRawString();
+
+  cout << "      TAG_OMNIORB_HTTP_TRANS " << url << endl;
+}
+
+static
+void
 print_tag_omniorb_persistent_id(const IOP::TaggedComponent& c)
 {
   cout << "      TAG_OMNIORB_PERSISTENT_ID ";
@@ -938,6 +947,10 @@ print_tagged_components(IOP::MultipleComponentProfile& components)
 
       case 0x41545404: // TAG_OMNIORB_RESTRICTED_CONNECTION
         print_tag_omniorb_restricted_connection(c);
+        break;
+
+      case 0x41545405: // TAG_OMNIORB_HTTP_TRANS
+        print_tag_omniorb_http_trans(c);
         break;
 
       default:

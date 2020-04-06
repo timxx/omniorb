@@ -175,7 +175,7 @@ unexport SUBDIRS
 
 define CreateDir
 if [ ! -d $$dir ]; then \
-   (umask 002; set -x; $(MKDIRHIER) $$dir); \
+   (umask 022; set -x; $(MKDIRHIER) $$dir); \
 fi
 endef
 
@@ -543,6 +543,27 @@ OMNIORB_SSL_LIB += $(OPEN_SSL_LIB)
 OMNIORB_SSL_CPPFLAGS += $(OPEN_SSL_CPPFLAGS)
 
 
+# omniORB HTTP transport
+OMNIORB_HTTP_LIB = $(patsubst %,$(LibSearchPattern),\
+                     omnihttpTP$(OMNIORB_MAJOR_VERSION))
+
+lib_depend := $(patsubst %,$(LibPattern),omnihttpTP$(OMNIORB_MAJOR_VERSION))
+OMNIORB_HTTP_LIB_DEPEND := $(GENERATE_LIB_DEPEND)
+
+OMNIORB_HTTP_LIB += $(OMNIORB_SSL_LIB)
+OMNIORB_HTTP_CPPFLAGS += $(OPEN_SSL_CPPFLAGS)
+
+
+# omniORB HTTP Crypto library
+OMNIORB_HTTP_CRYPTO_LIB = $(patsubst %,$(LibSearchPattern),\
+                            omnihttpCrypto$(OMNIORB_MAJOR_VERSION))
+
+lib_depend := $(patsubst %,$(LibPattern),omnihttpCrypto$(OMNIORB_MAJOR_VERSION))
+OMNIORB_HTTP_LIB_DEPEND := $(GENERATE_LIB_DEPEND)
+
+OMNIORB_HTTP_CRYPTO_LIB += $(OMNIORB_HTTP_LIB)
+
+
 # ZIOP
 OMNIORB_ZIOP_LIB = $(patsubst %,$(LibSearchPattern),omniZIOP$(OMNIORB_MAJOR_VERSION))
 lib_depend := $(patsubst %,$(LibPattern),omniZIOP$(OMNIORB_MAJOR_VERSION))
@@ -748,6 +769,14 @@ endif
 
 ifeq (@ENABLE_ZIOP@,yes)
 EnableZIOP = 1
+endif
+
+#
+# Enable HTTP Crypto?
+#
+
+ifeq (@ENABLE_HTTP_CRYPTO@,yes)
+EnableHTTPCrypto = 1
 endif
 
 
@@ -983,16 +1012,18 @@ endif
 
 ###################
 ifdef AIX
+ifndef Compiler_GCC		# Assuming XlC compiler
 
 IMPORT_CPPFLAGS += -D__aix__
+
 CMAKEDEPEND     += -D_AIX
 CXXMAKEDEPEND   += -D_AIX
-
-ifndef Compiler_GCC
-
 CDEBUGFLAGS      =
 CXXDEBUGFLAGS    =
+CXXLINKOPTIONS  += -brtl -bnoipath -blibpath:/usr/lib:$(prefix)/lib
+
 CXXOPTIONS	= -qstaticinline -qmaxmem=8192 -qlonglong -qlongdouble
+
 COPTIONS	= -qmaxmem=8192 -qlonglong -qlongdouble
 
 OMNITHREAD_POSIX_CPPFLAGS = -DNoNanoSleep -DPthreadDraftVersion=10
@@ -1001,42 +1032,49 @@ OMNITHREAD_LIB += -lpthread
 
 #SHAREDLIB_SUFFIX = so
 PythonSHAREDLIB_SUFFIX = so
-# (Not used on AIX)
-SharedLibraryPlatformLinkFlagsTemplate :=
 
-LD_SO_AIX_FLAGS := -G
+# this works only for xlc version >= 5
+SharedLibraryPlatformLinkFlagsTemplate = -G -qmkshrobj \
+               -bnoipath -blibpath:/usr/lib:$(prefix)/lib
 
-else	# ifndef Compiler_GCC
+endif
+
+ifdef Compiler_GCC
+
+IMPORT_CPPFLAGS += -D__aix__
+CMAKEDEPEND     += -D_AIX
+CXXMAKEDEPEND   += -D_AIX
+CXXLINKOPTIONS  += -Wl,-brtl -Wl,-blibpath:/lib:/usr/lib:$(prefix)/lib
+CLINKOPTIONS    += -Wl,-brtl -Wl,-blibpath:/lib:/usr/lib:$(prefix)/lib
 
 # Name all static libraries with -ar.a suffix.
 LibPattern = lib%-ar.a
 LibDebugPattern = lib%-ar.a
 LibNoDebugPattern = lib%-ar.a
 LibSuffixPattern = %-ar.a
-LibSearchPattern = -l%-ar
 
 # Name all shared libraries with .a suffix
 LibSharedPattern = lib%.a
 LibSharedSuffixPattern = %.a
 LibSharedSearchPattern = -l%
 
+# Link with shared libraries
+LibSearchPattern = -l%$(OMNIORB_MINOR_VERSION)
+
 # OMNI thread stuff
 ThreadSystem = Posix
 OMNITHREAD_POSIX_CPPFLAGS = -DNoNanoSleep -DPthreadDraftVersion=10
 OMNITHREAD_CPPFLAGS = -D_REENTRANT -D_THREAD_SAFE
 OMNITHREAD_PLATFORM_LIB = -lpthreads
-OMNITHREAD_LIB = -lomnithread$(OMNITHREAD_MAJOR_VERSION)$(OMNITHREAD_MINOR_VERSION) $(OMNITHREAD_PLATFORM_LIB)
+OMNITHREAD_LIB = -lomnithread$(OMNITHREAD_MAJOR_VERSION) $(OMNITHREAD_PLATFORM_LIB)
 
 # Shared library support stuff
 SHAREDLIB_SUFFIX   = a
 PythonSHAREDLIB_SUFFIX = so
-OMNIORB_DLL_NAME = $(patsubst %,$(LibSharedSearchPattern),\
-                   omniORB$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION))
-OMNIORB_CODESETS_LIB = $(patsubst %,$(LibSharedSearchPattern),omniCodeSets$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION))
-OMNIORB_CONNECTIONS_LIB = $(patsubst %,$(LibSharedSearchPattern),omniConnectionMgmt$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION))
-
-
-endif	# ifndef Compiler_GCC ... else ...
+SharedLibraryFullNameTemplate = lib$$1$$2$$3$$4.$(SHAREDLIB_SUFFIX)
+SharedLibrarySoNameTemplate = lib$$1$$2.$(SHAREDLIB_SUFFIX).$$3
+SharedLibraryLibNameTemplate = lib$$1$$2$$3.$(SHAREDLIB_SUFFIX)
+SharedLibraryPlatformLinkFlagsTemplate = -shared -fPIC -Wl,-brtl -Wl,-blibpath:/lib:/usr/lib:$(prefix)/lib
 
 # Need to use the script 'ld_so_aix' to make Python modules on AIX.
 # For details see the file Misc/AIX-NOTES that is distributed with the Python
@@ -1057,6 +1095,8 @@ define MakeCXXSharedLibrary
    $(IMPORT_LIBRARY_FLAGS) $(filter-out $(LibSuffixPattern),$^) $$extralibs;
 endef
 
+endif	# ifndef Compiler_GCC ... else ...
+
 endif	# AIX
 
 ###################
@@ -1066,7 +1106,7 @@ IMPORT_CPPFLAGS += -D__darwin__
 OMNITHREAD_POSIX_CPPFLAGS = -DPthreadDraftVersion=10 \
                             -DPthreadSupportThreadPriority -DNoNanoSleep
 
-CXXOPTIONS = -fno-common -bind_at_load @EXTRA_GCC_CXXFLAGS@
+CXXOPTIONS = -fno-common @EXTRA_GCC_CXXFLAGS@
 SHAREDLIB_SUFFIX = dylib
 
 SharedLibraryFullNameTemplate = lib$$1$$2.$$3.$$4.$(SHAREDLIB_SUFFIX)
@@ -1077,8 +1117,7 @@ SharedLibraryPlatformLinkFlagsTemplate = -dynamiclib \
                                          -flat_namespace \
                                          -undefined suppress
 PythonLibraryPlatformLinkFlagsTemplate = -bundle -flat_namespace \
-                                         -undefined suppress \
-                                         -bind_at_load
+                                         -undefined suppress
 PythonSHAREDLIB_SUFFIX = so
 
 

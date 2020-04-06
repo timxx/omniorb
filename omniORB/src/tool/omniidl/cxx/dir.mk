@@ -51,7 +51,7 @@ idlc = $(patsubst %,$(BinPattern),idlc)
 # 	mv -f y.tab.c y.tab.cc
 
 # lex.yy.cc: $(LLSRC) y.tab.h
-# 	$(FLEX) $< | sed -e 's/^#include <unistd.h>//' > $@
+# 	$(FLEX) $< | sed -e 's/^#include <unistd.h>//' -e 's/<stdout>/lex.yy.cc/' > $@
 # 	echo '#ifdef __VMS' >> $@
 # 	echo '// Some versions of DEC C++ for OpenVMS set the module name used by the' >> $@
 # 	echo '// librarian based on the last #line encountered.' >> $@
@@ -101,7 +101,6 @@ DIR_CPPFLAGS += $(SHAREDLIB_CPPFLAGS)
 ifdef AIX
 
 DIR_CPPFLAGS += -I. -I/usr/local/include -DNO_STRCASECMP
-CXXLINK = makeC++SharedLib_r
 
 libinit = init_omniidl
 py_exp = $(PYPREFIX)/lib/python$(PYVERSION)/config/python.exp
@@ -120,19 +119,29 @@ $(shlib): $(OBJS) $(PYOBJS)
 		$(filter-out $(LibSuffixPattern),$^); \
 	)
 else
+
+
+# Previously, xlc builds used this, but modern xlc works correctly
+# with the standard rule.
+
+# CXXLINK = makeC++SharedLib_r
+#
+# $(shlib): $(OBJS) $(PYOBJS)
+# 	@(set -x; \
+# 	$(RM) $@; \
+# 	$(CXXLINK) \
+# 		-n $(libinit) \
+# 		-o $(shlib) \
+# 		-bI:$(py_exp) \
+# 		$(IMPORT_LIBRARY_FLAGS) \
+# 		-bhalt:4 -T512 -H512 \
+# 		$(filter-out $(LibSuffixPattern),$^) \
+# 		-p 40 \
+# 		; \
+# 	)
 $(shlib): $(OBJS) $(PYOBJS)
-	@(set -x; \
-	$(RM) $@; \
-	$(CXXLINK) \
-		-n $(libinit) \
-		-o $(shlib) \
-		-bI:$(py_exp) \
-		$(IMPORT_LIBRARY_FLAGS) \
-		-bhalt:4 -T512 -H512 \
-		$(filter-out $(LibSuffixPattern),$^) \
-		-p 40 \
-		; \
-	)
+	@(namespec="$(namespec)"; extralibs="$(extralibs)"; $(MakeCXXSharedLibrary))
+
 endif
 
 else

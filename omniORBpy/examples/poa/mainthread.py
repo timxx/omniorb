@@ -9,7 +9,7 @@ import _GlobalIDL, _GlobalIDL__POA
 
 class Echo_i (_GlobalIDL__POA.Echo):
     def echoString(self, mesg):
-        print "echoString() called with message:", mesg
+        print("echoString() called with message:", mesg)
         if mesg == "re-enter":
             eo.echoString("re-entrant call")
         elif mesg == "shutdown":
@@ -33,6 +33,6 @@ ei = Echo_i()
 child.activate_object(ei)
 eo = ei._this()
 
-print orb.object_to_string(eo)
+print(orb.object_to_string(eo))
 
 orb.run()

@@ -3,7 +3,7 @@
 // omniORBpy.h                Created on: 2002/05/25
 //                            Author    : Duncan Grisby (dgrisby)
 //
-//    Copyright (C) 2002 Duncan Grisby
+//    Copyright (C) 2002-2018 Duncan Grisby
 //
 //    This file is part of the omniORBpy library
 //
@@ -19,9 +19,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Header for the C++ API to omniORBpy
@@ -36,9 +34,16 @@
 #include <omniORB4/CORBA.h>
 
 // The omniORBpy C++ API consists of a singleton structure containing
-// function pointers. A pointer to the API struct is stored as a
-// PyCObject in the _omnipy module with the name API. Access it with
-// code like:
+// function pointers.
+//
+// In Python 3.x, a pointer to the API struct is stored in a PyCapsule
+// named "_omnipy.API". Access it with code like:
+//
+//      omniORBpyAPI* api = (omniORBpyAPI*)PyCapsule_Import("_omnipy.API", 0);
+// 
+//
+// In Python 2.x, a pointer to the API struct is stored as a PyCObject
+// in the _omnipy module with the name API. Access it with code like:
 //
 //      PyObject*     omnipy = PyImport_ImportModule((char*)"_omnipy");
 //      PyObject*     pyapi  = PyObject_GetAttrString(omnipy, (char*)"API");
@@ -163,22 +168,37 @@ catch (const CORBA::exc& ex) { \
 // object reference types. To provide a Python mapping for these, a
 // function must be provided that takes a CORBA::Object_ptr and
 // returns a suitable PyObject. Functions are registered by appending
-// PyCObjects to the list _omnipy.pseudoFns. The CObjects must contain
-// pointers to functions with this signature:
+// PyCapsule objects (Python 3) or PyCObjects (Python 2) to the list
+// _omnipy.pseudoFns. The objects must contain pointers to functions
+// with this signature:
 
 typedef PyObject* (*omniORBpyPseudoFn)(const CORBA::Object_ptr);
 
 
 // Extensions may register functions to translate Python Policy
 // objects to C++ CORBA::Policy objects. _omnipy.policyFns is a
-// dictionary mapping CORBA::PolicyType to PyCObjects containing
-// functions pointers. Functions take a policy value (i.e. the value
-// inside the Python Policy object, not the Policy object itself), and
-// must return a valid CORBA::Policy object, CORBA::Policy::_nil, or
-// throw a CORBA::SystemException.
+// dictionary mapping CORBA::PolicyType to PyCapsules / PyCObjects
+// containing function pointers. Functions take a policy value
+// (i.e. the value inside the Python Policy object, not the Policy
+// object itself), and must return a valid CORBA::Policy object,
+// CORBA::Policy::_nil, or throw a CORBA::SystemException.
 
 typedef CORBA::Policy_ptr (*omniORBpyPolicyFn)(PyObject*);
 
+
+// Transport implementations may register functions to return extra
+// connection details for the omniORB.currentCallInfo()
+// function. _omnipy.callInfoFns is a dictionary mapping transport
+// name string to PyCapsules / PyCObjects containing function
+// pointers. The functions take a dict object to populate and a
+// giopConnection object for the transport's connection. The function
+// can add extra members to the dict.
+
+OMNI_NAMESPACE_BEGIN(omni)
+class giopConnection;
+OMNI_NAMESPACE_END(omni)
+
+typedef void (*omniORBpyCallInfoFn)(PyObject*, _OMNI_NS(giopConnection)*);
 
 
 #endif // _omniORBpy_h_

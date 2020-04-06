@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -31,6 +29,7 @@
 #include <omniORB4/CORBA.h>
 #include <omniORB4/giopEndpoint.h>
 #include <omniORB4/omniURI.h>
+#include <omniORB4/connectionInfo.h>
 #include <SocketCollection.h>
 #include <orbParameters.h>
 #include <objectAdapter.h>
@@ -309,13 +308,17 @@ tcpEndpoint::AcceptAndMonitor(giopConnection::notifyReadable_t func,
 
   pd_callback_func = func;
   pd_callback_cookie = cookie;
-  setSelectable(1,0,0);
+  setSelectable(1,0);
 
   while (1) {
     pd_new_conn_socket = RC_INVALID_SOCKET;
     if (!Select()) break;
     if (pd_new_conn_socket != RC_INVALID_SOCKET) {
-      return new tcpConnection(pd_new_conn_socket, this);
+      tcpConnection* nc = new tcpConnection(pd_new_conn_socket, this);
+
+      ConnectionInfo::set(ConnectionInfo::ACCEPTED_CONNECTION, 0,
+                          nc->peeraddress());
+      return nc;
     }
     if (pd_poked)
       return 0;
@@ -367,7 +370,7 @@ again:
 
       pd_new_conn_socket = sock;
     }
-    setSelectable(1,0,1);
+    setSelectable(1,0);
     return 1;
   }
   else {

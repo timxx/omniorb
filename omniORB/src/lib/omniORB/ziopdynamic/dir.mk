@@ -32,8 +32,9 @@ LIB_NAME     := omniZIOPDynamic
 LIB_VERSION  := $(OMNIORB_VERSION)
 LIB_OBJS     := $(ORB_OBJS)
 LIB_IMPORTS  := $(patsubst %,$(LibPathPattern),../orbcore/shared) \
-                $(OMNIORB_DLL_NAME) \
-                $(OMNITHREAD_LIB) $(EXTRA_LIBS)
+                $(OMNIORB_ZIOP_LIB) \
+                $(OMNIORB_DLL_NAME) $(OMNIORB_DYNAMIC_DLL_NAME) \
+                $(OMNIORB_ZIOP_LIB) $(OMNITHREAD_LIB) $(EXTRA_LIBS)
 LIB_SHARED_ONLY_OBJS := $(SHARED_ONLY_OBJS)
 
 include $(BASE_OMNI_TREE)/mk/mklib.mk
