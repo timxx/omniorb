@@ -374,9 +374,9 @@ public:
     
     class info_T {
     public:
-      omnivector<orbServer*>& servers;
+      std::vector<orbServer*>& servers;
 
-      info_T(omnivector<orbServer*>& s) : servers(s) {}
+      info_T(std::vector<orbServer*>& s) : servers(s) {}
     };
 
     typedef CORBA::Boolean (*interceptFunc)(info_T& info);

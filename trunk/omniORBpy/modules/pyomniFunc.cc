@@ -859,12 +859,12 @@ extern "C" {
     if (!PyArg_ParseTuple(args, (char*)""))
       return 0;
 
-    const omnivector<const char*>* ifaddrs
+    const std::vector<const char*>* ifaddrs
       = omni::giopTransportImpl::getInterfaceAddress("giop:tcp");
 
     PyObject* pyaddrs = PyList_New(ifaddrs->size());
 
-    omnivector<const char*>::const_iterator i;
+    std::vector<const char*>::const_iterator i;
     int j;
 
     for (i = ifaddrs->begin(), j=0; i != ifaddrs->end(); i++, j++) {

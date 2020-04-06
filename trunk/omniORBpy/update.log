@@ -1,3 +1,12 @@
+Mon  6 Apr 09:52:05 BST 2020
+============================
+
+- Replace omnivector with std::vector.
+
+modules/pyObjectRef.cc
+modules/pyomniFunc.cc
+
+
 Mon  6 Apr 01:25:17 BST 2020
 ============================
 

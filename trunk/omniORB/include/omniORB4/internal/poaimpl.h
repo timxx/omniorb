@@ -411,7 +411,7 @@ private:
   // May be 0.
   //  Mutable.  Protected by <poa_lock>.
 
-  omnivector<const char*>              pd_adptrActvtnsInProgress;
+  std::vector<const char*>             pd_adptrActvtnsInProgress;
   // List of names of child POAs which we are in the process
   // of activating using AdapterActivators.  This is likely to
   // be empty most of the time!

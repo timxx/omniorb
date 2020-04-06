@@ -282,10 +282,10 @@ struct resolvePseudoEntry {
   // Using default copy constructor
 };
 
-static omnivector<resolvePseudoEntry>*& thePseudoFnList()
+static std::vector<resolvePseudoEntry>*& thePseudoFnList()
 {
-  static omnivector<resolvePseudoEntry>* the_list = 0;
-  if (the_list == 0) the_list = new omnivector<resolvePseudoEntry>;
+  static std::vector<resolvePseudoEntry>* the_list = 0;
+  if (the_list == 0) the_list = new std::vector<resolvePseudoEntry>;
   return the_list;
 }
 
@@ -308,8 +308,8 @@ resolvePseudo(const char* id, unsigned int cycles)
   // since holding a reference there would prevent the objects from
   // being released properly when they have been destroyed.
 
-  omnivector<resolvePseudoEntry>::iterator i    = thePseudoFnList()->begin();
-  omnivector<resolvePseudoEntry>::iterator last = thePseudoFnList()->end();
+  std::vector<resolvePseudoEntry>::iterator i    = thePseudoFnList()->begin();
+  std::vector<resolvePseudoEntry>::iterator last = thePseudoFnList()->end();
   
   for (; i != last; i++) {
     if (!strcmp(id, (*i).id))
@@ -914,7 +914,7 @@ public:
   virtual
 #endif
   ~omni_initRefs_initialiser() {
-    omnivector<resolvePseudoEntry>*& the_list = thePseudoFnList();
+    std::vector<resolvePseudoEntry>*& the_list = thePseudoFnList();
     delete the_list;
     the_list = 0;
   }

@@ -71,8 +71,8 @@ tcpTransportImpl::tcpTransportImpl() : giopTransportImpl("giop:tcp") {
 
 /////////////////////////////////////////////////////////////////////////
 tcpTransportImpl::~tcpTransportImpl() {
-  omnivector<const char*>::iterator i = ifAddresses.begin();
-  omnivector<const char*>::iterator last = ifAddresses.end();
+  std::vector<const char*>::iterator i = ifAddresses.begin();
+  std::vector<const char*>::iterator last = ifAddresses.end();
   while ( i != last ) {
     char* p = (char*)(*i);
     CORBA::string_free(p);
@@ -137,15 +137,15 @@ tcpTransportImpl::addToIOR(const char* param, IORPublish* eps) {
 
 /////////////////////////////////////////////////////////////////////////
 #if   defined(__vxWorks__)
-static void vxworks_get_ifinfo(omnivector<const char*>& ifaddrs);
+static void vxworks_get_ifinfo(std::vector<const char*>& ifaddrs);
 #elif defined(HAVE_IFADDRS_H)
-static void ifaddrs_get_ifinfo(omnivector<const char*>& addrs);
+static void ifaddrs_get_ifinfo(std::vector<const char*>& addrs);
 #elif defined(UnixArchitecture)
-static void unix_get_ifinfo(omnivector<const char*>& ifaddrs);
+static void unix_get_ifinfo(std::vector<const char*>& ifaddrs);
 #elif defined(NTArchitecture)
-static void win32_get_ifinfo(omnivector<const char*>& ifaddrs);
-static void win32_get_ifinfo4(omnivector<const char*>& ifaddrs);
-static void win32_get_ifinfo6(omnivector<const char*>& ifaddrs);
+static void win32_get_ifinfo(std::vector<const char*>& ifaddrs);
+static void win32_get_ifinfo4(std::vector<const char*>& ifaddrs);
+static void win32_get_ifinfo6(std::vector<const char*>& ifaddrs);
 #endif
 
 /////////////////////////////////////////////////////////////////////////
@@ -165,8 +165,8 @@ tcpTransportImpl::initialise() {
 
   if ( orbParameters::dumpConfiguration || omniORB::trace(20) ) {
     omniORB::logger log;
-    omnivector<const char*>::iterator i    = ifAddresses.begin();
-    omnivector<const char*>::iterator last = ifAddresses.end();
+    std::vector<const char*>::iterator i    = ifAddresses.begin();
+    std::vector<const char*>::iterator last = ifAddresses.end();
     log << "My addresses are: \n";
     while ( i != last ) {
       log << "omniORB: " << (const char*)(*i) << "\n";
@@ -176,7 +176,7 @@ tcpTransportImpl::initialise() {
 }
 
 /////////////////////////////////////////////////////////////////////////
-const omnivector<const char*>*
+const std::vector<const char*>*
 tcpTransportImpl::getInterfaceAddress() {
   return &ifAddresses;
 }
@@ -187,7 +187,7 @@ const tcpTransportImpl _the_tcpTransportImpl;
 /////////////////////////////////////////////////////////////////////////
 #if defined(HAVE_IFADDRS_H)
 static
-void ifaddrs_get_ifinfo(omnivector<const char*>& addrs)
+void ifaddrs_get_ifinfo(std::vector<const char*>& addrs)
 {
   struct ifaddrs *ifa_list;
 
@@ -286,7 +286,7 @@ void ifaddrs_get_ifinfo(omnivector<const char*>& addrs)
 #  endif
 
 static
-void unix_get_ifinfo(omnivector<const char*>& addrs)
+void unix_get_ifinfo(std::vector<const char*>& addrs)
 {
   SocketHandle_t sock;
 
@@ -404,7 +404,7 @@ void unix_get_ifinfo(omnivector<const char*>& addrs)
 
 /////////////////////////////////////////////////////////////////////////
 #elif defined(__vxWorks__)
-void vxworks_get_ifinfo(omnivector<const char*>& ifaddrs)
+void vxworks_get_ifinfo(std::vector<const char*>& ifaddrs)
 {
   const int iMAX_ADDRESS_ENTRIES = 50;
   // Max. number of interface addresses.  There is 1 link layer address
@@ -510,7 +510,7 @@ extern "C" int WSAAPI ETS_WSAIoctl(
 #define WSAIoctl ETS_WSAIoctl
 #endif
 
-void win32_get_ifinfo(omnivector<const char*>& ifaddrs)
+void win32_get_ifinfo(std::vector<const char*>& ifaddrs)
 {
   win32_get_ifinfo4(ifaddrs);
   win32_get_ifinfo6(ifaddrs);
@@ -518,7 +518,7 @@ void win32_get_ifinfo(omnivector<const char*>& ifaddrs)
 
 
 static
-void win32_get_ifinfo4(omnivector<const char*>& ifaddrs)
+void win32_get_ifinfo4(std::vector<const char*>& ifaddrs)
 {
   // Get Windows IPv4 interfaces.
 
@@ -563,7 +563,7 @@ void win32_get_ifinfo4(omnivector<const char*>& ifaddrs)
 
 
 static
-void win32_get_ifinfo6(omnivector<const char*>& ifaddrs)
+void win32_get_ifinfo6(std::vector<const char*>& ifaddrs)
 {
   // Get Windows IPv6 interfaces.
 

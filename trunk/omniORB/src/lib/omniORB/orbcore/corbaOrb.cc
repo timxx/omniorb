@@ -837,18 +837,18 @@ OMNI_NAMESPACE_BEGIN(omni)
 //            Hooked initialiser                                           //
 /////////////////////////////////////////////////////////////////////////////
 
-static omnivector<omniInitialiser*>*& the_hooked_list()
+static std::vector<omniInitialiser*>*& the_hooked_list()
 {
-  static omnivector<omniInitialiser*>* the_list = 0;
-  if (!the_list) the_list = new omnivector<omniInitialiser*>;
+  static std::vector<omniInitialiser*>* the_list = 0;
+  if (!the_list) the_list = new std::vector<omniInitialiser*>;
   return the_list;
 }
 
 class omni_hooked_initialiser : public omniInitialiser {
 public:
   void attach() {
-    omnivector<omniInitialiser*>::iterator i    = the_hooked_list()->begin();
-    omnivector<omniInitialiser*>::iterator last = the_hooked_list()->end();
+    std::vector<omniInitialiser*>::iterator i    = the_hooked_list()->begin();
+    std::vector<omniInitialiser*>::iterator last = the_hooked_list()->end();
 
     for (; i != last; i++) {
       (*i)->attach();
@@ -856,8 +856,8 @@ public:
   }
 
   void detach() {
-    omnivector<omniInitialiser*>::iterator i    = the_hooked_list()->begin();
-    omnivector<omniInitialiser*>::iterator last = the_hooked_list()->end();
+    std::vector<omniInitialiser*>::iterator i    = the_hooked_list()->begin();
+    std::vector<omniInitialiser*>::iterator last = the_hooked_list()->end();
 
     for (; i != last; i++) {
       (*i)->detach();
@@ -865,7 +865,7 @@ public:
   }
 
   virtual ~omni_hooked_initialiser() {
-    omnivector<omniInitialiser*>*& the_list = the_hooked_list();
+    std::vector<omniInitialiser*>*& the_list = the_hooked_list();
     delete the_list;
     the_list = 0;
   }

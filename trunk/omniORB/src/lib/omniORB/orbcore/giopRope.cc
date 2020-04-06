@@ -895,7 +895,7 @@ giopRope::filterAndSortAddressList()
 
   // For each address, find the rule that is applicable. Record the
   // rules priority in the priority list.
-  omnivector<CORBA::ULong> priority_list;
+  std::vector<CORBA::ULong> priority_list;
 
   CORBA::ULong index;
   CORBA::ULong total = pd_addresses.size();

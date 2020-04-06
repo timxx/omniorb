@@ -41,7 +41,7 @@ public:
   CORBA::Boolean isValid(const char* param);
   CORBA::Boolean addToIOR(const char* param, IORPublish* eps);
   sslContext*    getContext() const { return pd_ctx; }
-  const omnivector<const char*>* getInterfaceAddress();
+  const std::vector<const char*>* getInterfaceAddress();
 
   sslTransportImpl(sslContext* ctx);
   ~sslTransportImpl();

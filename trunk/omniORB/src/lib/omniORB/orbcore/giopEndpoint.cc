@@ -351,7 +351,7 @@ giopConnection::gatekeeperCheckSpecific(giopStrand* strand)
 
 
 ////////////////////////////////////////////////////////////////////////
-const omnivector<const char*>*
+const std::vector<const char*>*
 giopTransportImpl::getInterfaceAddress(const char* t) {
 
   giopTransportImpl* impl = implHead();
