@@ -631,6 +631,8 @@ PLATFORM_DEFINE
 PLATFORM_NAME
 COMPILER_NAME
 ENABLE_CXX11
+ENABLE_HTTP_CRYPTO
+OMNI_USE_CFNETWORK_CONNECT
 ENABLE_ZIOP
 ENABLE_LONGDOUBLE
 ENABLE_STATIC
@@ -648,6 +650,9 @@ OPENSSL_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 EXTRA_GCC_CXXFLAGS
+CROSS_COMPILING
+OMKDEPEND
+OMNIIDL
 PKG_CONFIG
 pkgpyexecdir
 pyexecdir
@@ -732,6 +737,7 @@ enable_ipv6
 enable_alloca
 enable_longdouble
 enable_atomic
+enable_cfnetwork
 enable_cxx11
 '
       ac_precious_vars='build_alias
@@ -1376,6 +1382,8 @@ Optional Features:
   --disable-longdouble    disable long double support (default
                           enable-longdouble)
   --disable-atomic        disable atomic operations (default enable-atomic)
+  --enable-cfnetwork      enable use of Mac / iOS CFNetwork (default
+                          disable-cfnetwork)
   --enable-cxx11          enable C++11 mapping (default disable-cxx11)
 
 Optional Packages:
@@ -4233,7 +4241,7 @@ fi
 
         # Find any Python interpreter.
     if test -z "$PYTHON"; then
-      for ac_prog in python python2 python3 python3.3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0
+      for ac_prog in python python2 python3  python3.9 python3.8 python3.7 python3.6 python3.5 python3.4 python3.3  python3.2 python3.1 python3.0  python2.7 python2.6 python2.5 python2.4 python2.3 python2.2 python2.1  python2.0
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -4432,6 +4440,14 @@ $as_echo "$am_cv_python_pyexecdir" >&6; }
   fi
 
 
+pyplat=`$PYTHON -c "import sys, platform; sys.stdout.write(platform.python_implementation())"`
+   if test "x$pyplat" = "xPyPy"
+   then
+     echo "Fix PyPy pythondir to $am_cv_python_pyexecdir"
+     am_cv_python_pythondir=$am_cv_python_pyexecdir
+     pythondir=$am_cv_python_pyexecdir
+   fi
+
 
 # Extract the first word of "pkg-config", so it can be a program name with args.
 set dummy pkg-config; ac_word=$2
@@ -4472,6 +4488,104 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
+
+
+
+
+
+if test "$cross_compiling" = yes; then
+  # Extract the first word of "omniidl", so it can be a program name with args.
+set dummy omniidl; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_OMNIIDL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $OMNIIDL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_OMNIIDL="$OMNIIDL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_OMNIIDL="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_OMNIIDL" && ac_cv_path_OMNIIDL="no"
+  ;;
+esac
+fi
+OMNIIDL=$ac_cv_path_OMNIIDL
+if test -n "$OMNIIDL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OMNIIDL" >&5
+$as_echo "$OMNIIDL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  if test "x$ac_cv_path_OMNIIDL" = "xno"; then
+    as_fn_error $? "cannot find omniidl on the path" "$LINENO" 5
+  fi
+
+  # Extract the first word of "omkdepend", so it can be a program name with args.
+set dummy omkdepend; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_OMKDEPEND+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $OMKDEPEND in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_OMKDEPEND="$OMKDEPEND" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_OMKDEPEND="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_OMKDEPEND" && ac_cv_path_OMKDEPEND="no"
+  ;;
+esac
+fi
+OMKDEPEND=$ac_cv_path_OMKDEPEND
+if test -n "$OMKDEPEND"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OMKDEPEND" >&5
+$as_echo "$OMKDEPEND" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  if test "x$ac_cv_path_OMKDEPEND" = "xno"; then
+    as_fn_error $? "cannot find omkdepend on the path" "$LINENO" 5
+  fi
+fi
+
+CROSS_COMPILING=$cross_compiling
 
 
 
@@ -6335,7 +6449,7 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
  if test "$cross_compiling" = yes; then :
-  omni_cv_cxx_catch_by_base=no
+  omni_cv_cxx_catch_by_base=yes
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -6634,7 +6748,7 @@ _ACEOF
 fi
 done
 
-for ac_func in getnameinfo inet_ntop
+for ac_func in getnameinfo gmtime gmtime_r inet_ntop
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -6646,7 +6760,7 @@ _ACEOF
 fi
 done
 
-for ac_func in isinf insinff isinfl localtime nanosleep poll rand_r sigaction
+for ac_func in isinf insinff isinfl localtime localtime_r nanosleep poll
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -6658,7 +6772,7 @@ _ACEOF
 fi
 done
 
-for ac_func in sigvec snprintf strcasecmp strdup strerror strftime stricmp
+for ac_func in rand_r sigaction sigvec snprintf strcasecmp strdup
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -6670,7 +6784,19 @@ _ACEOF
 fi
 done
 
-for ac_func in strncasecmp strtoul strtoull strtouq uname vprintf vsnprintf
+for ac_func in strerror strftime stricmp strncasecmp strtoul strtoull
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in strtouq uname vprintf vsnprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -7346,9 +7472,9 @@ $as_echo "#define OMNI_DISABLE_ATOMIC_OPS /**/" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for compress2 in -lz" >&5
-$as_echo_n "checking for compress2 in -lz... " >&6; }
-if ${ac_cv_lib_z_compress2+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for compressBound in -lz" >&5
+$as_echo_n "checking for compressBound in -lz... " >&6; }
+if ${ac_cv_lib_z_compressBound+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -7362,33 +7488,65 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char compress2 ();
+char compressBound ();
 int
 main ()
 {
-return compress2 ();
+return compressBound ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_z_compress2=yes
+  ac_cv_lib_z_compressBound=yes
 else
-  ac_cv_lib_z_compress2=no
+  ac_cv_lib_z_compressBound=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_compress2" >&5
-$as_echo "$ac_cv_lib_z_compress2" >&6; }
-if test "x$ac_cv_lib_z_compress2" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_compressBound" >&5
+$as_echo "$ac_cv_lib_z_compressBound" >&6; }
+if test "x$ac_cv_lib_z_compressBound" = xyes; then :
   omni_cv_enable_ziop=yes
 else
   omni_cv_enable_ziop=no
 fi
 
 ENABLE_ZIOP=$omni_cv_enable_ziop
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use CFNetwork" >&5
+$as_echo_n "checking whether to use CFNetwork... " >&6; }
+if ${omni_cv_enable_cfnetwork+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  # Check whether --enable-cfnetwork was given.
+if test "${enable_cfnetwork+set}" = set; then :
+  enableval=$enable_cfnetwork; omni_cv_enable_cfnetwork=$enableval
+else
+  omni_cv_enable_cfnetwork=no
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $omni_cv_enable_cfnetwork" >&5
+$as_echo "$omni_cv_enable_cfnetwork" >&6; }
+if test "$omni_cv_enable_cfnetwork" = "yes"; then
+
+$as_echo "#define OMNI_USE_CFNETWORK_CONNECT /**/" >>confdefs.h
+
+fi
+OMNI_USE_CFNETWORK_CONNECT=$omni_cv_enable_cfnetwork
+
+
+
+if test -n $open_ssl_root -a $ac_cv_cxx_have_std = "yes"; then
+    omni_cv_enable_http_crypto=yes
+else
+    omni_cv_enable_http_crypto=no
+fi
+ENABLE_HTTP_CRYPTO=$omni_cv_enable_http_crypto
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to support the C++11 mapping" >&5
 $as_echo_n "checking whether to support the C++11 mapping... " >&6; }
@@ -7523,7 +7681,7 @@ ac_config_files="$ac_config_files src/tool/omniidl/python/scripts/omniidl"
 
 ac_config_files="$ac_config_files src/tool/omniidl/python3/scripts/omniidl"
 
-ac_config_files="$ac_config_files src/appl/GNUmakefile src/appl/omniMapper/GNUmakefile src/appl/omniNames/GNUmakefile src/appl/utils/catior/GNUmakefile src/appl/utils/convertior/GNUmakefile src/appl/utils/GNUmakefile src/appl/utils/genior/GNUmakefile src/appl/utils/nameclt/GNUmakefile src/GNUmakefile src/examples/ami/GNUmakefile src/examples/anyExample/GNUmakefile src/examples/bidir/GNUmakefile src/examples/boa/GNUmakefile src/examples/call_back/GNUmakefile src/examples/dii/GNUmakefile src/examples/GNUmakefile src/examples/dsi/GNUmakefile src/examples/echo/GNUmakefile src/examples/poa/GNUmakefile src/examples/poa/implicit_activation/GNUmakefile src/examples/poa/persistent_objref/GNUmakefile src/examples/poa/servant_manager/GNUmakefile src/examples/poa/threading/GNUmakefile src/examples/poa/shortcut/GNUmakefile src/examples/ssl_echo/GNUmakefile src/examples/thread/GNUmakefile src/examples/valuetype/GNUmakefile src/examples/valuetype/simple/GNUmakefile src/examples/ziop/GNUmakefile src/lib/GNUmakefile src/lib/omniORB/codesets/GNUmakefile src/lib/omniORB/GNUmakefile src/lib/omniORB/dynamic/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/dynskel/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/header/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/impl/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/skel/GNUmakefile src/lib/omniORB/python/omniidl_be/GNUmakefile src/lib/omniORB/python/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/dynskel/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/header/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/impl/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/skel/GNUmakefile src/lib/omniORB/python3/omniidl_be/GNUmakefile src/lib/omniORB/python3/GNUmakefile src/lib/omniORB/base/GNUmakefile src/lib/omniORB/orbcore/GNUmakefile src/lib/omniORB/orbcore/ssl/GNUmakefile src/lib/omniORB/connections/GNUmakefile src/lib/omniORB/ziop/GNUmakefile src/lib/omniORB/ziopdynamic/GNUmakefile src/lib/omnithread/GNUmakefile src/services/GNUmakefile src/services/mklib/GNUmakefile src/services/mklib/stublib/GNUmakefile src/services/mklib/dynstublib/GNUmakefile src/services/mklib/mkBOAlib/GNUmakefile src/tool/GNUmakefile src/tool/omkdepend/GNUmakefile src/tool/omniidl/cxx/cccp/GNUmakefile src/tool/omniidl/cxx/GNUmakefile src/tool/omniidl/GNUmakefile src/tool/omniidl/python/GNUmakefile src/tool/omniidl/python/omniidl_be/GNUmakefile src/tool/omniidl/python/omniidl/GNUmakefile src/tool/omniidl/python/scripts/GNUmakefile src/tool/omniidl/python3/GNUmakefile src/tool/omniidl/python3/omniidl_be/GNUmakefile src/tool/omniidl/python3/omniidl/GNUmakefile src/tool/omniidl/python3/scripts/GNUmakefile"
+ac_config_files="$ac_config_files src/appl/GNUmakefile src/appl/omniMapper/GNUmakefile src/appl/omniNames/GNUmakefile src/appl/utils/catior/GNUmakefile src/appl/utils/convertior/GNUmakefile src/appl/utils/GNUmakefile src/appl/utils/genior/GNUmakefile src/appl/utils/nameclt/GNUmakefile src/GNUmakefile src/examples/ami/GNUmakefile src/examples/anyExample/GNUmakefile src/examples/bidir/GNUmakefile src/examples/boa/GNUmakefile src/examples/call_back/GNUmakefile src/examples/dii/GNUmakefile src/examples/GNUmakefile src/examples/dsi/GNUmakefile src/examples/echo/GNUmakefile src/examples/poa/GNUmakefile src/examples/poa/implicit_activation/GNUmakefile src/examples/poa/persistent_objref/GNUmakefile src/examples/poa/servant_manager/GNUmakefile src/examples/poa/threading/GNUmakefile src/examples/poa/shortcut/GNUmakefile src/examples/ssl_echo/GNUmakefile src/examples/thread/GNUmakefile src/examples/valuetype/GNUmakefile src/examples/valuetype/simple/GNUmakefile src/examples/ziop/GNUmakefile src/lib/GNUmakefile src/lib/omniORB/codesets/GNUmakefile src/lib/omniORB/GNUmakefile src/lib/omniORB/dynamic/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/dynskel/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/header/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/impl/GNUmakefile src/lib/omniORB/python/omniidl_be/cxx/skel/GNUmakefile src/lib/omniORB/python/omniidl_be/GNUmakefile src/lib/omniORB/python/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/dynskel/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/header/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/impl/GNUmakefile src/lib/omniORB/python3/omniidl_be/cxx/skel/GNUmakefile src/lib/omniORB/python3/omniidl_be/GNUmakefile src/lib/omniORB/python3/GNUmakefile src/lib/omniORB/base/GNUmakefile src/lib/omniORB/orbcore/GNUmakefile src/lib/omniORB/orbcore/ssl/GNUmakefile src/lib/omniORB/orbcore/http/GNUmakefile src/lib/omniORB/connections/GNUmakefile src/lib/omniORB/ziop/GNUmakefile src/lib/omniORB/ziopdynamic/GNUmakefile src/lib/omniORB/httpcrypto/GNUmakefile src/lib/omnithread/GNUmakefile src/services/GNUmakefile src/services/mklib/GNUmakefile src/services/mklib/stublib/GNUmakefile src/services/mklib/dynstublib/GNUmakefile src/services/mklib/mkBOAlib/GNUmakefile src/tool/GNUmakefile src/tool/omkdepend/GNUmakefile src/tool/omniidl/cxx/cccp/GNUmakefile src/tool/omniidl/cxx/GNUmakefile src/tool/omniidl/GNUmakefile src/tool/omniidl/python/GNUmakefile src/tool/omniidl/python/omniidl_be/GNUmakefile src/tool/omniidl/python/omniidl/GNUmakefile src/tool/omniidl/python/scripts/GNUmakefile src/tool/omniidl/python3/GNUmakefile src/tool/omniidl/python3/omniidl_be/GNUmakefile src/tool/omniidl/python3/omniidl/GNUmakefile src/tool/omniidl/python3/scripts/GNUmakefile"
 
 
 ac_config_files="$ac_config_files include/GNUmakefile include/omniconfig.h include/omnithread/GNUmakefile include/omniORB4/GNUmakefile include/omniORB4/internal/GNUmakefile"
@@ -8287,9 +8445,11 @@ do
     "src/lib/omniORB/base/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/base/GNUmakefile" ;;
     "src/lib/omniORB/orbcore/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/orbcore/GNUmakefile" ;;
     "src/lib/omniORB/orbcore/ssl/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/orbcore/ssl/GNUmakefile" ;;
+    "src/lib/omniORB/orbcore/http/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/orbcore/http/GNUmakefile" ;;
     "src/lib/omniORB/connections/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/connections/GNUmakefile" ;;
     "src/lib/omniORB/ziop/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/ziop/GNUmakefile" ;;
     "src/lib/omniORB/ziopdynamic/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/ziopdynamic/GNUmakefile" ;;
+    "src/lib/omniORB/httpcrypto/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omniORB/httpcrypto/GNUmakefile" ;;
     "src/lib/omnithread/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/lib/omnithread/GNUmakefile" ;;
     "src/services/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/services/GNUmakefile" ;;
     "src/services/mklib/GNUmakefile") CONFIG_FILES="$CONFIG_FILES src/services/mklib/GNUmakefile" ;;
