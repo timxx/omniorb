@@ -3,7 +3,7 @@
 // CORBA_sysdep.h             Created on: 30/1/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2002-2012 Apasphere Ltd
+//    Copyright (C) 2002-2020 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
@@ -127,7 +127,6 @@
 #  if (__GNUG__ == 2 && (__GNUC_MINOR__ >= 91 || __GNUC_MINOR__ == 9)) || \
       (__GNUG__ >= 3)
 #     define HAS_Cplusplus_Namespace
-#     define HAS_Cplusplus_Bool
 #  endif
 
 // Since gcc 3.3 old IOstream's are considered deprecated.
@@ -157,9 +156,6 @@
 #     define _CORBA_ULONGLONG_DECL  unsigned long long
 #     define _CORBA_LONGDOUBLE_DECL long double
 #     define _CORBA_LONGLONG_CONST(x) (x##LL)
-#     ifndef NO_Cplusplus_Bool
-#       define HAS_Cplusplus_Bool
-#     endif
 #     define HAS_Cplusplus_Namespace
 #     define HAS_Std_Namespace
 #     define HAS_pch
@@ -185,7 +181,6 @@
 #    if __SUNPRO_CC_COMPAT >= 5
 #      define HAS_Cplusplus_Namespace
 #      define HAS_Std_Namespace
-#      define HAS_Cplusplus_Bool
 #    endif
 #  endif
 
@@ -201,9 +196,6 @@
 #elif defined(_MSC_VER)
 //  Microsoft Visual C++ compiler
 #  if _MSC_VER >= 1000
-#    ifndef NO_Cplusplus_Bool
-#      define HAS_Cplusplus_Bool
-#    endif
 #    define HAS_Cplusplus_Namespace
 #    define HAS_Std_Namespace
 #    ifndef HAVE_STD
@@ -222,7 +214,6 @@
 
 #elif defined(__DMC__)
 //  Digital Mars C++
-#  define HAS_Cplusplus_Bool
 #  define HAS_Cplusplus_Namespace
 #  define HAS_Std_Namespace
 
@@ -253,13 +244,11 @@
 // Kai C++
 #  define HAS_Cplusplus_Namespace
 #  define HAS_Std_Namespace
-#  define HAS_Cplusplus_Bool
 
 #elif defined(__sgi)
 
 #  if _COMPILER_VERSION >= 721
 #    define HAS_Cplusplus_Namespace
-#    define HAS_Cplusplus_Bool
 #    define HAS_Cplusplus_const_cast
 #    define OMNI_REQUIRES_FQ_BASE_CTOR
 #    define HAS_LongLong
@@ -284,7 +273,6 @@
 #    undef HAS_Cplusplus_const_cast
 #    undef HAS_Cplusplus_reinterpret_cast
 #  elif (__xlC__ >= 0x0500) // added in xlC 5.0 (a.k.a. Visual Age 5.0)
-#    define HAS_Cplusplus_Bool
 #    define HAS_Cplusplus_Namespace
 #    define HAS_Std_Namespace
 #    define HAS_LongLong
@@ -302,7 +290,6 @@
 // it is aCC.
 #  if defined(__HP_aCC) || !defined(__GNUG__)
 #    define HAS_Cplusplus_Namespace
-#    define HAS_Cplusplus_Bool
 #    define HAS_LongLong
 #    define _CORBA_LONGLONG_DECL   long long
 #    define _CORBA_ULONGLONG_DECL  unsigned long long
@@ -328,7 +315,6 @@
 
 #elif defined(__MWERKS__)
 // Metrowerks CodeWarrior Pro 8 or later for Mac OS Classic or Carbon
-#  define HAS_Cplusplus_Bool
 #  define HAS_Cplusplus_Namespace
 #  define HAS_Std_Namespace
 #  define HAS_LongLong

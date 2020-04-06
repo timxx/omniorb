@@ -3,7 +3,7 @@
 // CORBA_basetypes.h          Created on: 30/1/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2013-2017 Apasphere Ltd
+//    Copyright (C) 2013-2020 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories - Cambridge Ltd
 //
 //    This file is part of the omniORB library
@@ -28,11 +28,7 @@
 #ifndef __CORBA_BASETYPES_H__
 #define __CORBA_BASETYPES_H__
 
-#ifdef HAS_Cplusplus_Bool
 typedef bool                      _CORBA_Boolean;
-#else
-typedef unsigned char             _CORBA_Boolean;
-#endif
 
 typedef unsigned char             _CORBA_Char;
 

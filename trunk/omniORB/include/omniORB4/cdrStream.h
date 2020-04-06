@@ -3,7 +3,7 @@
 // cdrStream.h                Created on: 11/1/99
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2003-2015 Apasphere Ltd
+//    Copyright (C) 2003-2020 Apasphere Ltd
 //    Copyright (C) 1999      AT&T Laboratories, Cambridge
 //
 //    This file is part of the omniORB library
@@ -154,11 +154,7 @@ public:
 
   inline _CORBA_Boolean unmarshalBoolean() {
     _CORBA_Octet o = unmarshalOctet();
-#ifdef HAS_Cplusplus_Bool
     return o ? true : false;
-#else
-    return (_CORBA_Boolean)o;
-#endif
   }
 
 
@@ -594,7 +590,7 @@ public:
   inline void
   unmarshalArrayBoolean(_CORBA_Boolean* a, int length)
   {
-#if !defined(HAS_Cplusplus_Bool) || (SIZEOF_BOOL == 1)
+#if (SIZEOF_BOOL == 1)
     get_octet_array((_CORBA_Char*)a, length, omni::ALIGN_1);
 #else
     for (int i = 0; i < length; i++)
@@ -973,12 +969,8 @@ void operator<<=(char& a, cdrStream& s);
 void operator>>=(unsigned char  a, cdrStream& s);
 void operator<<=(unsigned char& a, cdrStream& s);
 
-#ifdef HAS_Cplusplus_Bool
-
 void operator>>=(bool  a, cdrStream& s);
 void operator<<=(bool& a, cdrStream& s);
-
-#endif
 
 
 //

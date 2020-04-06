@@ -1,7 +1,21 @@
+Mon  6 Apr 12:42:48 BST 2020
+============================
+
+- Require bool type.
+
+include/omniORB4/CORBA_basetypes.h
+include/omniORB4/CORBA_sysdep_auto.h
+include/omniORB4/CORBA_sysdep_trad.h
+include/omniORB4/cdrStream.h
+include/omniORB4/omniORB.h
+include/omniORB4/seqTemplatedefns.h
+src/tool/omniidl/cxx/idlsysdep.h
+
+
 Mon  6 Apr 10:46:52 BST 2020
 ============================
 
-- Fix accedentally reintroduced omnivector.
+- Fix accidentally reintroduced omnivector.
 
 include/omniORB4/internal/SocketCollection.h
 

@@ -3,8 +3,8 @@
 // idlsysdep.h              Created on: 1999/11/04
 //			    Author    : Duncan Grisby (dpg1)
 //
-//    Copyright (C) 2005 Apasphere Ltd
-//    Copyright (C) 1999 AT&T Laboratories Cambridge
+//    Copyright (C) 2005-2020 Apasphere Ltd
+//    Copyright (C) 1999      AT&T Laboratories Cambridge
 //
 //  This file is part of omniidl.
 //
@@ -46,11 +46,7 @@
 #endif
 
 
-#ifdef HAS_Cplusplus_Bool
 typedef bool                      IDL_Boolean;
-#else
-typedef unsigned char             IDL_Boolean;
-#endif
 
 typedef unsigned char             IDL_Char;
 
