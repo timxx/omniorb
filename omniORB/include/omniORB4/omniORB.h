@@ -3,7 +3,7 @@
 // omniORB.h                  Created on: 6/2/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2002-2017 Apasphere Ltd
+//    Copyright (C) 2002-2020 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
@@ -276,9 +276,7 @@ _CORBA_MODULE_BEG
     logger& operator<<(__int64 n);
     logger& operator<<(unsigned __int64 n);
 #endif
-#ifdef HAS_Cplusplus_Bool
     logger& operator<<(bool b) { return operator<<((int)b); }
-#endif
 #ifndef NO_FLOAT
     logger& operator<<(double n);
     logger& operator<<(float n) { return operator<<((double)n); }

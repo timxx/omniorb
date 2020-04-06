@@ -3,6 +3,7 @@
 // CORBA_sysdep.h             Created on: 30/1/96
 //                            Author    : Sai Lai Lo (sll)
 //
+//    Copyright (C) 2020      Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
@@ -29,10 +30,6 @@
 #ifndef __CORBA_SYSDEP_AUTO_H__
 #define __CORBA_SYSDEP_AUTO_H__
 
-
-#ifdef HAVE_BOOL
-#  define HAS_Cplusplus_Bool
-#endif
 
 #ifdef HAVE_CATCH_BY_BASE
 #  define HAS_Cplusplus_catch_exception_by_base

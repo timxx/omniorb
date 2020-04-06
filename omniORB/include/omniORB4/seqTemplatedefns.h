@@ -3,7 +3,7 @@
 // seqTemplatedefns.h         Created on: 14/5/96
 //                            Author    : Sai Lai Lo (sll)
 //
-//    Copyright (C) 2003-2009 Apasphere Ltd
+//    Copyright (C) 2003-2020 Apasphere Ltd
 //    Copyright (C) 1996-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library.
@@ -310,7 +310,7 @@ _CORBA_Sequence_Boolean::operator>>= (cdrStream& s) const
   _CORBA_ULong l = Base_T_seq::length();
   l >>= s;
   if (l==0) return;
-# if !defined(HAS_Cplusplus_Bool) || (SIZEOF_BOOL == 1)
+# if (SIZEOF_BOOL == 1)
   s.put_octet_array((_CORBA_Octet*)this->pd_buf,l);
 # else
   for ( _CORBA_ULong i = 0; i < l; i++ )
@@ -331,7 +331,7 @@ _CORBA_Sequence_Boolean::operator<<= (cdrStream& s)
   }
   this->length(l);
   if (l==0) return;
-# if !defined(HAS_Cplusplus_Bool) || (SIZEOF_BOOL == 1)
+# if (SIZEOF_BOOL == 1)
   s.get_octet_array((_CORBA_Octet*)this->pd_buf,l);
 # else
   for ( _CORBA_ULong i = 0; i < l; i++ )
@@ -502,7 +502,7 @@ _CORBA_Sequence_Array_Boolean<T,T_slice,dimension>::operator>>=(cdrStream& s) co
 {
   this->pd_len >>= s;
   if (this->pd_len==0) return;
-# if !defined(HAS_Cplusplus_Bool) || (SIZEOF_BOOL == 1)
+# if (SIZEOF_BOOL == 1)
   s.put_octet_array((_CORBA_Octet*)this->pd_buf,(int)this->pd_len*dimension);
 # else
   for (_CORBA_ULong i=0; i<this->pd_len; i++) {
@@ -526,7 +526,7 @@ _CORBA_Sequence_Array_Boolean<T,T_slice,dimension>::operator<<=(cdrStream& s)
   }
   this->length(l);
   if (l==0) return;
-# if !defined(HAS_Cplusplus_Bool) || (SIZEOF_BOOL == 1)
+# if (SIZEOF_BOOL == 1)
   s.get_octet_array((_CORBA_Octet*)this->pd_buf,(int)l*dimension);
 # else
   for (_CORBA_ULong i=0; i<l; i++) {
