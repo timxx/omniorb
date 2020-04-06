@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -250,6 +248,12 @@ _CORBA_MODULE_BEG
     ~logger();
     // The destructor flushes the message.
 
+    struct unsafe {
+      // "unsafe" string that may contain non-printable characters
+      inline unsafe(const char* str) : s(str) {}
+      const char* s;
+    };
+    
     logger& operator<<(char c);
     logger& operator<<(unsigned char c) { return (*this) << (char)c; }
     logger& operator<<(signed char c) { return (*this) << (char)c; }
@@ -260,6 +264,7 @@ _CORBA_MODULE_BEG
     logger& operator<<(const signed char *s) {
       return (*this) << (const char*)s;
     }
+    logger& operator<<(const unsafe& us);
     logger& operator<<(const void *p);
     logger& operator<<(int n);
     logger& operator<<(unsigned int n);
@@ -267,6 +272,10 @@ _CORBA_MODULE_BEG
     logger& operator<<(unsigned long n);
     logger& operator<<(short n) {return operator<<((int)n);}
     logger& operator<<(unsigned short n) {return operator<<((unsigned int)n);}
+#if defined(_MSC_VER) && defined(_WIN64)
+    logger& operator<<(__int64 n);
+    logger& operator<<(unsigned __int64 n);
+#endif
 #ifdef HAS_Cplusplus_Bool
     logger& operator<<(bool b) { return operator<<((int)b); }
 #endif
@@ -615,7 +624,14 @@ _CORBA_MODULE_BEG
 private:
 #endif
 
-#ifndef HAS_Cplusplus_catch_exception_by_base
+#ifdef HAS_Cplusplus_catch_exception_by_base
+
+#  define _OMNIORB_EX_ONLY_CD(x)
+
+#else
+
+#  define _OMNIORB_EX_ONLY_CD(x) x
+
   // Internal omniORB class.  Used in the stubs to pass
   // user-defined exceptions to a lower level.
 

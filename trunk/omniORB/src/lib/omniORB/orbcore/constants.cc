@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -33,7 +31,7 @@
 OMNI_NAMESPACE_BEGIN(omni)
 
 // See the description of this variable in omniInternal.h
-const char* omniORB_4_2 = "omniORB version 4.2.x";
+const char* omniORB_4_3 = "omniORB version 4.3.x";
 
 const CORBA::ULong omniORB_TAG_ORB_TYPE = 0x41545400; // ATT\x00
 
@@ -92,6 +90,7 @@ const IOP::ComponentId IOP::TAG_OMNIORB_BIDIR         	      = 0x41545401;
 const IOP::ComponentId IOP::TAG_OMNIORB_UNIX_TRANS    	      = 0x41545402;
 const IOP::ComponentId IOP::TAG_OMNIORB_PERSISTENT_ID 	      = 0x41545403;
 const IOP::ComponentId IOP::TAG_OMNIORB_RESTRICTED_CONNECTION = 0x41545404;
+const IOP::ComponentId IOP::TAG_OMNIORB_HTTP_TRANS    	      = 0x41545405;
 
 
 static struct {
@@ -131,6 +130,7 @@ static struct {
   { IOP::TAG_OMNIORB_UNIX_TRANS, "TAG_OMNIORB_UNIX_TRANS" },
   { IOP::TAG_OMNIORB_PERSISTENT_ID, "TAG_OMNIORB_PERSISTENT_ID" },
   { IOP::TAG_OMNIORB_RESTRICTED_CONNECTION, "TAG_OMNIORB_RESTRICTED_CONNECTION" },
+  { IOP::TAG_OMNIORB_HTTP_TRANS, "TAG_OMNIORB_HTTP_TRANS" },
   { 0, 0 }
 };
 

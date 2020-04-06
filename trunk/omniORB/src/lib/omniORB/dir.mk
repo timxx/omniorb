@@ -16,6 +16,12 @@ ifdef EnableZIOP
 SUBDIRS += ziop ziopdynamic
 endif
 
+ifdef EnableHTTPCrypto
+ifdef OPEN_SSL_ROOT
+SUBDIRS += httpcrypto
+endif
+endif
+
 endif
 
 EXPORTHEADERS = omniORB4/distdate.hh \

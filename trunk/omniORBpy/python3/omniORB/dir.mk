@@ -86,12 +86,16 @@ clean::
 FILES = __init__.py CORBA.py PortableServer.py PortableServer__POA.py \
         tcInternal.py URI.py codesets.py any.py BiDirPolicy.py \
         interceptors.py ami.py Compression.py ZIOP.py omniZIOP.py \
-        corbaidl_idl.py ir_idl.py boxes_idl.py \
+        ConnectionInfo.py corbaidl_idl.py ir_idl.py boxes_idl.py \
         pollable_idl.py messaging_idl.py compression_idl.py ziop_idl.py \
         minorCodes.py omniConnectionMgmt.py omniPolicy.py
 
 ifdef OPEN_SSL_ROOT
-FILES += sslTP.py
+FILES += httpTP.py sslTP.py
+endif
+
+ifdef EnableHTTPCrypto
+FILES += httpCrypto.py
 endif
 
 export:: $(FILES)

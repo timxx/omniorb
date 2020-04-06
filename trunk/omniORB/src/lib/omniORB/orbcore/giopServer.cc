@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -626,6 +624,8 @@ giopServer::deactivate()
       l << "Wait for " << pd_n_temporary_workers << " temporary worker"
 	<< plural(pd_n_temporary_workers) << "...\n";
     }
+
+    omni_thread::get_time(&s, &ns, timeout);
     int go = 1;
     while (go && pd_n_temporary_workers) {
       go = pd_cond.timedwait(s, ns);
@@ -741,6 +741,12 @@ giopServer::csRemove(giopConnection* conn)
 	// been temporarily suspended.
 	if (!pd_thread_per_connection &&
 	    pd_nconnections <= orbParameters::threadPerConnectionLowerLimit) {
+
+          if (omniORB::trace(10)) {
+            omniORB::logger log;
+            log << "Switch to thread per connection policy. "
+                << pd_nconnections << " connections.\n";
+          }
 	  pd_thread_per_connection = 1;
 	}
       }
@@ -783,6 +789,12 @@ giopServer::csInsert(giopConnection* conn)
     // turn off the one thread per connection policy temporarily.
     if (pd_thread_per_connection &&
 	pd_nconnections >= orbParameters::threadPerConnectionUpperLimit) {
+
+      if (omniORB::trace(10)) {
+        omniORB::logger log;
+        log << "Switch to thread pool policy (c). "
+            << pd_nconnections << " connections.\n";
+      }
       pd_thread_per_connection = 0;
     }
   }
@@ -817,6 +829,12 @@ giopServer::csInsert(giopStrand* s)
     // turn off the one thread per connection policy temporarily.
     if (pd_thread_per_connection &&
 	pd_nconnections >= orbParameters::threadPerConnectionUpperLimit) {
+
+      if (omniORB::trace(10)) {
+        omniORB::logger log;
+        log << "Switch to thread pool policy (s). "
+            << pd_nconnections << " connections.\n";
+      }
       pd_thread_per_connection = 0;
     }
   }
@@ -1034,7 +1052,7 @@ giopServer::removeConnectionAndWorker(giopWorker* w)
     // is therefore safe to delete this record.
     pd_lock.lock();
 
-    int workers;
+    CORBA::ULong   workers;
     CORBA::Boolean singleshot = w->singleshot();
 
     if (singleshot)
@@ -1370,7 +1388,7 @@ public:
 			"-ORBthreadPerConnectionPolicy < 0 | 1 >") {}
 
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::Boolean v;
     if (!orbOptions::getBoolean(value,v)) {
@@ -1398,7 +1416,7 @@ public:
 			1,
 			"-ORBthreadPerConnectionUpperLimit < n >= 1 >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v) || v < 1) {
@@ -1427,7 +1445,7 @@ public:
 			1,
 			"-ORBthreadPerConnectionLowerLimit < n >= 1 >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v) || v < 1) {
@@ -1455,7 +1473,7 @@ public:
 			1,
 			"-ORBmaxServerThreadPerConnection < n >= 1 >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v) || v < 1) {
@@ -1486,7 +1504,7 @@ public:
 			"-ORBthreadPoolWatchConnection < n >= 0 >") {}
 
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v)) {
@@ -1515,7 +1533,7 @@ public:
 			"-ORBconnectionWatchImmediate < 0 | 1 >") {}
 
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::Boolean v;
     if (!orbOptions::getBoolean(value,v)) {
@@ -1544,7 +1562,7 @@ public:
 			1,
 			"-ORBlistenBacklog < n >= 1 >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v) || v < 1) {

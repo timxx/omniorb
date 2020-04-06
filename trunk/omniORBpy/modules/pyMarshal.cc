@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -2499,6 +2497,10 @@ unmarshalPyObjectChar(cdrStream& stream, PyObject* d_o)
   Py_UNICODE uc = stream.unmarshalChar();
   return PyUnicode_FromUnicode(&uc, 1);
 
+#elif defined(PYPY_VERSION)
+  wchar_t uc = stream.unmarshalChar();
+  return PyUnicode_FromWideChar(&uc, 1);
+  
 #else
   Py_UCS4   uc  = stream.unmarshalChar();
   PyObject* r_o = PyUnicode_New(1, uc);
@@ -2680,14 +2682,27 @@ unmarshalPyObjectString(cdrStream& stream, PyObject* d_o)
   len = orbParameters::nativeCharCodeSet->unmarshalString(stream,
                                                           stream.TCS_C(),
                                                           max_len, s);
-#else
-  len = omniPy::ncs_c_utf_8->unmarshalString(stream, stream.TCS_C(),
-                                             max_len, s);
-#endif
-
   PyObject* r_o = String_FromStringAndSize(s, len);
   _CORBA_String_helper::dealloc(s);
   return r_o;
+
+#else
+  len = omniPy::ncs_c_utf_8->unmarshalString(stream, stream.TCS_C(),
+                                             max_len, s);
+  
+  PyObject* r_o = String_FromStringAndSize(s, len);
+
+  if (!r_o) {
+    // If the sender claims it is sending UTF-8, the UTF-8 native
+    // codeset believes it, without ensuring it is valid UTF-8. Python
+    // does validate it, so Unicode object creation can fail. If that
+    // happens, we decode it replacing the errors.
+    PyErr_Clear();
+    r_o = PyUnicode_DecodeUTF8(s, len, "replace");
+  }
+  _CORBA_String_helper::dealloc(s);
+  return r_o;
+#endif
 }
 
 
@@ -2739,6 +2754,20 @@ unmarshalPyObjectSeqArray(cdrStream& stream, PyObject* d_o, CORBA::ULong len)
       for (i=0; i<len; i++)
         uc[i] = stream.unmarshalChar();
 
+#elif defined(PYPY_VERSION)
+      wchar_t* buf = new wchar_t[len];
+      try {
+        for (i=0; i<len; i++)
+          buf[i] = stream.unmarshalChar();
+
+        r_o = PyUnicode_FromWideChar(buf, len);
+        delete [] buf;
+      }
+      catch (...) {
+        delete [] buf;
+        throw;
+      }
+      
 #else
       r_o = PyUnicode_New(len, 255);
 
@@ -2979,12 +3008,22 @@ unmarshalPyObjectWChar(cdrStream& stream, PyObject* d_o)
 {
   OMNIORB_CHECK_TCS_W_FOR_UNMARSHAL(stream.TCS_W(), stream);
 
-  Py_UNICODE  c   = stream.TCS_W()->unmarshalWChar(stream);
-  PyObject*   r_o = PyUnicode_FromUnicode(0, 1);
-  Py_UNICODE* str = PyUnicode_AS_UNICODE(r_o);
-  str[0]          = c;
-  str[1]          = 0;
+#if (PY_VERSION_HEX < 0x03030000)
+  Py_UNICODE uc = stream.TCS_W()->unmarshalWChar(stream);
+  return  PyUnicode_FromUnicode(&uc, 1);
+
+#elif defined(PYPY_VERSION)
+  wchar_t uc = stream.unmarshalWChar();
+  return PyUnicode_FromWideChar(&uc, 1);
+
+#else
+  Py_UCS4   uc  = stream.unmarshalChar();
+  PyObject* r_o = PyUnicode_New(1, uc);
+
+  PyUnicode_WriteChar(r_o, 0, uc);
   return r_o;
+
+#endif
 }
 
 static PyObject*

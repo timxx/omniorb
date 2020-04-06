@@ -34,8 +34,27 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 AM_PATH_PYTHON
+OMNI_FIX_PYTHONDIR
 
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+
+
+dnl ** Cross compilation
+
+if test "$cross_compiling" = yes; then
+  AC_PATH_PROG(OMNIIDL, omniidl, no)
+  if test "x$ac_cv_path_OMNIIDL" = "xno"; then
+    AC_MSG_ERROR(cannot find omniidl on the path)
+  fi
+
+  AC_PATH_PROG(OMKDEPEND, omkdepend, no)
+  if test "x$ac_cv_path_OMKDEPEND" = "xno"; then
+    AC_MSG_ERROR(cannot find omkdepend on the path)
+  fi
+fi
+
+AC_SUBST(CROSS_COMPILING, $cross_compiling)
+
 
 AC_LANG(C++)
 
@@ -115,10 +134,11 @@ dnl ** Functions
 
 AC_LANG(C)
 AC_CHECK_FUNCS(getaddrinfo gethostname getopt getpid gettimeofday)
-AC_CHECK_FUNCS(getnameinfo inet_ntop)
-AC_CHECK_FUNCS(isinf insinff isinfl localtime nanosleep poll rand_r sigaction)
-AC_CHECK_FUNCS(sigvec snprintf strcasecmp strdup strerror strftime stricmp)
-AC_CHECK_FUNCS(strncasecmp strtoul strtoull strtouq uname vprintf vsnprintf)
+AC_CHECK_FUNCS(getnameinfo gmtime gmtime_r inet_ntop)
+AC_CHECK_FUNCS(isinf insinff isinfl localtime localtime_r nanosleep poll)
+AC_CHECK_FUNCS(rand_r sigaction sigvec snprintf strcasecmp strdup)
+AC_CHECK_FUNCS(strerror strftime stricmp strncasecmp strtoul strtoull)
+AC_CHECK_FUNCS(strtouq uname vprintf vsnprintf)
 AC_FUNC_ALLOCA
 AC_LANG(C++)
 
@@ -139,6 +159,8 @@ OMNI_DISABLE_ALLOCA
 OMNI_DISABLE_LONGDOUBLE
 OMNI_DISABLE_ATOMIC
 OMNI_ENABLE_ZIOP
+OMNI_ENABLE_CFNETWORK
+OMNI_ENABLE_HTTP_CRYPTO
 OMNI_ENABLE_CXX11
 
 
@@ -294,9 +316,11 @@ AC_CONFIG_FILES(src/appl/GNUmakefile
                 src/lib/omniORB/base/GNUmakefile
                 src/lib/omniORB/orbcore/GNUmakefile
                 src/lib/omniORB/orbcore/ssl/GNUmakefile
+                src/lib/omniORB/orbcore/http/GNUmakefile
                 src/lib/omniORB/connections/GNUmakefile
                 src/lib/omniORB/ziop/GNUmakefile
                 src/lib/omniORB/ziopdynamic/GNUmakefile
+                src/lib/omniORB/httpcrypto/GNUmakefile
                 src/lib/omnithread/GNUmakefile
                 src/services/GNUmakefile
                 src/services/mklib/GNUmakefile

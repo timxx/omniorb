@@ -273,7 +273,7 @@ DUMPBIN.EXE /SYMBOLS $$symreflib | \
 egrep '^[^ ]+ +[^ ]+ +SECT[^ ]+ +[^ ]+ +\(\) +External +\| +\?[^ ]*|^[^ ]+ +[^ ]+ +SECT[^ ]+ +[^ ]+ +External +\| +\?[^?][^ ]*'|\
 egrep -v 'deleting destructor[^(]+\(unsigned int\)' | \
 egrep -v 'anonymous namespace' | \
-egrep -v '@std@' | \
+egrep -v 'std@' | \
 cut -d'|' -f2 | \
 cut -d' ' -f2 | $(SORT) -u >> $$defname; \
 set +x;
@@ -515,6 +515,12 @@ OMNIORB_DEBUG_ZIOP_DLL_NAME = $(shell $(SharedLibraryDebugFullName) $(subst ., ,
 OMNIORB_ZIOP_DYNAMIC_DLL_NAME = $(shell $(SharedLibraryFullName) $(subst ., ,omniZIOPDynamic.$(OMNIORB_VERSION)))
 OMNIORB_DEBUG_ZIOP_DYNAMIC_DLL_NAME = $(shell $(SharedLibraryDebugFullName) $(subst ., ,omniZIOPDynamic.$(OMNIORB_VERSION)))
 
+OMNIORB_COS_DLL_NAME = $(shell $(SharedLibraryFullName) $(subst ., ,COS.$(OMNIORB_VERSION)))
+OMNIORB_DEBUG_COS_DLL_NAME = $(shell $(SharedLibraryDebugFullName) $(subst ., ,COS.$(OMNIORB_VERSION)))
+
+OMNIORB_COS_DYNAMIC_DLL_NAME = $(shell $(SharedLibraryFullName) $(subst ., ,COSDynamic.$(OMNIORB_VERSION)))
+OMNIORB_DEBUG_COS_DYNAMIC_DLL_NAME = $(shell $(SharedLibraryDebugFullName) $(subst ., ,COSDynamic.$(OMNIORB_VERSION)))
+
 
 ifndef BuildDebugBinary
 
@@ -524,6 +530,8 @@ omnicodesets_dll_name := $(OMNIORB_CODESETS_DLL_NAME)
 omniconnections_dll_name := $(OMNIORB_CONNECTIONS_DLL_NAME)
 omniziop_dll_name := $(OMNIORB_ZIOP_DLL_NAME)
 omniziopdynamic_dll_name := $(OMNIORB_ZIOP_DYNAMIC_DLL_NAME)
+omnicos_dll_name := $(OMNIORB_COS_DLL_NAME)
+omnicosdynamic_dll_name := $(OMNIORB_COS_DYNAMIC_DLL_NAME)
 
 else
 
@@ -533,6 +541,9 @@ omnicodesets_dll_name := $(OMNIORB_DEBUG_CODESETS_DLL_NAME)
 omniconnections_dll_name := $(OMNIORB_DEBUG_CONNECTIONS_DLL_NAME)
 omniziop_dll_name := $(OMNIORB_DEBUG_ZIOP_DLL_NAME)
 omniziopdynamic_dll_name := $(OMNIORB_DEBUG_ZIOP_DYNAMIC_DLL_NAME)
+omnicos_dll_name := $(OMNIORB_DEBUG_COS_DLL_NAME)
+omnicosdynamic_dll_name := $(OMNIORB_DEBUG_COS_DYNAMIC_DLL_NAME)
+
 endif
 
 lib_depend := $(omniorb_dll_name)
@@ -547,6 +558,10 @@ lib_depend := $(omniziop_dll_name)
 omniZIOP_lib_depend := $(GENERATE_LIB_DEPEND)
 lib_depend := $(omniziopdynamic_dll_name)
 omniZIOPDynamic_lib_depend := $(GENERATE_LIB_DEPEND)
+lib_depend := $(omnicos_dll_name)
+COS_lib_depend := $(GENERATE_LIB_DEPEND)
+lib_depend := $(omnicosdynamic_dll_name)
+COSDynamic_lib_depend := $(GENERATE_LIB_DEPEND)
 
 OMNIIDL = $(BASE_OMNI_TREE)/$(WRAPPER_FPATH)/oidlwrapper.exe $(XLN)
 OMNIORB_IDL_ONLY = $(OMNIIDL) -T -bcxx -Wbh=.hh -Wbs=SK.cc
@@ -584,6 +599,13 @@ OMNIORB_ZIOP_LIB_DEPEND := $(omniZiop_lib_depend)
 
 OMNIORB_ZIOP_DYNAMIC_LIB = $(omniziopdynamic_dll_name)
 OMNIORB_ZIOP_DYNAMIC_LIB_DEPEND := $(omniZiopDynamic_lib_depend)
+
+# COS library
+OMNIORB_COS_LIB = $(omnicos_dll_name)
+OMNIORB_COS_LIB_DEPEND := $(COS_lib_depend)
+
+OMNIORB_COS_DYNAMIC_LIB = $(omnicosdynamic_dll_name)
+OMNIORB_COS_DYNAMIC_LIB_DEPEND := $(COSDynamic_lib_depend)
 
 
 OMNIORB_STATIC_STUB_OBJS = \
@@ -637,3 +659,21 @@ OMNIORB_SSL_LIB = $(patsubst %,$(DLLSearchPattern),omnisslTP$(OMNIORB_SSL_MAJOR_
 
 lib_depend := $(patsubst %,$(DLLPattern),omnisslTP$(OMNIORB_SSL_MAJOR_VERSION)$(OMNIORB_SSL_MINOR_VERSION)$(OMNIORB_SSL_MICRO_VERSION))
 OMNIORB_SSL_LIB_DEPEND := $(GENERATE_LIB_DEPEND)
+
+
+# omniORB HTTP transport
+OMNIORB_HTTP_LIB = $(patsubst %,$(DLLSearchPattern),omnihttpTP$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION)$(OMNIORB_MICRO_VERSION))
+
+lib_depend := $(patsubst %,$(DLLPattern),omnihttpTP$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION)$(OMNIORB_MICRO_VERSION))
+OMNIORB_HTTP_LIB_DEPEND := $(GENERATE_LIB_DEPEND)
+OMNIORB_HTTP_LIB += $(OMNIORB_SSL_LIB)
+
+
+# omniORB HTTP crypto library -- enabled if OpenSSL is configured
+EnableHTTPCrypto = 1
+
+OMNIORB_HTTP_CRYPTO_LIB = $(patsubst %,$(DLLSearchPattern),omnihttpCrypto$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION)$(OMNIORB_MICRO_VERSION))
+
+lib_depend := $(patsubst %,$(DLLPattern),omnihttpCrypto$(OMNIORB_MAJOR_VERSION)$(OMNIORB_MINOR_VERSION)$(OMNIORB_MICRO_VERSION))
+OMNIORB_HTTP_CRYPTO_LIB_DEPEND := $(GENERATE_LIB_DEPEND)
+OMNIORB_HTTP_CRYPTO_LIB += $(OMNIORB_HTTP_LIB)

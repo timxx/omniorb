@@ -19,9 +19,7 @@
 #  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  along with this program.  If not, see http://www.gnu.org/licenses/
 #
 # Description:
 #   
@@ -979,19 +977,28 @@ def visitUnion(node):
 
     def ctor_cases(stream = stream, node = node, switchType = switchType,
                    environment = environment, exhaustive = exhaustive):
+
+        booleanWrap = switchType.boolean() and exhaustive
+        trueName    = None
+
         for c in node.cases():
             for l in c.labels():
                 if l.default(): continue
                 
                 discrimvalue = switchType.literal(l.value(), environment)
                 name = id.mapID(c.declarator().identifier())
+
+                if booleanWrap and discrimvalue == "1":
+                    trueName = name
+
                 stream.out(template.union_ctor_case,
                            discrimvalue = discrimvalue,
                            name = name)
+
         # Booleans are a special case (isn't everything?)
-        booleanWrap = switchType.boolean() and exhaustive
         if booleanWrap:
-            stream.out(template.union_ctor_bool_default)
+            stream.out(template.union_ctor_bool_default,
+                       name = trueName)
         else:
             stream.out(template.union_ctor_default)
         return
@@ -1002,7 +1009,7 @@ def visitUnion(node):
                          node = node, ctor_cases = ctor_cases):
         if not exhaustive:
             # grab the default case
-            default = ""
+            default = "_release_member();"
             for c in node.cases():
                 if c.isDefault:
                     case_id = c.declarator().identifier()

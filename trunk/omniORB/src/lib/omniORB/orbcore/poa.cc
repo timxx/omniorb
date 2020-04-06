@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -695,7 +693,7 @@ omniOrbPOA::destroy(CORBA::Boolean etherealize_objects,
 
     void** args = new void* [2];
     args[0] = (omniOrbPOA*) this;
-    args[1] = (void*) (unsigned long) etherealize_objects;
+    args[1] = (void*) (omni::ptr_arith_t) etherealize_objects;
 
     try {
       (new omni_thread(destroyer_thread_fn, args))->start();
@@ -2902,12 +2900,7 @@ omniOrbPOA::synchronise_request(omniLocalIdentity* lid)
   // Check to see if the object has been deactivated while we've been
   // holding. If so, throw a TRANSIENT exception.
 
-  CORBA::Boolean deactivated;
-  pd_lock.lock();
-  deactivated = lid->deactivated();
-  pd_lock.unlock();
-
-  if (deactivated) {
+  if (lid->deactivated()) {
     // We have to do startRequest() here, since the identity
     // will do endInvocation() when we pass through there.
     startRequest();
@@ -3884,7 +3877,7 @@ destroyer_thread_fn(void* args)
   void** targs = (void**) args;
 
   omniOrbPOA* poa = (omniOrbPOA*) targs[0];
-  CORBA::Boolean etherealise = (CORBA::Boolean) (unsigned long) targs[1];
+  CORBA::Boolean etherealise = (CORBA::Boolean) (omni::ptr_arith_t) targs[1];
   delete[] targs;
 
   poa->do_destroy(etherealise);
@@ -3925,7 +3918,7 @@ public:
 			1,
 			"-ORBpoaHoldRequestTimeout < n >= 0 in msec >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v)) {
@@ -3953,7 +3946,7 @@ public:
 			1,
 			"-ORBpoaUniquePersistentSystemIds < 0 | 1 >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::Boolean v;
     if (!orbOptions::getBoolean(value,v)) {

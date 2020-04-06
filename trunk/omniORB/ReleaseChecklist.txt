@@ -10,7 +10,9 @@ THIS_IS_OMNIORB...
 
 ReleaseNotes.txt
 
-bugfixes-XXX.xml
+omniORBpy/ReleaseNotes.txt
+
+omniORBpy/README.txt
 
 configure.ac
 
@@ -19,7 +21,5 @@ spec files
 tag repository
 
 Features web page
-
-Wiki
 
 Development page

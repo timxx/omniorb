@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //
@@ -64,7 +62,7 @@ PortableServer::ForwardRequest::~ForwardRequest() {}
 
 void PortableServer::ForwardRequest::_raise() const { throw *this; }
 
-const char* PortableServer::ForwardRequest::_PD_repoId = "IDL:omg.org/PortableServer/ForwardRequest:2.3";
+const char* PortableServer::ForwardRequest::_PD_repoId = "IDL:omg.org/PortableServer/ForwardRequest:1.0";
 const char* PortableServer::ForwardRequest::_PD_typeId = "Exception/UserException/PortableServer::ForwardRequest";
 
 PortableServer::ForwardRequest* PortableServer::ForwardRequest::_downcast(::CORBA::Exception* _e) {
@@ -84,7 +82,7 @@ const char* PortableServer::ForwardRequest::_NP_typeId() const {
 }
 
 const char* PortableServer::ForwardRequest::_NP_repoId(int* _size) const {
-  *_size = sizeof("IDL:omg.org/PortableServer/ForwardRequest:2.4");
+  *_size = sizeof("IDL:omg.org/PortableServer/ForwardRequest:1.0");
   return _PD_repoId;
 }
 
@@ -197,7 +195,7 @@ PortableServer::AdapterActivator::_nil()
   return _the_nil_ptr;
 }
 
-const char* PortableServer::AdapterActivator::_PD_repoId = "IDL:omg.org/PortableServer/AdapterActivator:2.4";
+const char* PortableServer::AdapterActivator::_PD_repoId = "IDL:omg.org/PortableServer/AdapterActivator:1.0";
 
 
 PortableServer::AdapterActivator::AdapterActivator()
@@ -457,7 +455,7 @@ PortableServer::ServantManager::_nil()
   return _the_nil_ptr;
 }
 
-const char* PortableServer::ServantManager::_PD_repoId = "IDL:omg.org/PortableServer/ServantManager:2.4";
+const char* PortableServer::ServantManager::_PD_repoId = "IDL:omg.org/PortableServer/ServantManager:1.0";
 
 
 PortableServer::ServantManager::ServantManager()
@@ -660,7 +658,7 @@ PortableServer::ServantActivator::_nil()
   return _the_nil_ptr;
 }
 
-const char* PortableServer::ServantActivator::_PD_repoId = "IDL:omg.org/PortableServer/ServantActivator:2.4";
+const char* PortableServer::ServantActivator::_PD_repoId = "IDL:omg.org/PortableServer/ServantActivator:1.0";
 
 
 PortableServer::ServantActivator::ServantActivator()
@@ -996,7 +994,7 @@ PortableServer::ServantLocator::_nil()
   return _the_nil_ptr;
 }
 
-const char* PortableServer::ServantLocator::_PD_repoId = "IDL:omg.org/PortableServer/ServantLocator:2.4";
+const char* PortableServer::ServantLocator::_PD_repoId = "IDL:omg.org/PortableServer/ServantLocator:1.0";
 
 
 PortableServer::ServantLocator::ServantLocator()

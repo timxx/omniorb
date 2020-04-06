@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -155,7 +153,7 @@ omniPy::produceSystemException(PyObject* eobj, PyObject* erepoId,
   // Clear any errors raised by the GetAttrs
   if (PyErr_Occurred()) PyErr_Clear();
 
-  char* repoId = String_AS_STRING(erepoId);
+  const char* repoId = String_AS_STRING(erepoId);
 
 #define THROW_SYSTEM_EXCEPTION_IF_MATCH(ex) \
   if (omni::strMatch(repoId, "IDL:omg.org/CORBA/" #ex ":1.0")) { \

@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -156,6 +154,31 @@ public:
   //    Internally, omniTransportLock is used for synchronisation, if
   //    <heldlock> is true, the caller already holds the lock.
 
+  void resetAddressOrder(CORBA::Boolean heldlock, giopStrand* strand);
+  // If the retainAddressOrder parameter is not set true, reset the
+  // address order to ensure the next connection attempt uses the
+  // highest priority address. If names were resolved to addresses,
+  // clears the resolved names so they are re-resolved next call.
+  //
+  // strand is a pointer to the strand that encountered an error
+  // leading to this call, or null in the case of an idle rope.
+  //
+  // Thread Safety preconditions:
+  //    Internally, omniTransportLock is used for synchronisation, if
+  //    <heldlock> is true, the caller already holds the lock.
+
+
+  static void resetIdleRopeAddresses();
+  // If the retainAddressOrder parameter is not set true, reset the
+  // address order in any idle ropes, to ensure the next connection
+  // attempt uses the highest priority address. If names were resolved
+  // to addresses, clears the resolved names so they are re-resolved
+  // next call.
+  //
+  // Thread Safety preconditions:
+  //    Caller must not hold omniTransportLock.
+  
+  
   // Access functions to change the rope parameters. Notice that these
   // functions does not perform any mutual exclusion internally. It is
   // however safe to change the parameters while the rope is in use.  The
@@ -199,6 +222,7 @@ public:
  protected:
   int                      pd_refcount;
   giopAddressList          pd_addresses;     // Addresses of the remote server
+  giopAddressList          pd_dead_addresses;// Addresses to delete when safe
   size_t                   pd_ior_addr_size; // Number of addresses in IOR
   omnivector<CORBA::ULong> pd_addresses_order;
   size_t                   pd_address_in_use;
@@ -235,8 +259,15 @@ public:
   // pd_addresses are resolved and the resulting addresses are added
   // to pd_addresses.
   //
-  // Called with no locks held, but serialised for a particular rope.
+  // Caller holds omniTransportLock.
 
+  void deleteDeadAddresses(giopStrand* strand);
+  // Delete any dead giopAddress objects in pd_dead_addresses that are
+  // not in use by any active strands. If non-zero, strand is a
+  // pointer to a strand that is not considered active.
+  //
+  // Caller holds omniTransportLock.
+  
  private:
   giopRope();
   giopRope(const giopRope&);

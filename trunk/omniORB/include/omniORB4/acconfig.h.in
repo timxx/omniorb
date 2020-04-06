@@ -60,6 +60,12 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
+/* Define to 1 if you have the `gmtime' function. */
+#undef HAVE_GMTIME
+
+/* Define to 1 if you have the `gmtime_r' function. */
+#undef HAVE_GMTIME_R
+
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #undef HAVE_IFADDRS_H
 
@@ -83,6 +89,9 @@
 
 /* Define to 1 if you have the `localtime' function. */
 #undef HAVE_LOCALTIME
+
+/* Define to 1 if you have the `localtime_r' function. */
+#undef HAVE_LOCALTIME_R
 
 /* define if the compiler supports member constants */
 #undef HAVE_MEMBER_CONSTANTS
@@ -248,6 +257,9 @@
 
 /* Define to the type of getsockname's third argument */
 #undef OMNI_SOCKNAME_SIZE_T
+
+/* define if you want to use CFNetwork */
+#undef OMNI_USE_CFNETWORK_CONNECT
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT

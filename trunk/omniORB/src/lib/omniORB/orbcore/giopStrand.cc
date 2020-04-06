@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 
 #include <omniORB4/CORBA.h>
@@ -67,6 +65,7 @@ CORBA::ULong orbParameters::inConScanPeriod = 180;
 //
 //   Valid values = (n >= 0 in seconds) 
 //                   0 --> do not close idle connections.
+
 
 ////////////////////////////////////////////////////////////////////////
 class Scavenger : public omniTask {
@@ -682,9 +681,13 @@ Scavenger::execute()
     }
 
     // Now go through the list to delete them all
+    CORBA::Boolean scavenged_client_strands = 0;
     {
       StrandList* p = client_shutdown_list.next;
       while ( p != &client_shutdown_list ) {
+
+        scavenged_client_strands = 1;
+
 	giopStrand* s = (giopStrand*)p;
 	p = p->next;
 	s->StrandList::remove();
@@ -694,10 +697,20 @@ Scavenger::execute()
           // message.
           sendCloseConnection(s);
         }
-	s->safeDelete(1);
+	{
+	  omni_optional_lock sync(*omniTransportLock,
+                                  !s->isBiDir(), !s->isBiDir());
+	  s->safeDelete(1);
+	}
       }
     }
 
+    if (scavenged_client_strands) {
+      // We have scavenged at least one client strand, so we reset any
+      // idle giopRope address orders.
+      giopRope::resetIdleRopeAddresses();
+    }
+    
     {
       // We have to hold <omniTransportLock> while disposing of the
       // server strands, since other threads may be dealing with them.
@@ -794,7 +807,7 @@ public:
 			1,
 			"-ORBscanGranularity < n >= 0 sec >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v)) {
@@ -822,7 +835,7 @@ public:
 			1,
 			"-ORBoutConScanPeriod < n >= 0 sec >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v)) {
@@ -850,7 +863,7 @@ public:
 			1,
 			"-ORBinConScanPeriod < n >= 0 sec >") {}
 
-  void visit(const char* value,orbOptions::Source) throw (orbOptions::BadParam) {
+  void visit(const char* value,orbOptions::Source) {
 
     CORBA::ULong v;
     if (!orbOptions::getULong(value,v)) {

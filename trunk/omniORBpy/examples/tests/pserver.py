@@ -25,10 +25,10 @@ poa._get_the_POAManager().activate()
 ii = I_i()
 io = ii._this()
 
-print orb.object_to_string(io)
+print(orb.object_to_string(io))
 
 if "-l" in sys.argv:
-    print "Running locally...\n\n"
+    print("Running locally...\n\n")
     import pclient
     pclient.doTests(orb, poa, io)
     orb.shutdown(1)

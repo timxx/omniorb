@@ -3,7 +3,7 @@
 # sslTP.py                   Created on: 2002/09/06
 #                            Author    : Duncan Grisby (dgrisby)
 #
-#    Copyright (C) 2002-2013 Apasphere Ltd.
+#    Copyright (C) 2002-2018 Apasphere Ltd.
 #
 #    This file is part of the omniORBpy library
 #
@@ -19,9 +19,7 @@
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free
-#    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-#    MA 02111-1307, USA
+#    License along with this library. If not, see http://www.gnu.org/licenses/
 #
 #
 # Description:
@@ -34,10 +32,25 @@ CORBA.ORB_init() to make the SSL transport available.
 
 Functions:
 
+  set_CA()
+  set_key()
+  set_cipher_list()
+  reinit()
+
+Deprecated functions:
+
   certificate_authority_file()
+  certificate_authority_path()
   key_file()
   key_file_password()
 """
 
-import _omnipy
-from _omnisslTP import *
+import omniORB
+
+if omniORB.omniorb_dll_path is not None:
+    with os.add_dll_directory(omniorb_dll_path):
+        import _omnipy
+        from _omnisslTP import *
+else:
+    import _omnipy
+    from _omnisslTP import *

@@ -5,16 +5,16 @@ import CORBA, ValueTest, ValueTest__POA
 class Test_i (ValueTest__POA.Test):
 
     def op1(self, a, b):
-        print
+        print()
 
-        print "a:", a
+        print("a:", a)
 
-        print "b:", b
+        print("b:", b)
 
         if a is b:
-            print "a is b"
+            print("a is b")
         else:
-            print "a is not b"
+            print("a is not b")
 
         return a
 
@@ -26,7 +26,7 @@ def main(args):
     ti = Test_i()
     to = ti._this()
 
-    print orb.object_to_string(to)
+    print(orb.object_to_string(to))
 
     poa._get_the_POAManager().activate()
     orb.run()

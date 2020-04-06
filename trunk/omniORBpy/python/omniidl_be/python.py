@@ -3,7 +3,7 @@
 # python.py                 Created on: 1999/10/29
 #			    Author    : Duncan Grisby (dpg1)
 #
-#    Copyright (C) 2002-2014 Apasphere Ltd
+#    Copyright (C) 2002-2015 Apasphere Ltd
 #    Copyright (C) 1999 AT&T Laboratories Cambridge
 #
 #  This file is part of omniidl.
@@ -19,9 +19,7 @@
 #  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  along with this program.  If not, see http://www.gnu.org/licenses/
 #
 # Description:
 #   
@@ -1982,7 +1980,7 @@ class DocstringVisitor (idlvisitor.AstVisitor):
             nsn = fixupScopedName(nsn)
             dsn = fixupScopedName(dsn)
 
-            self.st.out("@node@.__doc__ = @doc@",
+            self.st.out("omniORB.setDocString(@node@, @doc@)",
                         node=dotName(nsn), doc=dotName(dsn))
             
         if self.docs:
@@ -2062,21 +2060,21 @@ class DocstringVisitor (idlvisitor.AstVisitor):
 
     def visitOperation(self, node):
         if node.identifier() == self.target_id:
-            sn = node.scopedName() + ["im_func"]
-            sn[-3] = "_objref_" + sn[-3]
+            sn = node.scopedName()[:]
+            sn[-2] = "_objref_" + sn[-2]
             self.docs.append((sn, self.target_node.scopedName()))
             self.ok = 1
 
     def visitAttribute(self, node):
         for n in node.declarators():
             if n.identifier() == self.target_id:
-                sn = n.scopedName() + ["im_func"]
-                sn[-3] = "_objref_" + sn[-3]
-                sn[-2] = "_get_"    + sn[-2]
+                sn = n.scopedName()[:]
+                sn[-2] = "_objref_" + sn[-2]
+                sn[-1] = "_get_"    + sn[-1]
                 self.docs.append((sn, self.target_node.scopedName()))
                 if not node.readonly():
                     sn = sn[:]
-                    sn[-2] = "_set_" + n.identifier()
+                    sn[-1] = "_set_" + n.identifier()
                     self.docs.append((sn, self.target_node.scopedName()))
                 self.ok = 1
 
@@ -2634,8 +2632,9 @@ def real_updateModules(modules, pymodule):
                 
             outf.write(line)
             
-        already    = 0
-        outputline = "import " + submod + "\n"
+        already        = 0
+        outputline     = "from . import " + submod + "\n"
+        old_outputline = "import " + submod + "\n"
 
         while line != "\n":
             line = inf.readline()
@@ -2643,7 +2642,7 @@ def real_updateModules(modules, pymodule):
                 error_exit('Output error: "%s" ended while I was '
                            'looking at imports.' % modfile)
 
-            if line != "\n":
+            if line != "\n" and line != old_outputline:
                 outf.write(line)
                 if line == outputline:
                     already = 1

@@ -3,7 +3,7 @@
 # ZIOP.py                    Created on: 2013/05/28
 #                            Author    : Duncan Grisby (dgrisby)
 #
-#    Copyright (C) 2013 Apasphere Ltd
+#    Copyright (C) 2013-2019 Apasphere Ltd
 #
 #    This file is part of the omniORBpy library
 #
@@ -19,15 +19,20 @@
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free
-#    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-#    MA 02111-1307, USA
+#    License along with this library. If not, see http://www.gnu.org/licenses/
 #
 #
 # Description:
 #    ZIOP module
 
+import sys
+
+import omniORB.compression_idl
+sys.modules["compression_idl"] = omniORB.compression_idl
+
 import omniORB.ziop_idl
+sys.modules["ziop_idl"] = omniORB.ziop_idl
+
 import _omniZIOP
 from omniORB import CORBA
 

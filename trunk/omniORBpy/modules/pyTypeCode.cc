@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -30,110 +28,15 @@
 
 #include <omnipy.h>
 
-
-extern "C" {
-  
-  // Simple Python type to hold a PyObject pointer and compare by pointer.
-
-  struct PyPointerObj {
-    PyObject_HEAD
-    PyObject* ptr;
-  };
-
-  static void
-  PyPointerObj_dealloc(PyPointerObj* self)
-  {
-    PyObject_Del((PyObject*)self);
-  }
-
-#if (PY_VERSION_HEX < 0x03000000)
-  static int
-  PyPointerObj_cmp(PyPointerObj* t1, PyPointerObj* t2)
-  {
-    if      (t1->ptr == t2->ptr) return 0;
-    else if (t1->ptr >  t2->ptr) return 1;
-    else                         return -1;
-  }
-
-#else
-
-  static PyObject*
-  PyPointerObj_rcmp(PyPointerObj* t1, PyPointerObj* t2, int op)
-  {
-    CORBA::Boolean r = 0;
-
-    PyObject* p1 = t1->ptr;
-    PyObject* p2 = t2->ptr;
-
-    switch (op) {
-    case Py_LT: r = p1 <  p2; break;
-    case Py_LE: r = p1 <= p2; break;
-    case Py_EQ: r = p1 == p2; break;
-    case Py_NE: r = p1 != p2; break;
-    case Py_GT: r = p1 >  p2; break;
-    case Py_GE: r = p1 >= p2; break;
-    };
-    
-    PyObject* r_o = r ? Py_True : Py_False;
-    Py_INCREF(r_o);
-    return r_o;
-  }
+#ifdef PYPY_VERSION
+#  include <map>
 #endif
-
-  static long
-  PyPointerObj_hash(PyPointerObj* self)
-  {
-    return (long)self->ptr;
-  }
-
-  static PyTypeObject PyPointerType = {
-    PyVarObject_HEAD_INIT(0,0)
-    (char*)"_omnipy.PyPointerObj",     /* tp_name */
-    sizeof(PyPointerObj),              /* tp_basicsize */
-    0,                                 /* tp_itemsize */
-    (destructor)PyPointerObj_dealloc,  /* tp_dealloc */
-    0,                                 /* tp_print */
-    0,                                 /* tp_getattr */
-    0,                                 /* tp_setattr */
-#if (PY_VERSION_HEX < 0x03000000)
-    (cmpfunc)PyPointerObj_cmp,         /* tp_compare */
-#else
-    0,                                 /* tp_reserved */
-#endif
-    0,                                 /* tp_repr */
-    0,                                 /* tp_as_number */
-    0,                                 /* tp_as_sequence */
-    0,                                 /* tp_as_mapping */
-    (hashfunc)PyPointerObj_hash,       /* tp_hash  */
-    0,                                 /* tp_call */
-    0,                                 /* tp_str */
-    0,                                 /* tp_getattro */
-    0,                                 /* tp_setattro */
-    0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,                /* tp_flags */
-    (char*)"PyPointerObj",             /* tp_doc */
-    0,                                 /* tp_traverse */
-    0,                                 /* tp_clear */
-#if (PY_VERSION_HEX < 0x03000000)
-    0,                                 /* tp_richcompare */
-#else
-    (richcmpfunc)PyPointerObj_rcmp,    /* tp_richcompare */
-#endif
-  };
-}
-
-static inline PyPointerObj*
-PyPointerObj_alloc(PyObject* ptr)
-{
-  PyPointerObj* self = PyObject_New(PyPointerObj, &PyPointerType);
-  self->ptr = ptr;
-  return self;
-}
-
 
 OMNI_USING_NAMESPACE(omni)
 
 // Objects to map descriptors to typecode offsets and vice-versa:
+
+#ifndef PYPY_VERSION
 
 class DescriptorOffsetMap {
 public:
@@ -152,7 +55,7 @@ public:
   }
 
   inline void add(PyObject* desc, omni::s_size_t offset) {
-    PyObject* desc_o = (PyObject*)PyPointerObj_alloc(desc);
+    PyObject* desc_o = PyLong_FromVoidPtr(desc);
     PyObject* oo     = Int_FromSsize_t(offset + base_);
     PyDict_SetItem(dict_, desc_o, oo);
     Py_DECREF(desc_o);
@@ -160,7 +63,7 @@ public:
   }
 
   inline CORBA::Boolean lookup(PyObject* desc, omni::s_size_t& offset) {
-    PyObject* desc_o = (PyObject*)PyPointerObj_alloc(desc);
+    PyObject* desc_o = PyLong_FromVoidPtr(desc);
     PyObject* oo     = PyDict_GetItem(dict_, desc_o);
     Py_DECREF(desc_o);
     if (oo) {
@@ -227,6 +130,95 @@ private:
   OffsetDescriptorMap& operator=(const OffsetDescriptorMap&);
 };
 
+#else
+
+// PyPy does not permit us to insert an incomplete tuple into a dict.
+// Rather than trying to come up with a PyPy-friendly way to handle
+// this, we instead use a std::map, avoiding the overhead of PyPy's
+// Python C API emulation.
+
+class DescriptorOffsetMap {
+public:
+  typedef std::map<PyObject*, omni::s_size_t> DOMap;
+
+  DescriptorOffsetMap() :
+    map_(actual_map_), base_(0)
+  {
+  }
+
+  DescriptorOffsetMap(DescriptorOffsetMap& dom, omni::s_size_t offset) :
+    map_(dom.getMap()), base_(dom.getBase() + offset)
+  {
+  }
+
+  inline void add(PyObject* desc, omni::s_size_t offset) {
+    map_[desc] = offset + base_;
+  }
+
+  inline CORBA::Boolean lookup(PyObject* desc, omni::s_size_t& offset) {
+    DOMap::iterator it = map_.find(desc);
+    if (it != map_.end()) {
+      offset = it->second - base_;
+      return 1;
+    }
+    return 0;
+  }
+
+protected:
+  inline DOMap&         getMap()  { return map_; }
+  inline omni::s_size_t getBase() { return base_; }
+
+private:
+  DOMap          actual_map_;
+  DOMap&         map_;
+  omni::s_size_t base_;
+
+  DescriptorOffsetMap(const DescriptorOffsetMap&);
+  DescriptorOffsetMap& operator=(const DescriptorOffsetMap&);
+};
+
+class OffsetDescriptorMap {
+public:
+  typedef std::map<omni::s_size_t, PyObject*> ODMap;
+  
+  OffsetDescriptorMap() :
+    map_(actual_map_), base_(0)
+  {
+  }
+
+  OffsetDescriptorMap(OffsetDescriptorMap& odm, omni::s_size_t offset) :
+    map_(odm.getMap()), base_(odm.getBase() + offset)
+  {
+  }
+
+  inline void add(PyObject* desc, omni::s_size_t offset) {
+    map_[offset + base_] = desc;
+  }
+
+  inline CORBA::Boolean lookup(PyObject*& desc, omni::s_size_t offset) {
+    ODMap::iterator it = map_.find(offset + base_);
+    if (it != map_.end()) {
+      desc = it->second;
+      Py_INCREF(desc);
+      return 1;
+    }
+    return 0;
+  }
+
+protected:
+  inline ODMap&         getMap( ) { return map_; }
+  inline omni::s_size_t getBase() { return base_; }
+
+private:
+  ODMap          actual_map_;
+  ODMap&         map_;
+  omni::s_size_t base_;
+
+  OffsetDescriptorMap(const OffsetDescriptorMap&);
+  OffsetDescriptorMap& operator=(const OffsetDescriptorMap&);
+};
+
+#endif
 
 
 static void
@@ -1015,7 +1007,8 @@ r_unmarshalTypeCode(cdrStream& stream, OffsetDescriptorMap& odm)
 	    PyTuple_SET_ITEM(d_o, 7, mem);
 	  }
 	  else {
-	    PyDict_SetItem(dict, label, mem);
+            PyDict_SetItem(dict, label, mem);
+            Py_DECREF(mem);
 	  }
 	}
 
@@ -1406,8 +1399,8 @@ r_unmarshalTypeCode(cdrStream& stream, OffsetDescriptorMap& odm)
       if (!odm.lookup(t_o, position)) {
 	if (omniORB::trace(10)) {
 	  omniORB::logger log;
-	  log << "Invalid indirection " << offset << " to " << position
-	      << ".\n";
+	  log << "Invalid indirection " << offset << " to "
+	      << (long)position << ".\n";
 	}
 	OMNIORB_THROW(MARSHAL, MARSHAL_InvalidIndirection,
 		      (CORBA::CompletionStatus)stream.completion());
@@ -1442,12 +1435,4 @@ omniPy::unmarshalTypeCode(cdrStream& stream)
 {
   OffsetDescriptorMap odm;
   return r_unmarshalTypeCode(stream, odm);
-}
-
-
-void
-omniPy::initTypeCode(PyObject* d)
-{
-  int r = PyType_Ready(&PyPointerType);
-  OMNIORB_ASSERT(r == 0);
 }

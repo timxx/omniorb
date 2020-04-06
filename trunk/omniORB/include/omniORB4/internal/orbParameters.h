@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -108,6 +106,15 @@ _CORBA_MODULE_VAR _core_attr omniCodeSet::TCS_C* anyCharCodeSet;
 _CORBA_MODULE_VAR _core_attr omniCodeSet::TCS_W* anyWCharCodeSet;
 //  set the preferred code set for wchar data inside anys
 //
+
+_CORBA_MODULE_VAR _core_attr omniCodeSet::TCS_C* defaultCharCodeSet;
+//  set the code set for char data sent to servers that have not specified one
+//
+
+_CORBA_MODULE_VAR _core_attr omniCodeSet::TCS_W* defaultWCharCodeSet;
+//  set the code set for wchar data sent to servers that have not specified one
+//
+
 
 _CORBA_MODULE_VAR _core_attr CORBA::Boolean      lcdMode;
 //  Set to 1 to enable 'Lowest Common Denominator' Mode.
@@ -251,7 +258,6 @@ _CORBA_MODULE_VAR _core_attr CORBA::Boolean verifyObjectExistsAndType;
 //
 //  Valid values = 0 or 1
 
-
 _CORBA_MODULE_VAR _core_attr CORBA::Boolean oneCallPerConnection;
 //  1 means only one call can be in progress at any time per connection.
 //
@@ -268,7 +274,6 @@ _CORBA_MODULE_VAR _core_attr CORBA::ULong maxGIOPConnectionPerServer;
 //
 //  Valid values = (n >= 1) 
 
-
 _CORBA_MODULE_VAR _core_attr GIOP::AddressingDisposition giopTargetAddressMode;
 //  On the client side, if it is to use GIOP 1.2 or above to talk to a 
 //  server, use this Target Address Mode.
@@ -276,7 +281,6 @@ _CORBA_MODULE_VAR _core_attr GIOP::AddressingDisposition giopTargetAddressMode;
 //  Valid values = 0 (GIOP::KeyAddr)
 //                 1 (GIOP::ProfileAddr)
 //                 2 (GIOP::ReferenceAddr)
-
 
 _CORBA_MODULE_VAR _core_attr CORBA::Boolean offerBiDirectionalGIOP;
 //   Applies to the client side. Set to 1 to indicates that the
@@ -294,6 +298,12 @@ _CORBA_MODULE_VAR _core_attr CORBA::Boolean  diiThrowsSysExceptions;
 // Environment object.
 //
 // Valid values = 0 or 1
+
+_CORBA_MODULE_VAR _core_attr CORBA::ULong   maxClientThreadPoolSize;
+//   The max. no. of threads a client will allocate to do asynchronous
+//   calls.
+//
+//   Valid values = (n >= 1) 
 
 _CORBA_MODULE_VAR _core_attr CORBA::ULong outConScanPeriod;
 //  Idle connections shutdown. The ORB periodically scans all the
@@ -361,6 +371,36 @@ _CORBA_MODULE_VAR _core_attr CORBA::Boolean immediateRopeSwitch;
 //
 //   Valid values = 0 or 1
 
+_CORBA_MODULE_VAR _core_attr CORBA::Boolean resolveNamesForTransportRules;
+//   If true, names in IORs will be resolved when evaluating client
+//   transport rules, and remembered from then on; if false, names
+//   will not be resolved until connect time. Client transport rules
+//   based on IP address will therefore not match, but some platforms
+//   can use external knowledge to pick the best address to use if
+//   given a name to connect to.
+//
+//   Valid values = 0 or 1
+
+_CORBA_MODULE_VAR _core_attr CORBA::Boolean retainAddressOrder;
+//   For IORs with multiple addresses, determines how the address to
+//   connect to is chosen. When first estabilishing a connection, the
+//   addresses are ordered according to the client transport rules
+//   (after resolving names if resolveNamesForTransportRules is true),
+//   and the addresses are tried in priority order until one connects
+//   successfully. For as long as there is at least one connection
+//   open to the address, new connections continue to use the same
+//   address.
+//
+//   After a failure, or after all open connections have been
+//   scavenged and closed, this parameter determines the address used
+//   to reconnect on the next call. If this parameter is true, the
+//   address order and chosen address within the order is remembered;
+//   if false, a new connection attempt causes re-evaluation of the
+//   order (in case name resolutions change), and the highest priority
+//   address is tried first.
+//
+//   Valid values = 0 or 1
+
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -404,12 +444,6 @@ _CORBA_MODULE_VAR _core_attr CORBA::ULong   maxServerThreadPoolSize;
 //   The max. no. of threads the server will allocate to do various
 //   ORB tasks. This number does not include the dedicated thread
 //   per connection when the threadPerConnectionPolicy is in effect.
-//
-//   Valid values = (n >= 1) 
-
-_CORBA_MODULE_VAR _core_attr CORBA::ULong   maxClientThreadPoolSize;
-//   The max. no. of threads a client will allocate to do asynchronous
-//   calls.
 //
 //   Valid values = (n >= 1) 
 

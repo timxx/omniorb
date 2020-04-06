@@ -1,5 +1,5 @@
 dnl -*- M4 -*-
-AC_INIT(omniORBpy, 4.2.1, bugs@omniorb-support.com)
+AC_INIT(omniORBpy, 5.0.0, bugs@omniorb-support.com)
 
 AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR(python/omniORB/CORBA.py)
@@ -19,9 +19,13 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 AM_PATH_PYTHON
+OMNI_FIX_PYTHONDIR
+
 AC_LANG(C++)
 
 AC_SUBST(EXTRA_GCC_CXXFLAGS)
+
+AC_CXX_HAVE_STD
 
 
 dnl ** Libraries
@@ -29,6 +33,7 @@ dnl ** Libraries
 OMNI_OMNIORB_ROOT
 OMNI_OPENSSL_ROOT
 OMNI_ENABLE_ZIOP
+OMNI_ENABLE_HTTP_CRYPTO
 
 
 dnl ** More programs
@@ -146,6 +151,8 @@ AC_CONFIG_FILES(
                 examples/embed/GNUmakefile
                 modules/GNUmakefile
                 modules/codesets/GNUmakefile
+                modules/httpCrypto/GNUmakefile
+                modules/httpTP/GNUmakefile
                 modules/sslTP/GNUmakefile
                 modules/connections/GNUmakefile
                 modules/ziop/GNUmakefile

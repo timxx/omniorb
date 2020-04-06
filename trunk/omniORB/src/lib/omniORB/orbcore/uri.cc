@@ -3,25 +3,23 @@
 // uri.cc                     Created on: 2000/04/03
 //                            Author    : Duncan Grisby (dpg1)
 //
-//    Copyright (C) 2003-2012 Apasphere Ltd
+//    Copyright (C) 2003-2019 Apasphere Ltd
 //    Copyright (C) 2000 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -44,7 +42,92 @@ OMNI_NAMESPACE_BEGIN(omni)
 
 #define MAX_STRING_TO_OBJECT_CYCLES 10
 
+
+//
+// Escaping
+//
+
+static inline int
+validKeyChar(const char c)
+{
+  return ((c >= 'A' && c <= 'Z') ||
+	  (c >= 'a' && c <= 'z') ||
+	  (c >= '0' && c <= '9') ||
+	  c == ';' || c == '/' || c == '?' || c == ':' || c == '@' ||
+	  c == '&' || c == '=' || c == '+' || c == '$' || c == ',' ||
+	  c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
+	  c == '*' || c == '(' || c == ')' || c == '\'');
+}
+
+char*
+omniURI::unescape(const char*& c, unsigned int& size)
+{
+  const char* p;
+  for (p=c; *p && *p != '#'; p++);
+
+  char* key = CORBA::string_alloc(1 + p - c);
+  char* k   = key;
+  size      = 0;
+
+  for (; c != p; c++, k++) {
+    size++;
+    if (validKeyChar(*c)) {
+      *k = *c;
+    }
+    else if (*c == '%') {
+      // Escape char
+      c++;
+      if      (*c >= '0' && *c <= '9') *k = (*c - '0')      << 4;
+      else if (*c >= 'A' && *c <= 'F') *k = (*c - 'A' + 10) << 4;
+      else if (*c >= 'a' && *c <= 'f') *k = (*c - 'a' + 10) << 4;
+      else {
+	CORBA::string_free(key);
+	OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
+      }
+      c++;
+      if      (*c >= '0' && *c <= '9') *k |= (*c - '0');
+      else if (*c >= 'A' && *c <= 'F') *k |= (*c - 'A' + 10);
+      else if (*c >= 'a' && *c <= 'f') *k |= (*c - 'a' + 10);
+      else {
+	CORBA::string_free(key);
+	OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
+      }
+    }
+    else {
+      CORBA::string_free(key);
+      OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
+    }
+  }
+  *k = '\0';
+  return key;
+}
+
+
+//
+// URL handlers
+//
+
 static omnivector<omniURI::URIHandler*> handlers;
+
+void
+omniURI::registerURIHandler(URIHandler* h)
+{
+  handlers.push_back(h);
+}
+
+void
+omniURI::unregisterURIHandler(URIHandler* h)
+{
+  omnivector<omniURI::URIHandler*>::iterator it   = handlers.begin();
+  omnivector<omniURI::URIHandler*>::iterator last = handlers.end();
+
+  for(; it != last; ++it) {
+    if (*it == h) {
+      handlers.erase(it);
+      break;
+    }
+  }
+}
 
 
 //
@@ -52,13 +135,20 @@ static omnivector<omniURI::URIHandler*> handlers;
 //
 
 char*
-omniURI::buildURI(const char* prefix, const char* host, CORBA::UShort port)
+omniURI::buildURI(const char*    prefix,
+                  const char*    host,
+                  CORBA::UShort  port,
+                  const char*    path,
+                  CORBA::Boolean always_port)
 {
-  const char* ip4format = "%s:%s:%d";
-  const char* ip6format = "%s:[%s]:%d";
+  CORBA::ULong   prefix_len = strlen(prefix);
+  CORBA::Boolean colon      = *prefix && prefix[prefix_len - 1] != '/';
+  const char*    ip4format  = colon ? "%s:%s"   : "%s%s";
+  const char*    ip6format  = colon ? "%s:[%s]" : "%s[%s]";
 
-  const char* format = ip4format;
-  CORBA::ULong len = 0;
+  const char*    format     = ip4format;
+  CORBA::ULong   len        = 0;
+  
   for (const char* c = host; *c; ++c, ++len) {
     if (*c == ':')
       format = ip6format;
@@ -71,16 +161,28 @@ omniURI::buildURI(const char* prefix, const char* host, CORBA::UShort port)
     format = ip4format;
   }
 
-  len += strlen(format) + strlen(prefix) + 6;
-  CORBA::String_var addrstr(CORBA::string_alloc(len));
+  len += strlen(format) + strlen(prefix);
 
-  if (*prefix)
-    sprintf((char*)addrstr, format, prefix, host, (int)port);
-  else
-    sprintf((char*)addrstr, format + 3, host, (int)port);
+  if (port)
+    len += 7;
+  
+  if (path)
+    len += strlen(path) + 1;
+
+  CORBA::String_var addrstr(CORBA::string_alloc(len));
+  char*             addrp = (char*)addrstr;
+
+  addrp += sprintf(addrp, format, prefix, host);
+  
+  if (port || always_port)
+    addrp += sprintf(addrp, ":%d", (int)port);
+  
+  if (path)
+    addrp += sprintf(addrp, "/%s", path);
 
   return addrstr._retn();
 }
+
 
 char*
 omniURI::extractHostPort(const char*    addr,
@@ -94,7 +196,7 @@ omniURI::extractHostPort(const char*    addr,
     // IPv6 address
     ++addr;
     p = strchr(addr, ']');
-    if (!p || addr == p || *p == '\0') return 0;
+    if (!p || addr == p) return 0;
     host = CORBA::string_alloc(p-addr);
     strncpy(host, addr, p-addr);
     ((char*)host)[p-addr] = '\0';
@@ -116,7 +218,7 @@ omniURI::extractHostPort(const char*    addr,
   if (*p != '\0') {
     int v;
     if (sscanf(p,"%d%n", &v, &n) == 0) return 0;
-    if (v < 0 || v > 65536) return 0;
+    if (v < 0 || v > 65535) return 0;
     port = v;
   }
   else {
@@ -148,7 +250,7 @@ omniURI::extractHostPortRange(const char*    addr,
     int v, n;
     if (sscanf(++rest, "%d%n", &v, &n) == 0)
       return 0;
-    if (v < 0 || v > 65536)
+    if (v < 0 || v > 65535)
       return 0;
 
     port_max = v;
@@ -166,6 +268,104 @@ omniURI::extractHostPortRange(const char*    addr,
     return 0;
 
   return host._retn();
+}
+
+
+CORBA::Boolean
+omniURI::extractURL(const char*    url,
+                    char*&         scheme,
+                    char*&         host,
+                    CORBA::UShort& port,
+                    char*&         path,
+                    char*&         fragment)
+{
+  CORBA::String_var sv, hv, pv, fv;
+  const char*       p;
+
+  p = strchr(url, ':');
+  if (!p)
+    return 0;
+
+  sv = CORBA::string_alloc(p - url);
+  strncpy(sv, url, p-url);
+  ((char*)sv)[p-url] = '\0';
+
+  url = p + 1;
+  if (*url++ != '/') return 0;
+  if (*url++ != '/') return 0;
+
+  if (*url == '[') {
+    // IPv6 address
+    ++url;
+    p = strchr(url, ']');
+    if (!p || url == p)
+      return 0;
+
+    hv = CORBA::string_alloc(p - url);
+    strncpy(hv, url, p-url);
+    ((char*)hv)[p-url] = '\0';
+    url = p + 1;
+  }
+  else {
+    // Name or IPv4 address
+    p = strchr(url, ':');
+    if (!p)
+      p = strchr(url, '/');
+    if (!p)
+      p = strchr(url, '\0');
+
+    hv = CORBA::string_alloc(p - url);
+    strncpy(hv, url, p-url);
+    ((char*)hv)[p-url] = '\0';
+    url = p;
+  }
+  if (*url == ':') {
+    ++url;
+    int v, n;
+    if (sscanf(url, "%d%n", &v, &n) == 0)
+      return 0;
+
+    if (v < 0 || v > 65535)
+      return 0;
+
+    port = v;
+    url += n;
+  }
+  else {
+    port = 0;
+  }
+
+  unsigned int size;
+  
+  if (*url == '/') {
+    ++url;
+    p = strchr(url, '#');
+    if (!p)
+      p = strchr(url, '\0');
+
+    pv = CORBA::string_alloc(p - url);
+    strncpy(pv, url, p-url);
+    ((char*)pv)[p-url] = '\0';
+    url = p;
+  }
+  else {
+    pv = "";
+  }
+
+  if (*url == '#') {
+    ++url;
+    fv = CORBA::string_dup(url);
+  }
+  else {
+    fv = "";
+  }
+
+  scheme   = sv._retn();
+  host     = hv._retn();
+  path     = pv._retn();
+  fragment = fv._retn();
+
+  return 1;
 }
 
 
@@ -195,7 +395,7 @@ validHostPortOptRange(const char* addr, CORBA::Boolean range_ok)
   if (*p == '\0') return 1;
 
   if (sscanf(p, "%d%n", &v1, &n) == 0) return 0;
-  if (v1 < 0 || v1 > 65536) return 0;
+  if (v1 < 0 || v1 > 65535) return 0;
   
   p += n;
 
@@ -205,7 +405,7 @@ validHostPortOptRange(const char* addr, CORBA::Boolean range_ok)
   ++p;
 
   if (sscanf(p, "%d%n", &v2, &n) == 0) return 0;
-  if (v2 < 0 || v2 > 65536 || v2 < v1) return 0;
+  if (v2 < 0 || v2 > 65535 || v2 < v1) return 0;
 
   p += n;
 
@@ -249,7 +449,8 @@ omniURI::objectToString(CORBA::Object_ptr obj)
 CORBA::Object_ptr
 omniURI::stringToObject(const char* uri, unsigned int cycles)
 {
-  if (!uri) OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
+  if (!uri)
+    OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
 
   if (cycles > MAX_STRING_TO_OBJECT_CYCLES) {
     if (omniORB::trace(1)) {
@@ -670,60 +871,6 @@ corbalocURIHandler::IiopObjAddr::IiopObjAddr(const char*& c)
 }
 
 
-static inline int
-validKeyChar(const char c)
-{
-  return ((c >= 'A' && c <= 'Z') ||
-	  (c >= 'a' && c <= 'z') ||
-	  (c >= '0' && c <= '9') ||
-	  c == ';' || c == '/' || c == '?' || c == ':' || c == '@' ||
-	  c == '&' || c == '=' || c == '+' || c == '$' || c == ',' ||
-	  c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
-	  c == '*' || c == '(' || c == ')' || c == '\'');
-}
-
-static char*
-unescapeKey(const char*& c, unsigned int& key_size)
-{
-  const char* p;
-  for (p=c; *p && *p != '#'; p++);
-
-  char* key = CORBA::string_alloc(1 + p - c);
-  char* k   = key;
-  key_size  = 0;
-
-  for (; c != p; c++, k++) {
-    key_size++;
-    if (validKeyChar(*c)) {
-      *k = *c;
-    }
-    else if (*c == '%') {
-      // Escape char
-      c++;
-      if      (*c >= '0' && *c <= '9') *k = (*c - '0')      << 4;
-      else if (*c >= 'A' && *c <= 'F') *k = (*c - 'A' + 10) << 4;
-      else if (*c >= 'a' && *c <= 'f') *k = (*c - 'a' + 10) << 4;
-      else {
-	CORBA::string_free(key);
-	OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
-      }
-      c++;
-      if      (*c >= '0' && *c <= '9') *k |= (*c - '0');
-      else if (*c >= 'A' && *c <= 'F') *k |= (*c - 'A' + 10);
-      else if (*c >= 'a' && *c <= 'f') *k |= (*c - 'a' + 10);
-      else {
-	CORBA::string_free(key);
-	OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
-      }
-    }
-    else {
-      CORBA::string_free(key);
-      OMNIORB_THROW(BAD_PARAM, BAD_PARAM_BadURIOther, CORBA::COMPLETED_NO);
-    }
-  }
-  *k = '\0';
-  return key;
-}
 
 corbalocURIHandler::
 Parsed::Parsed(const char*& c, const char* def_key)
@@ -754,7 +901,7 @@ Parsed::Parsed(const char*& c, const char* def_key)
   if (*c == '/') {
     // Key string follows
     c++;
-    key_ = unescapeKey(c, key_size_);
+    key_ = omniURI::unescape(c, key_size_);
   }
   else if (def_key) {
     key_      = def_key; // Copying assignment of default key
@@ -944,7 +1091,7 @@ corbanameURIHandler::toObject(const char* uri, unsigned int cycles)
   try {
     c++;
     unsigned int key_size;
-    sname = unescapeKey(c, key_size);
+    sname = omniURI::unescape(c, key_size);
     name  = omniURI::stringToName(sname);
   }
   catch (CosNaming::NamingContext::InvalidName& ex) {
@@ -1021,8 +1168,7 @@ corbanameURIHandler::syntaxIsValid(const char* uri)
     }
     c++;
     unsigned int key_size;
-    CORBA::String_var   sname;
-    sname = unescapeKey(c, key_size);
+    CORBA::String_var   sname = omniURI::unescape(c, key_size);
     CosNaming::Name_var name  = omniURI::stringToName(sname);
   }
   catch (...) {

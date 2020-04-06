@@ -19,9 +19,7 @@
 //  General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//  02111-1307, USA.
+//  along with this program.  If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //   
@@ -449,9 +447,11 @@ visitConst(Const* c)
 
   case IdlType::tk_fixed:
     {
-      char* fs = c->constAsFixed()->asString();
-      pyv = PyString_FromString(fs);
+      IDL_Fixed* fv = c->constAsFixed();
+      char*      fs = fv->asString();
+      pyv           = PyString_FromString(fs);
       delete [] fs;
+      delete    fv;
     }
     break;
 
@@ -1473,13 +1473,15 @@ extern "C" {
     return Py_None;
   }
 
+#ifndef PYPY_VERSION
   static PyObject* IdlPyRunInteractiveLoop(PyObject* self, PyObject* args)
   {
     PyRun_InteractiveLoop(stdin, (char*)"<stdin>");
     Py_INCREF(Py_None);
     return Py_None;
   }
-
+#endif
+  
   static PyObject* IdlPyCaseSensitive(PyObject* self, PyObject* args)
   {
     if (!PyArg_ParseTuple(args, (char*)"")) return 0;
@@ -1518,7 +1520,9 @@ extern "C" {
     {(char*)"noForwardWarning",   IdlPyNoForwardWarning,   METH_VARARGS},
     {(char*)"keepComments",       IdlPyKeepComments,       METH_VARARGS},
     {(char*)"relativeScopedName", IdlPyRelativeScopedName, METH_VARARGS},
+#ifndef PYPY_VERSION
     {(char*)"runInteractiveLoop", IdlPyRunInteractiveLoop, METH_VARARGS},
+#endif
     {(char*)"caseSensitive",      IdlPyCaseSensitive,      METH_VARARGS},
     {(char*)"platformDefines",    IdlPyPlatformDefines,    METH_VARARGS},
     {(char*)"alwaysTempFile",     IdlPyAlwaysTempFile,     METH_VARARGS},

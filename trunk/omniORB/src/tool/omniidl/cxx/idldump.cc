@@ -19,9 +19,7 @@
 //  General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//  02111-1307, USA.
+//  along with this program.  If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //   
@@ -266,8 +264,15 @@ visitConst(Const* c)
     printf("\"");
     break;
 #ifdef HAS_LongLong
+
+#  if defined(SIZEOF_LONG) && (SIZEOF_LONG == 8)
+  case IdlType::tk_longlong:  printf("%ld", c->constAsLongLong());     break;
+  case IdlType::tk_ulonglong: printf("%lu", c->constAsULongLong());    break;
+#  else
   case IdlType::tk_longlong:  printf("%Ld", c->constAsLongLong());     break;
   case IdlType::tk_ulonglong: printf("%Lu", c->constAsULongLong());    break;
+#  endif
+
 #endif
 #ifdef HAS_LongDouble
   case IdlType::tk_longdouble:printlongdouble(c->constAsLongDouble()); break;
@@ -277,9 +282,11 @@ visitConst(Const* c)
 
   case IdlType::tk_fixed:
     {
-      char* fs = c->constAsFixed()->asString();
+      IDL_Fixed* fv = c->constAsFixed();
+      char*      fs = fv->asString();
       printf("%sd", fs);
       delete [] fs;
+      delete    fv;
     }
     break;
 
@@ -410,8 +417,15 @@ visitCaseLabel(CaseLabel* l)
     printf("'");
     break;
 #ifdef HAS_LongLong
+
+#  if defined(SIZEOF_LONG) && (SIZEOF_LONG == 8)
+  case IdlType::tk_longlong:  printf("%ld", l->labelAsLongLong());  break;
+  case IdlType::tk_ulonglong: printf("%lu", l->labelAsULongLong()); break;
+#  else
   case IdlType::tk_longlong:  printf("%Ld", l->labelAsLongLong());  break;
   case IdlType::tk_ulonglong: printf("%Lu", l->labelAsULongLong()); break;
+#  endif
+
 #endif
   case IdlType::tk_wchar:     printf("'\\u%hx", l->labelAsWChar()); break;
   case IdlType::tk_enum: l->labelAsEnumerator()->accept(*this);     break;

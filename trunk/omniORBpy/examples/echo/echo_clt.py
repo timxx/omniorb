@@ -22,7 +22,7 @@ obj = orb.string_to_object(ior)
 eo  = obj._narrow(_GlobalIDL.Echo)
 
 if eo is None:
-    print "Object reference is not an Echo"
+    print("Object reference is not an Echo")
     sys.exit(1)
 
 # Invoke the echoString operation
@@ -33,4 +33,4 @@ else:
 
 result  = eo.echoString(message)
 
-print "I said '%s'. The object said '%s'." % (message,result)
+print("I said '%s'. The object said '%s'." % (message,result))

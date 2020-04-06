@@ -19,9 +19,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Python interceptors
@@ -100,11 +98,11 @@ callInterceptorsAndSetContexts(PyObject*                fnlist,
 
 	  PyObject* data = PyTuple_GET_ITEM(sc, 1);
 
-	  if (!String_Check(data))
+	  if (!RawString_Check(data))
 	    OMNIORB_THROW(BAD_PARAM, BAD_PARAM_WrongPythonType, completion);
 
           CORBA::ULong size;
-          const char*  str = String_AS_STRING_AND_SIZE(data, size);
+          const char*  str = RawString_AS_STRING_AND_SIZE(data, size);
 
 	  service_contexts[sci].context_data.length(size);
 
@@ -149,6 +147,8 @@ getContextsAndCallInterceptors(PyObject*                fnlist,
       value = Py_None;
     }
     PyDict_SetItemString(peer_info, "address", value);
+    Py_DECREF(value);
+
     if (peer_identity) {
       value = String_FromString(peer_identity);
     }
@@ -157,6 +157,8 @@ getContextsAndCallInterceptors(PyObject*                fnlist,
       value = Py_None;
     }
     PyDict_SetItemString(peer_info, "identity", value);
+    Py_DECREF(value);
+
     PyTuple_SET_ITEM(argtuple, 2, peer_info);
   }
 
@@ -168,7 +170,7 @@ getContextsAndCallInterceptors(PyObject*                fnlist,
     const char* data = (const char*)service_contexts[i].context_data.NP_data();
     int len = service_contexts[i].context_data.length();
     
-    PyTuple_SET_ITEM(sc, 1, String_FromStringAndSize(data, len));
+    PyTuple_SET_ITEM(sc, 1, RawString_FromStringAndSize(data, len));
     PyTuple_SET_ITEM(sctuple, i, sc);
   }
 
@@ -339,13 +341,21 @@ assignThreadFn(infoT& info, PyObject* fns)
       Py_DECREF(result);
     }
     else {
+      if (!PyIter_Check(result))
+        OMNIORB_THROW(BAD_PARAM, BAD_PARAM_WrongPythonType, CORBA::COMPLETED_NO);
+
       // A generator function. Call next() on it once
       PyList_Append(post_list, result);
 
-      result = PyObject_CallMethod(result, (char*)"next", 0);
-      if (!result)
-        omniPy::handlePythonException();
+      result = PyIter_Next(result);
+      
+      if (!result) {
+        if (PyErr_Occurred())
+          omniPy::handlePythonException();
 
+        // The iterator terminated too soon
+        OMNIORB_THROW(BAD_PARAM, BAD_PARAM_WrongPythonType, CORBA::COMPLETED_NO);
+      }
       Py_DECREF(result);
     }
   }
@@ -358,14 +368,16 @@ assignThreadFn(infoT& info, PyObject* fns)
   for (i = PyList_GET_SIZE(post_list) - 1; i >= 0; --i) {
 
     PyObject* gen    = PyList_GET_ITEM(post_list, i);
-    PyObject* result = PyObject_CallMethod(gen, (char*)"next", 0);
+    PyObject* result = PyIter_Next(gen);
 
     if (result) {
       // Not expecting this -- next() should have raised StopIteration
       Py_DECREF(result);
     }
     else {
-      PyErr_Clear();
+      // If an error occurred, we just swallow it.
+      if (PyErr_Occurred())
+        PyErr_Clear();
     }
   }
 }

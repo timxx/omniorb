@@ -37,12 +37,12 @@ def tfail():
 def tdone():
     global failed
     if len(failed) > 0:
-        print "\nFailed tests:"
+        print("\nFailed tests:")
         for fail in failed:
-            print "  ", fail
+            print("  ", fail)
     else:
         if output:
-            print "\nAll tests passed."
+            print("\nAll tests passed.")
 
 def exc(ex):
     if exc_info:
@@ -101,8 +101,8 @@ def doTests(orb, poa, io):
     else:       tfail()
 
     tstart("ULong with long")
-    r = io.simple6(42L)
-    if r == 42L: tpass()
+    r = io.simple6(42)
+    if r == 42: tpass()
     else:        tfail()
 
     tstart("ULong with int")
@@ -159,7 +159,7 @@ def doTests(orb, poa, io):
         io.simple3(1.234)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -167,7 +167,7 @@ def doTests(orb, poa, io):
         io.simple3("Hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -175,7 +175,7 @@ def doTests(orb, poa, io):
         io.simple3(0x8123)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -183,15 +183,15 @@ def doTests(orb, poa, io):
         io.simple4(-1)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
     try:
-        io.simple6(1233456789012345L)
+        io.simple6(1233456789012345)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -199,7 +199,7 @@ def doTests(orb, poa, io):
         io.simple10("Hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -207,7 +207,7 @@ def doTests(orb, poa, io):
         io.simple10(65)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -215,7 +215,7 @@ def doTests(orb, poa, io):
         io.simple11(1234)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -223,7 +223,7 @@ def doTests(orb, poa, io):
         io.simple11(-1)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -231,12 +231,12 @@ def doTests(orb, poa, io):
     else:  tfail()
 
     tstart("Combination 1")
-    r = io.combine1(123, 456, 789L)
+    r = io.combine1(123, 456, 789)
     if r is None: tpass()
     else:         tfail()
 
     tstart("Combination 2")
-    r = io.combine2(123, 456L)
+    r = io.combine2(123, 456)
     tresult(r)
     tpass()
 
@@ -262,10 +262,10 @@ def doTests(orb, poa, io):
     else:        tfail()
 
     tstart("ULong attr")
-    io._set_sattr4(123L)
+    io._set_sattr4(123)
     tresult("+")
     r = io._get_sattr4()
-    if r == 123L: tpass()
+    if r == 123: tpass()
     else:         tfail()
 
     tstart("Float attr")
@@ -320,7 +320,7 @@ def doTests(orb, poa, io):
 
     tstart("ULong readonly attr")
     r = io._get_rattr4()
-    if r == 123L: tpass()
+    if r == 123: tpass()
     else:         tfail()
 
     tstart("Float readonly attr")
@@ -355,7 +355,7 @@ def doTests(orb, poa, io):
         io._set_sattr1("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -363,7 +363,7 @@ def doTests(orb, poa, io):
         io._set_sattr2(1.234)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -371,7 +371,7 @@ def doTests(orb, poa, io):
         io._set_sattr3("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -379,7 +379,7 @@ def doTests(orb, poa, io):
         io._set_sattr4("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -387,7 +387,7 @@ def doTests(orb, poa, io):
         io._set_sattr5("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -395,23 +395,24 @@ def doTests(orb, poa, io):
         io._set_sattr6("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
     try:
+        # This is ok
         io._set_sattr7("hello")
+        tresult("+")
+    except CORBA.BAD_PARAM as ex:
+        exc(ex)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
-        exc(ex)
-        tresult("+")
 
     try:
         io._set_sattr8("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -419,7 +420,7 @@ def doTests(orb, poa, io):
         io._set_sattr9("hello")
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -450,10 +451,10 @@ def doTests(orb, poa, io):
     else:        tfail()
 
     tstart("ULong attr")
-    io.sattr4 = 123L
+    io.sattr4 = 123
     tresult("+")
     r = io.sattr4
-    if r == 123L: tpass()
+    if r == 123: tpass()
     else:         tfail()
 
     tstart("Float attr")
@@ -508,7 +509,7 @@ def doTests(orb, poa, io):
 
     tstart("ULong readonly attr")
     r = io.rattr4
-    if r == 123L: tpass()
+    if r == 123: tpass()
     else:         tfail()
 
     tstart("Float readonly attr")
@@ -543,7 +544,7 @@ def doTests(orb, poa, io):
         io.sattr1 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -551,7 +552,7 @@ def doTests(orb, poa, io):
         io.sattr2 = 1.234
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -559,7 +560,7 @@ def doTests(orb, poa, io):
         io.sattr3 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -567,7 +568,7 @@ def doTests(orb, poa, io):
         io.sattr4 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -575,7 +576,7 @@ def doTests(orb, poa, io):
         io.sattr5 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -583,23 +584,24 @@ def doTests(orb, poa, io):
         io.sattr6 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
     try:
+        # This is ok
         io.sattr7 = "hello"
-        ok = 0
-        tresult("-")
-    except CORBA.BAD_PARAM, ex:
-        exc(ex)
         tresult("+")
+    except CORBA.BAD_PARAM as ex:
+        ok = 0
+        exc(ex)
+        tresult("-")
 
     try:
         io.sattr8 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -607,7 +609,7 @@ def doTests(orb, poa, io):
         io.sattr9 = "hello"
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -692,7 +694,7 @@ def doTests(orb, poa, io):
     try:
         r = io.complex3(s1)
         tfail()
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tpass()
 
@@ -837,7 +839,7 @@ def doTests(orb, poa, io):
         r = io.complex4(s1)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -846,7 +848,7 @@ def doTests(orb, poa, io):
         r = io.complex5(u)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
     
@@ -879,7 +881,7 @@ def doTests(orb, poa, io):
         r = io.complex6(1234)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -887,7 +889,7 @@ def doTests(orb, poa, io):
         r = io.complex6(TypeTest.five)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -895,7 +897,7 @@ def doTests(orb, poa, io):
         r = io.complex6(TypeTest.nine)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -926,7 +928,7 @@ def doTests(orb, poa, io):
         r = io.complex7(s)
         tresult("-")
         ok = 0
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -956,7 +958,7 @@ def doTests(orb, poa, io):
         r = io.complex8(s)
         tresult("-")
         ok = 0
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -999,7 +1001,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2, 3L, 4L, 5]
+    s = [1, 2, 3, 4, 5]
     r = io.complex12(s)
     if list(r) == list(s):
         tresult("+")
@@ -1039,7 +1041,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = "This is a sequence of octet, which is remarkably similar to a sequence of char. It also has a \0 in it."
+    s = b"This is a sequence of octet, which is a bytes type. It also has a \0 in it."
     r = io.complex17(s)
     if r == s:
         tresult("+")
@@ -1059,7 +1061,7 @@ def doTests(orb, poa, io):
         r = io.complex9(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1068,7 +1070,7 @@ def doTests(orb, poa, io):
         r = io.complex10(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1077,16 +1079,16 @@ def doTests(orb, poa, io):
         r = io.complex11(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
-    s = [1L, 2, -3L, 4L, 5]
+    s = [1, 2, -3, 4, 5]
     try:
         r = io.complex12(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1095,7 +1097,7 @@ def doTests(orb, poa, io):
         r = io.complex13(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1104,25 +1106,25 @@ def doTests(orb, poa, io):
         r = io.complex14(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
     s = (1, 0, 1, 1.2, 0, 3, 1, 1, 1)
     try:
         r = io.complex15(s)
-        ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
+        ok = 0
         exc(ex)
-        tresult("+")
+        tresult("-")
 
     s = [1, 2, 3, 4, 5]
     try:
         r = io.complex16(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1131,7 +1133,7 @@ def doTests(orb, poa, io):
         r = io.complex17(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1174,7 +1176,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2, 3L, 4L, 5]
+    s = [1, 2, 3, 4, 5]
     r = io.complex21(s)
     if list(r) == list(s):
         tresult("+")
@@ -1214,7 +1216,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = "This is a "
+    s = b"This is a "
     r = io.complex26(s)
     if r == s:
         tresult("+")
@@ -1242,7 +1244,7 @@ def doTests(orb, poa, io):
         r = io.complex19(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1254,7 +1256,7 @@ def doTests(orb, poa, io):
     except CORBA.MARSHAL:
         tresult("+")
 
-    s = [1L, 2, 3L, 4L, 5, 6L, 7L, 8, 9, 10, 11, 12]
+    s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     try:
         r = io.complex21(s)
         ok = 0
@@ -1281,11 +1283,11 @@ def doTests(orb, poa, io):
     s = (1, 0, 1, 1.2, 0, 3, 1, 1, 1)
     try:
         r = io.complex24(s)
-        ok = 0
-        tresult("-")
-    except CORBA.BAD_PARAM, ex:
-        exc(ex)
         tresult("+")
+    except CORBA.BAD_PARAM as ex:
+        ok = 0
+        exc(ex)
+        tresult("-")
 
     s = "This is a long sequence<char>"
     try:
@@ -1295,7 +1297,7 @@ def doTests(orb, poa, io):
     except CORBA.MARSHAL:
         tresult("+")
 
-    s = "This is a long sequence<octet>"
+    s = b"This is a long sequence<octet>"
     try:
         r = io.complex26(s)
         ok = 0
@@ -1334,7 +1336,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2, 3L, 4L, 5]
+    s = [1, 2, 3, 4, 5]
     r = io.complex30(s)
     if list(r) == list(s):
         tresult("+")
@@ -1374,7 +1376,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = "ab\0de"
+    s = b"ab\0de"
     r = io.complex35(s)
     if r == s:
         tresult("+")
@@ -1402,7 +1404,7 @@ def doTests(orb, poa, io):
         r = io.complex27(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1411,7 +1413,7 @@ def doTests(orb, poa, io):
         r = io.complex28(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1420,16 +1422,16 @@ def doTests(orb, poa, io):
         r = io.complex29(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
-    s = [1L, 2, 3L, 4L, 5, 6L, 7L, 8, 9, 10, 11, 12]
+    s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     try:
         r = io.complex30(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1438,7 +1440,7 @@ def doTests(orb, poa, io):
         r = io.complex31(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1447,7 +1449,7 @@ def doTests(orb, poa, io):
         r = io.complex32(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1456,7 +1458,7 @@ def doTests(orb, poa, io):
         r = io.complex33(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1465,7 +1467,7 @@ def doTests(orb, poa, io):
         r = io.complex34(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1474,7 +1476,7 @@ def doTests(orb, poa, io):
         r = io.complex35(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1483,7 +1485,7 @@ def doTests(orb, poa, io):
         r = io.complex36(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1491,39 +1493,39 @@ def doTests(orb, poa, io):
     else:  tfail()
 
     tstart("Short with Long")
-    r = io.simple3(42L)
+    r = io.simple3(42)
     if r == 42: tpass()
     else:       tfail()
 
     tstart("UShort with Long")
-    r = io.simple4(42L)
+    r = io.simple4(42)
     if r == 42: tpass()
     else:       tfail()
 
     tstart("Long with Long")
-    r = io.simple5(42L)
+    r = io.simple5(42)
     if r == 42: tpass()
     else:       tfail()
 
     tstart("Float with Long")
-    r = io.simple7(42L)
+    r = io.simple7(42)
     if r == 42: tpass()
     else:       tfail()
 
     tstart("Double with Long")
-    r = io.simple8(42L)
+    r = io.simple8(42)
     if r == 42: tpass()
     else:       tfail()
 
     tstart("Octet with Long")
-    r = io.simple11(123L)
+    r = io.simple11(123)
     if r == 123: tpass()
     else:        tfail()
 
     tstart("Sequences with Longs")
     ok = 1
 
-    s = [1L, 2L, 3L, 4L, 5L]
+    s = [1, 2, 3, 4, 5]
     r = io.complex9(s)
     if list(r) == list(s):
         tresult("+")
@@ -1531,7 +1533,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = (-6L, 7L, -8L, 9L, 10L, 11L)
+    s = (-6, 7, -8, 9, 10, 11)
     r = io.complex9(s)
     if list(r) == list(s):
         tresult("+")
@@ -1539,7 +1541,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2L, 3L, 4L, 5L]
+    s = [1, 2, 3, 4, 5]
     r = io.complex10(s)
     if list(r) == list(s):
         tresult("+")
@@ -1547,7 +1549,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = (1L, 2L, -3L, 4L, 5L)
+    s = (1, 2, -3, 4, 5)
     r = io.complex11(s)
     if list(r) == list(s):
         tresult("+")
@@ -1555,7 +1557,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2, 3L, 4L, 5]
+    s = [1, 2, 3, 4, 5]
     r = io.complex12(s)
     if list(r) == list(s):
         tresult("+")
@@ -1563,7 +1565,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = (1L, 2L, -3L, 4L, 5L)
+    s = (1, 2, -3, 4, 5)
     r = io.complex13(s)
     if len(r) == len(s):
         tresult(r)
@@ -1571,7 +1573,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = [1L, 2L, -3L, 4L, 5L]
+    s = [1, 2, -3, 4, 5]
     r = io.complex14(s)
     if len(r) == len(s):
         tresult(r)
@@ -1579,7 +1581,7 @@ def doTests(orb, poa, io):
         ok = 0
         tresult("-")
 
-    s = (1L, 0L, 1L, 1L, 0L, 3L, 1L, 1L, 1L)
+    s = (1, 0, 1, 1, 0, 3, 1, 1, 1)
     r = io.complex15(s)
     if len(r) == len(s):
         tresult(r)
@@ -1598,7 +1600,7 @@ def doTests(orb, poa, io):
                      TypeTest.U1(a = 5),
                      jo,
                      [1, 2, 3, 4, 5, 6, 7],
-                     "octet sequence",
+                     b"octet sequence",
                      "string")
     r = io.complex37(s2)
     if r.c._is_equivalent(jo):
@@ -1613,7 +1615,7 @@ def doTests(orb, poa, io):
                      TypeTest.U1(a = 5),
                      None,
                      [1, 2, 3, 4, 5, 6, 7],
-                     "octet sequence",
+                     b"octet sequence",
                      "string")
     r = io.complex37(s2)
     if r.c is None:
@@ -1632,12 +1634,12 @@ def doTests(orb, poa, io):
                      TypeTest.U1(a = 5),
                      12345,
                      [1, 2, 3, 4, 5, 6, 7],
-                     "octet sequence",
+                     b"octet sequence",
                      "string")
     try:
         r = io.complex37(s2)
         tfail()
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tpass()
 
@@ -1657,7 +1659,7 @@ def doTests(orb, poa, io):
 
     ok = 1
     s  = [TypeTest.S1(1, 2, 3, 4, 5.6, 7, 8, "a", 10),
-          TypeTest.S1(-10, 0xffff, -1234567, 42L, 1.234, 5.678, 0, "z", 255)]
+          TypeTest.S1(-10, 0xffff, -1234567, 42, 1.234, 5.678, 0, "z", 255)]
     r  = io.complex39(s)
 
     if r[1].b == 0xffff:
@@ -1681,13 +1683,13 @@ def doTests(orb, poa, io):
 
     ok = 1
     s  = [TypeTest.S1(1, 2, 3, 4, 5.6, 7, 8, "a", 10),
-          TypeTest.S1(-10, 0x10000, -1234567, 42L, 1.234, 5.678, 0, "z", 255)]
+          TypeTest.S1(-10, 0x10000, -1234567, 42, 1.234, 5.678, 0, "z", 255)]
 
     try:
         r  = io.complex39(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1696,7 +1698,7 @@ def doTests(orb, poa, io):
         r  = io.complex39(s)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1707,7 +1709,7 @@ def doTests(orb, poa, io):
 
     ok = 1
     s  = [TypeTest.S1(1, 2, 3, 4, 5.6, 7, 8, "a", 10),
-          TypeTest.S1(-10, 0xffff, -1234567, 42L, 1.234, 5.678, 0, "z", 255)]
+          TypeTest.S1(-10, 0xffff, -1234567, 42, 1.234, 5.678, 0, "z", 255)]
     s  = s * 1000
     r  = io.complex39(s)
 
@@ -1746,7 +1748,7 @@ def doTests(orb, poa, io):
 
     tstart("WString")
     ok = 1
-    s = u"Hello there"
+    s = "Hello there"
     r = io.complex41(s)
     if r == s:
         tresult("+")
@@ -1754,7 +1756,7 @@ def doTests(orb, poa, io):
         tresult("-")
         ok = 0
     
-    s = u"This is a much longer string with lots of stuff in it. Blah blah blah"
+    s = "This is a much longer string with lots of stuff in it. Blah blah blah"
     r = io.complex41(s)
     if r == s:
         tresult("+")
@@ -1762,12 +1764,12 @@ def doTests(orb, poa, io):
         tresult("-")
         ok = 0
 
-    s = u"This is a string with a \0 in it."
+    s = "This is a string with a \0 in it."
     try:
         r = io.complex41(s)
         tresult("-")
         ok = 0
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1776,7 +1778,7 @@ def doTests(orb, poa, io):
 
     tstart("Bounded wstring")
     ok = 1
-    s = u"Hello"
+    s = "Hello"
     r = io.complex42(s)
     if r == s:
         tresult("+")
@@ -1784,7 +1786,7 @@ def doTests(orb, poa, io):
         tresult("-")
         ok = 0
     
-    s = u"This is a much longer string with lots of stuff in it. Blah blah blah"
+    s = "This is a much longer string with lots of stuff in it. Blah blah blah"
     try:
         r = io.complex42(s)
         tresult("-")
@@ -1792,12 +1794,12 @@ def doTests(orb, poa, io):
     except CORBA.MARSHAL:
         tresult("+")
 
-    s = u"str\0ing"
+    s = "str\0ing"
     try:
         r = io.complex42(s)
         tresult("-")
         ok = 0
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -1911,7 +1913,7 @@ def doTests(orb, poa, io):
         io.except2(2)
         ok = 0
         tresult("-")
-    except TypeTest.X2, ex:
+    except TypeTest.X2 as ex:
         tresult("+" + ex.b)
 
     try:
@@ -1957,7 +1959,7 @@ def doTests(orb, poa, io):
             io.except4(i)
             ok = 0
             tresult("-")
-        except CORBA.BAD_PARAM, ex:
+        except CORBA.BAD_PARAM as ex:
             exc(ex)
             tresult("+")
 
@@ -2094,7 +2096,7 @@ def doTests(orb, poa, io):
         r  = io.any1(a)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -2107,7 +2109,7 @@ def doTests(orb, poa, io):
         r  = io.any1(a)
         ok = 0
         tresult("-")
-    except CORBA.BAD_PARAM, ex:
+    except CORBA.BAD_PARAM as ex:
         exc(ex)
         tresult("+")
 
@@ -2168,7 +2170,7 @@ if __name__ == "__main__":
     doTests(orb, poa, io)
 
     if "-r" in sys.argv:
-        print "\nRepeating tests..."
+        print("\nRepeating tests...")
         output = 0
         while 1:
             doTests(orb, poa, io)

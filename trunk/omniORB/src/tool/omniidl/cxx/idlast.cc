@@ -19,9 +19,7 @@
 //  General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-//  02111-1307, USA.
+//  along with this program.  If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //   
@@ -1018,7 +1016,7 @@ kindAsString() const
 {
   if (alias_)     return "typedef declarator";
   if (attribute_) return "attribute declarator";
-                  return "declarator";
+  return "declarator";
 }
 
 void
@@ -1641,7 +1639,7 @@ Union::
 // come up with a default label value. Loops are O(n^2), but n will
 // usually be quite small. ***
 #define UNION_SWITCH(lt, op, defstart, islastdef, nextdef) { \
-  lt label; \
+  lt label = defstart; \
   for (c = cases; c; c = (UnionCase*)c->next()) { \
     for (l = c->labels(); l; l = (CaseLabel*)l->next()) { \
       l->setType(t); \
@@ -1716,7 +1714,7 @@ finishConstruction(IdlType* switchType, IDL_Boolean constrType,
   case IdlType::tk_short:
     UNION_SWITCH(IDL_Short, Short, -0x8000, defVal==0x7fff, ++defVal)
   case IdlType::tk_long:
-    UNION_SWITCH(IDL_Long, Long, -0x80000000, defVal==0x7fffffff, ++defVal)
+    UNION_SWITCH(IDL_Long, Long, (-0x7fffffff)-1, defVal==0x7fffffff, ++defVal)
   case IdlType::tk_ushort:
     UNION_SWITCH(IDL_UShort, UShort, 0xffff, defVal==0, --defVal)
   case IdlType::tk_ulong:
@@ -1728,7 +1726,7 @@ finishConstruction(IdlType* switchType, IDL_Boolean constrType,
 #ifdef HAS_LongLong
   case IdlType::tk_longlong:
     UNION_SWITCH(IDL_LongLong, LongLong,
-		 _CORBA_LONGLONG_CONST(-0x8000000000000000),
+		 _CORBA_LONGLONG_CONST(-0x7fffffffffffffff) - 1,
 		 defVal==_CORBA_LONGLONG_CONST(0x7fffffffffffffff), ++defVal)
   case IdlType::tk_ulonglong:
     UNION_SWITCH(IDL_ULongLong, ULongLong,

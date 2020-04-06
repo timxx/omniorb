@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -119,7 +117,7 @@ omniORB::logger::logger(const char* prefix)
     if (self)
       *this << "(" << self->id() << ") ";
     else
-      *this << "(?) ";
+      *this << "(? " << omni_thread::plat_id() << ") ";
   }
 
 #if defined(HAVE_STRFTIME) && defined(HAVE_LOCALTIME)
@@ -128,7 +126,12 @@ omniORB::logger::logger(const char* prefix)
     unsigned long s, ns;
     omni_thread::get_time(&s, &ns);
     time_t ts = s;
+#if defined(HAVE_LOCALTIME_R)
+    struct tm tmr;
+    strftime(tbuf, 39, "%Y-%m-%d %H:%M:%S", localtime_r(&ts, &tmr));
+#else
     strftime(tbuf, 39, "%Y-%m-%d %H:%M:%S", localtime(&ts));
+#endif
     *this << tbuf;
     sprintf(tbuf, ".%06d: ", (int)ns / 1000);
     *this << tbuf;
@@ -171,6 +174,31 @@ omniORB::logger::operator<<(const char *s)
   reserve(len);
   strcpy(pd_p, s);
   pd_p += len;
+  return *this;
+}
+
+
+omniORB::logger&
+omniORB::logger::operator<<(const omniORB::logger::unsafe& us)
+{
+  const char* s = us.s;
+  if (!s) s = "(null)";
+
+  size_t len = 0;
+  for (const char* t = s; *t; ++t)
+    len += isprint(*t) ? 1 : 4;
+  
+  reserve(len);
+
+  for (; *s; ++s) {
+    if (isprint(*s)) {
+      *pd_p++ = *s;
+    }
+    else {
+      sprintf(pd_p, "\\x%02x", *s);
+      pd_p += 4;
+    }
+  }
   return *this;
 }
 
@@ -223,6 +251,29 @@ omniORB::logger::operator<<(unsigned long n)
   pd_p += strlen(pd_p);
   return *this;
 }
+
+#if defined(_MSC_VER) && defined(_WIN64)
+
+omniORB::logger&
+omniORB::logger::operator<<(__int64 n)
+{
+  reserve(30);
+  sprintf(pd_p, "%I64d", n);
+  pd_p += strlen(pd_p);
+  return *this;
+}
+
+
+omniORB::logger&
+omniORB::logger::operator<<(unsigned __int64 n)
+{
+  reserve(30);
+  sprintf(pd_p, "%I64u", n);
+  pd_p += strlen(pd_p);
+  return *this;
+}
+
+#endif
 
 
 #ifndef NO_FLOAT
@@ -407,7 +458,7 @@ omniORB::do_logs(const char* mesg)
     if (self)
       cbuf += sprintf(cbuf, "(%d) ", self->id());
     else
-      cbuf += sprintf(cbuf, "(?) ");
+      cbuf += sprintf(cbuf, "(? %lu) ", omni_thread::plat_id());
   }
 
 #if defined(HAVE_STRFTIME) && defined(HAVE_LOCALTIME)
@@ -415,8 +466,14 @@ omniORB::do_logs(const char* mesg)
     unsigned long s, ns;
     omni_thread::get_time(&s, &ns);
     time_t ts = s;
+#if defined(HAVE_LOCALTIME_R)
+    struct tm tmr;
+    cbuf += strftime(cbuf, fmtlen - (cbuf-buf),
+		     "%Y-%m-%d %H:%M:%S", localtime_r(&ts, &tmr));
+#else
     cbuf += strftime(cbuf, fmtlen - (cbuf-buf),
 		     "%Y-%m-%d %H:%M:%S", localtime(&ts));
+#endif
     cbuf += sprintf(cbuf, ".%06d: ", (int)ns / 1000);
   }
 #endif

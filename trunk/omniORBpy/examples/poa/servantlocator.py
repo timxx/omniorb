@@ -18,19 +18,19 @@ import _GlobalIDL, _GlobalIDL__POA
 
 class Echo_i (_GlobalIDL__POA.Echo):
     def __init__(self):
-        print "Echo_i created."
+        print("Echo_i created.")
 
     def __del__(self):
-        print "Echo_i deleted."
+        print("Echo_i deleted.")
 
     def echoString(self, mesg):
-        print "echoString() called with message:", mesg, \
-              ", ObjectId =", repr(current.get_object_id())
+        print("echoString() called with message:", mesg, \
+              ", ObjectId =", repr(current.get_object_id()))
         return mesg
 
 class ServantLocator_i (PortableServer.ServantLocator):
     def preinvoke(self, oid, poa, operation):
-        print "preinvoke(): oid:", oid, "poa:", poa._get_the_name()
+        print("preinvoke(): oid:", oid, "poa:", poa._get_the_name())
         if oid == "MyEcho2":
             raise PortableServer.ForwardRequest(rooteo)
 
@@ -38,8 +38,8 @@ class ServantLocator_i (PortableServer.ServantLocator):
         return (ei, "Hmm, cookies")
 
     def postinvoke(self, oid, poa, operation, cookie, serv):
-        print "postinvoke(): oid:", oid, "poa:", poa._get_the_name(), \
-              "cookie: '" + cookie + "'"
+        print("postinvoke(): oid:", oid, "poa:", poa._get_the_name(), \
+              "cookie: '" + cookie + "'")
 
 # Initialise the ORB and activate the root POA.
 orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
@@ -62,10 +62,10 @@ child.set_servant_manager(sli)
 
 rooteo = Echo_i()._this()
 
-# Create an object reference with no servant
-eo = child.create_reference_with_id("MyEcho", CORBA.id(_GlobalIDL.Echo))
-eo2 = child.create_reference_with_id("MyEcho2", CORBA.id(_GlobalIDL.Echo))
-print orb.object_to_string(eo)
+# Create object references with no servants
+eo  = child.create_reference_with_id(b"MyEcho", CORBA.id(_GlobalIDL.Echo))
+eo2 = child.create_reference_with_id(b"MyEcho2", CORBA.id(_GlobalIDL.Echo))
+print(orb.object_to_string(eo))
 
 # Run, or do some local calls...
 if not (len(sys.argv) > 1 and sys.argv[1] == "-l"):
@@ -73,27 +73,27 @@ if not (len(sys.argv) > 1 and sys.argv[1] == "-l"):
 
 time.sleep(1)
 
-print "Calling..."
+print("Calling...")
 
 # On each of these calls, the servant is created just before the
 # invocation, and deleted again just afterwards
 
-print eo.echoString("Hello from same address space")
+print(eo.echoString("Hello from same address space"))
 time.sleep(1)
 
-print eo.echoString("Hello again")
+print(eo.echoString("Hello again"))
 time.sleep(1)
 
-print eo.echoString("Hello again again")
+print(eo.echoString("Hello again again"))
 time.sleep(1)
 
-print eo2.echoString("Hello object 2")
+print(eo2.echoString("Hello object 2"))
 time.sleep(1)
 
-print "Destroying child POA..."
+print("Destroying child POA...")
 child.destroy(1, 1)
-print "Child POA Destroyed"
+print("Child POA Destroyed")
 
-print "Destroying ORB..."
+print("Destroying ORB...")
 orb.destroy()
-print "ORB destroyed."
+print("ORB destroyed.")

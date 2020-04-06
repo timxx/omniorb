@@ -152,7 +152,7 @@ class I_i (TypeTest__POA.I):
                          TypeTest.U1(a = 5),
                          jo,
                          [1, 2, 3, 4, 5, 6, 7],
-                         "octet sequence",
+                         b"octet sequence",
                          "string")
         if a == 0:
             pass
@@ -182,7 +182,7 @@ class I_i (TypeTest__POA.I):
     def tc1 (self, a): return a
 
     def context1(self, l, ctxt):
-        vs = ctxt.get_values("*").items()
+        vs = list(ctxt.get_values("*").items())
         r  = []
         for v in vs:
             r.append(v[0])
@@ -190,7 +190,7 @@ class I_i (TypeTest__POA.I):
         return r
 
     def context2(self, l, ctxt):
-        vs = ctxt.get_values("*").items()
+        vs = list(ctxt.get_values("*").items())
         r  = []
         for v in vs:
             r.append(v[0])
@@ -205,15 +205,15 @@ poa._get_the_POAManager().activate()
 ii = I_i()
 io = ii._this()
 
-print orb.object_to_string(io)
+print(orb.object_to_string(io))
 
 if "-l" in sys.argv:
-    print "Running locally...\n\n"
+    print("Running locally...\n\n")
     import tclient
     tclient.doTests(orb, poa, io)
 
     if "-r" in sys.argv:
-        print "\nRepeating tests..."
+        print("\nRepeating tests...")
         tclient.output = 0
         while 1:
             tclient.doTests(orb, poa, io)

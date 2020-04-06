@@ -9,7 +9,7 @@ import _GlobalIDL, _GlobalIDL__POA
 # Define an implementation of the Echo interface
 class Echo_i (_GlobalIDL__POA.Echo):
     def echoString(self, mesg):
-        print "echoString() called with message:", mesg
+        print("echoString() called with message:", mesg)
         return mesg
 
 # Initialise the ORB
@@ -25,7 +25,7 @@ ei = Echo_i()
 eo = ei._this()
 
 # Print out the IOR
-print orb.object_to_string(eo)
+print(orb.object_to_string(eo))
 
 # Activate the POA
 poaManager = poa._get_the_POAManager()

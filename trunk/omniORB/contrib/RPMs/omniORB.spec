@@ -3,9 +3,9 @@
 %define omniuid -1
 %define omnigid -1
 
-%define version_major 4
-%define version_minor 2
-%define version_micro 1
+%define version_major 5
+%define version_minor 0
+%define version_micro 0
 %define version_full %{version_major}.%{version_minor}.%{version_micro}
 %define version_brief %{version_major}.%{version_minor}
 

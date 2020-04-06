@@ -1,25 +1,23 @@
 //				Package : omnithread
 // omnithread/posix.cc		Created : 7/94 tjr
 //
-//    Copyright (C) 2003-2008 Apasphere Ltd
+//    Copyright (C) 2003-2018 Apasphere Ltd
 //    Copyright (C) 1994-1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omnithread library
 //
 //    The omnithread library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 
 //
@@ -78,10 +76,14 @@
 #include <errno.h>
 #include <time.h>
 #include <omnithread.h>
+#include <omniconfig.h>
 
-#if (defined(__GLIBC__) && __GLIBC__ >= 2) || defined(__SCO_VERSION__) || defined(__aix__) || defined (__cygwin__) || defined(__darwin__) || defined(__macos__)
+#if (defined(HAVE_SYS_TIME_H) || defined(__GLIBC__) && __GLIBC__ >= 2) || defined(__SCO_VERSION__) || defined(__aix__) || defined (__cygwin__) || defined(__darwin__) || defined(__macos__)
 // typedef of struct timeval and gettimeofday();
 #include <sys/time.h>
+#endif
+
+#if (defined(HAVE_UNISTD_H) || defined(__GLIBC__) && __GLIBC__ >= 2) || defined(__SCO_VERSION__) || defined(__aix__) || defined (__cygwin__) || defined(__darwin__) || defined(__macos__)
 #include <unistd.h>
 #endif
 
@@ -812,6 +814,14 @@ omni_thread::self(void)
     }
 
     return me;
+}
+
+
+unsigned long
+omni_thread::plat_id()
+{
+    volatile pthread_t thread_id = pthread_self();
+    return (unsigned long)thread_id;
 }
 
 

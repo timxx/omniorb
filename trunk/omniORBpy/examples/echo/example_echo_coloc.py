@@ -9,7 +9,7 @@ import Example, Example__POA
 # Define an implementation of the Echo interface
 class Echo_i (Example__POA.Echo):
     def echoString(self, mesg):
-        print "echoString() called with message:", mesg
+        print("echoString() called with message:", mesg)
         return mesg
 
 # Initialise the ORB
@@ -33,4 +33,4 @@ poaManager.activate()
 message = "Hello"
 result  = eo.echoString(message)
 
-print "I said '%s'. The object said '%s'." % (message,result)
+print("I said '%s'. The object said '%s'." % (message,result))

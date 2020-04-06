@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -54,17 +52,18 @@ String_AS_STRING_AND_SIZE(PyObject* obj, CORBA::ULong& size)
   return PyString_AS_STRING(obj);
 }
 
-#  define RawString_Check(o)               PyString_Check(o)
-#  define RawString_GET_SIZE(o)            PyString_GET_SIZE(o)
-#  define RawString_AS_STRING(o)           PyString_AS_STRING(o)
-#  define RawString_FromStringAndSize(o,s) PyString_FromStringAndSize(o,s)
-#  define RawString_FromString(s)          PyString_FromString(s)
+#  define RawString_Check(o)                PyString_Check(o)
+#  define RawString_GET_SIZE(o)             PyString_GET_SIZE(o)
+#  define RawString_AS_STRING(o)            PyString_AS_STRING(o)
+#  define RawString_AS_STRING_AND_SIZE(o,s) String_AS_STRING_AND_SIZE(o,s)
+#  define RawString_FromStringAndSize(o,s)  PyString_FromStringAndSize(o,s)
+#  define RawString_FromString(s)           PyString_FromString(s)
 
-#  define Int_Check(o)                     PyInt_Check(o)
-#  define Int_FromLong(l)                  PyInt_FromLong(l)
-#  define Int_FromSsize_t(l)               PyInt_FromSsize_t(l)
-#  define Int_AS_LONG(o)                   PyInt_AS_LONG(o)
-#  define Int_AsSsize_t(o)                 PyInt_AsSsize_t(o)
+#  define Int_Check(o)                      PyInt_Check(o)
+#  define Int_FromLong(l)                   PyInt_FromLong(l)
+#  define Int_FromSsize_t(l)                PyInt_FromSsize_t(l)
+#  define Int_AS_LONG(o)                    PyInt_AS_LONG(o)
+#  define Int_AsSsize_t(o)                  PyInt_AsSsize_t(o)
 
 #else // Python 3
 
@@ -112,6 +111,13 @@ String_AS_STRING_AND_SIZE(PyObject* obj, CORBA::ULong& size)
 #    define Unicode_GET_SIZE(o)            PyUnicode_GET_SIZE(o)
 
 #  endif
+
+static inline const char*
+RawString_AS_STRING_AND_SIZE(PyObject* obj, CORBA::ULong& size)
+{
+  size = PyBytes_GET_SIZE(obj);
+  return PyBytes_AS_STRING(obj);
+}
 
 #  define String_Check(o)                  PyUnicode_Check(o)
 #  define String_FromString(s)             PyUnicode_FromString(s)

@@ -9,19 +9,17 @@
 //    This file is part of the omniORB library
 //
 //    The omniORB library is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Library General Public
+//    modify it under the terms of the GNU Lesser General Public
 //    License as published by the Free Software Foundation; either
-//    version 2 of the License, or (at your option) any later version.
+//    version 2.1 of the License, or (at your option) any later version.
 //
 //    This library is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Library General Public License for more details.
+//    Lesser General Public License for more details.
 //
-//    You should have received a copy of the GNU Library General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-//    02111-1307, USA
+//    You should have received a copy of the GNU Lesser General Public
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -165,6 +163,14 @@ completeCallback()
     pd_environment->exception(getException());
 
   omniAMI::DIIPollableImpl::_PD_instance._replyReady();
+
+  {
+    omni_tracedmutex_lock l(sd_lock);
+    pd_do_callback = 0;
+    if (pd_cond)
+      pd_cond->broadcast();
+  }
+
   pd_req->decrRefCount();
 }
 
@@ -530,7 +536,7 @@ RequestImpl::get_response()
   if (pd_state == RS_DONE_DEFERRED)
     return;
 
-  pd_cd.wait();
+  pd_cd.waitForCallback();
   pd_state = RS_DONE_DEFERRED;
   omniAMI::DIIPollableImpl::_PD_instance._replyCollected();
 
@@ -565,7 +571,7 @@ RequestImpl::poll_response()
 		  BAD_INV_ORDER_ResultAlreadyReceived,
 		  CORBA::COMPLETED_NO);
 
-  if (!pd_cd.isComplete())
+  if (!pd_cd.isCalledBack())
     return 0;
 
   pd_state = RS_POLLED_DONE_DEFERRED;

@@ -5,12 +5,12 @@ import CORBA, ValueTest, ValueTest__POA, Derived
 
 class Three_i(ValueTest.Three):
     def test(self):
-        print "test local call"
+        print("test local call")
         return "value"
 
 class Four_i(ValueTest__POA.Four):
     def test(self):
-        print "test callback"
+        print("test callback")
         return "object"
 
 

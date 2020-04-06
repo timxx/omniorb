@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Implementation of Python servant object
@@ -706,8 +704,13 @@ Py_omniServant::remote_dispatch(Py_omniCallDescriptor* pycd)
 
       if (edesc) {
 	Py_DECREF(erepoId); Py_DECREF(etype); Py_XDECREF(etraceback);
-	PyUserException ex(edesc, evalue, CORBA::COMPLETED_MAYBE);
-	ex._raise();
+        try {
+          PyUserException ex(edesc, evalue, CORBA::COMPLETED_MAYBE);
+          ex._raise();
+        }
+        catch (Py_BAD_PARAM& bp) {
+          bp.logInfoAndThrow();
+        }
       }
     }
 
@@ -1015,7 +1018,7 @@ Py_AdapterActivatorSvt::_ptrToInterface(const char* repoId)
 
 static
 omniPy::Py_omniServant*
-newSpecialServant(PyObject* pyservant, PyObject* opdict, char* repoId)
+newSpecialServant(PyObject* pyservant, PyObject* opdict, const char* repoId)
 {
   if (omni::ptrStrMatch(repoId, PortableServer::ServantActivator::_PD_repoId))
     return new Py_ServantActivatorSvt(pyservant, opdict, repoId);
