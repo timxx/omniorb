@@ -201,12 +201,12 @@ public:
 
     if ((const char*)host)  {
       // Get this host's IP addresses and look for a match
-      const omnivector<const char*>* ifaddrs;
+      const std::vector<const char*>* ifaddrs;
       ifaddrs = giopTransportImpl::getInterfaceAddress("giop:tcp");
       if (!ifaddrs) return 0;
       {
-	omnivector<const char*>::const_iterator i    = ifaddrs->begin();
-	omnivector<const char*>::const_iterator last = ifaddrs->end();
+	std::vector<const char*>::const_iterator i    = ifaddrs->begin();
+	std::vector<const char*>::const_iterator last = ifaddrs->end();
 	while (i != last) {
 	  if (omni::strMatch((*i),host)) return 1;
 	  i++;
@@ -240,12 +240,12 @@ public:
     if (strncmp(endpoint,"giop:unix:",10) == 0) {
       // local transport. Does this rule apply to this host's 
       // IP address(es)? 
-      const omnivector<const char*>* ifaddrs;
+      const std::vector<const char*>* ifaddrs;
       ifaddrs = giopTransportImpl::getInterfaceAddress("giop:tcp");
       if (!ifaddrs) return 0;
       {
-	omnivector<const char*>::const_iterator i    = ifaddrs->begin();
-	omnivector<const char*>::const_iterator last = ifaddrs->end();
+	std::vector<const char*>::const_iterator i    = ifaddrs->begin();
+	std::vector<const char*>::const_iterator last = ifaddrs->end();
 	while (i != last) {
           if (matchAddr(*i)) return 1;
 	  i++;
@@ -312,12 +312,12 @@ public:
     if (strncmp(endpoint,"giop:unix:",10) == 0) {
       // local transport. Does this rule apply to this host's 
       // IP address(es)? 
-      const omnivector<const char*>* ifaddrs;
+      const std::vector<const char*>* ifaddrs;
       ifaddrs = giopTransportImpl::getInterfaceAddress("giop:tcp");
       if (!ifaddrs) return 0;
       {
-	omnivector<const char*>::const_iterator i    = ifaddrs->begin();
-	omnivector<const char*>::const_iterator last = ifaddrs->end();
+	std::vector<const char*>::const_iterator i    = ifaddrs->begin();
+	std::vector<const char*>::const_iterator last = ifaddrs->end();
 	while (i != last) {
           if (matchAddr(*i)) return 1;
 	}
@@ -592,9 +592,9 @@ public:
   }
 
   void dump(orbOptions::sequenceString& result) {
-    omnivector<transportRules::RuleActionPair*>
+    std::vector<transportRules::RuleActionPair*>
       ::iterator i = clientRules_.pd_rules.begin();
-    omnivector<transportRules::RuleActionPair*>
+    std::vector<transportRules::RuleActionPair*>
       ::iterator last = clientRules_.pd_rules.end();
 
     while (i != last) {
@@ -627,9 +627,9 @@ public:
   }
 
   void dump(orbOptions::sequenceString& result) {
-    omnivector<transportRules::RuleActionPair*>
+    std::vector<transportRules::RuleActionPair*>
       ::iterator i = serverRules_.pd_rules.begin();
-    omnivector<transportRules::RuleActionPair*>
+    std::vector<transportRules::RuleActionPair*>
       ::iterator last = serverRules_.pd_rules.end();
 
     while (i != last) {

@@ -226,8 +226,8 @@ giopServer::addBiDirStrand(giopStrand* s,giopActiveCollection* watcher) {
 
       CORBA::Boolean matched = 0;
       {
-	omnivector<giopActiveCollection*>::iterator i = pd_bidir_collections.begin();
-	omnivector<giopActiveCollection*>::iterator last = pd_bidir_collections.end();
+	std::vector<giopActiveCollection*>::iterator i = pd_bidir_collections.begin();
+	std::vector<giopActiveCollection*>::iterator last = pd_bidir_collections.end();
 	while (i != last) {
 	  if ((*i) == watcher) {
 	    matched = 1;
@@ -364,7 +364,7 @@ giopServer::activate()
     task->insert(pd_rendezvousers);
   }
 
-  omnivector<giopStrand*>::iterator j;
+  std::vector<giopStrand*>::iterator j;
   j = pd_bidir_strands.begin();
 
   while (j != pd_bidir_strands.end()) {
@@ -406,7 +406,7 @@ giopServer::activate()
   }
 
   {
-    omnivector<giopActiveCollection*>::iterator i;
+    std::vector<giopActiveCollection*>::iterator i;
     i = pd_bidir_collections.begin();
 
     while (i != pd_bidir_collections.end()) {
@@ -649,7 +649,7 @@ giopServer::deactivate()
 	<< " bidirectional connections...\n";
     }
 
-    omnivector<giopStrand*>::iterator i = pd_bidir_strands.begin();
+    std::vector<giopStrand*>::iterator i = pd_bidir_strands.begin();
     while (i != pd_bidir_strands.end()) {
       giopStrand* g = *i;
       pd_bidir_strands.erase(i);

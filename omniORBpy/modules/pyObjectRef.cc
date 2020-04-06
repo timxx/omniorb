@@ -343,8 +343,8 @@ omniPy::createLocalObjRef(const char*         mostDerivedRepoId,
   {
     omniObjRef* objref;
 
-    omnivector<omniObjRef*>::iterator i    = entry->objRefs().begin();
-    omnivector<omniObjRef*>::iterator last = entry->objRefs().end();
+    std::vector<omniObjRef*>::iterator i    = entry->objRefs().begin();
+    std::vector<omniObjRef*>::iterator last = entry->objRefs().end();
 
     for (; i != last; i++) {
       objref = *i;

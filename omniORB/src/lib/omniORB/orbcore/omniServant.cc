@@ -50,8 +50,8 @@ omniServant::~omniServant()
       l << "Error: a servant has been deleted that is still activated.\n";
       omni::internalLock->lock();
 
-      omnivector<omniObjTableEntry*>::iterator i    = pd_activations.begin();
-      omnivector<omniObjTableEntry*>::iterator last = pd_activations.end();
+      std::vector<omniObjTableEntry*>::iterator i    = pd_activations.begin();
+      std::vector<omniObjTableEntry*>::iterator last = pd_activations.end();
 
       for (; i != last; i++) {
 	l << "      id: " << *i << '\n';
@@ -151,8 +151,8 @@ omniServant::_removeActivation(omniObjTableEntry* entry)
   ASSERT_OMNI_TRACEDMUTEX_HELD(*omni::internalLock, 1);
   OMNIORB_ASSERT(entry);
 
-  omnivector<omniObjTableEntry*>::iterator i    = pd_activations.begin();
-  omnivector<omniObjTableEntry*>::iterator last = pd_activations.end();
+  std::vector<omniObjTableEntry*>::iterator i    = pd_activations.begin();
+  std::vector<omniObjTableEntry*>::iterator last = pd_activations.end();
 
   CORBA::Boolean activation_found = 0;
 

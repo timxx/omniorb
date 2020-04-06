@@ -29,7 +29,7 @@
 #ifndef __OMNISERVANT_H__
 #define __OMNISERVANT_H__
 
-#include <omniORB4/omniutilities.h>
+#include <vector>
 
 class omniObjRef;
 class omniCallHandle;
@@ -115,7 +115,7 @@ public:
   // Remove an activation from this servant's list.
   //  Must hold <omni::internalLock>.
 
-  inline const omnivector<omniObjTableEntry*>& _activations() const {
+  inline const std::vector<omniObjTableEntry*>& _activations() const {
     ASSERT_OMNI_TRACEDMUTEX_HELD(*omni::internalLock, 1);
     return pd_activations;
   }
@@ -128,7 +128,7 @@ public:
 
 private:
 
-  omnivector<omniObjTableEntry*> pd_activations;
+  std::vector<omniObjTableEntry*> pd_activations;
   // A list of the object identities that this servant is incarnating.
   // If it is not incarnating any objects, this will be empty.  Note
   // that when an object is deactivated the identity will be removed

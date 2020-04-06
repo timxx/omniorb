@@ -41,7 +41,7 @@ class unixTransportImpl : public giopTransportImpl {
   giopAddress*   toAddress(const char* param);
   CORBA::Boolean isValid(const char* param);
   CORBA::Boolean addToIOR(const char* param, IORPublish* eps);
-  const omnivector<const char*>* getInterfaceAddress();
+  const std::vector<const char*>* getInterfaceAddress();
 
  private:
   unixTransportImpl(const unixTransportImpl&);

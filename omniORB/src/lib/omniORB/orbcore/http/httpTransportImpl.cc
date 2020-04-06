@@ -120,7 +120,7 @@ httpTransportImpl::addToIOR(const char* param, IORPublish* eps) {
 }
 
 /////////////////////////////////////////////////////////////////////////
-const omnivector<const char*>*
+const std::vector<const char*>*
 httpTransportImpl::getInterfaceAddress() {
   return giopTransportImpl::getInterfaceAddress("giop:tcp");
 }

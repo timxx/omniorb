@@ -29,7 +29,7 @@
 #ifndef __GIOPENDPOINT_H__
 #define __GIOPENDPOINT_H__
 
-#include <omniORB4/omniutilities.h>
+#include <vector>
 
 OMNI_NAMESPACE_BEGIN(omni)
 
@@ -229,7 +229,7 @@ private:
 
 };
 
-typedef omnivector<giopAddress*>  giopAddressList;
+typedef std::vector<giopAddress*>  giopAddressList;
 
 
 class giopEndpoint {
@@ -319,7 +319,7 @@ private:
   _CORBA_Boolean pd_no_publish;
 };
 
-typedef omnivector<giopEndpoint*>  giopEndpointList;
+typedef std::vector<giopEndpoint*>  giopEndpointList;
 
 
 class giopActiveConnection {
@@ -393,7 +393,7 @@ public:
   virtual _CORBA_Boolean addToIOR(const char* param, IORPublish* eps) = 0;
   // Make this endpoint part of the IORs created by this ORB.
 
-  virtual const omnivector<const char*>* getInterfaceAddress() = 0;
+  virtual const std::vector<const char*>* getInterfaceAddress() = 0;
   // Get the addresses of all the interfaces that can be used to talk to
   // this host using this transport.
 
@@ -401,7 +401,7 @@ public:
   // Initialise the transport implementation. Called once the 1st time
   // ORB_init() is called.
 
-  static const omnivector<const char*>* getInterfaceAddress(const char* type);
+  static const std::vector<const char*>* getInterfaceAddress(const char* type);
   // Get the addresses of all the interfaces that belongs to the transport
   // type <type>. These addresses can be used to talk to this host.
   // e.g. type == "giop:tcp" causes the tcp transport implementation to

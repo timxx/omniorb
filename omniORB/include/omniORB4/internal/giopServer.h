@@ -29,8 +29,8 @@
 #ifndef __GIOPSERVER_H__
 #define __GIOPSERVER_H__
 
+#include <vector>
 #include <omniORB4/omniServer.h>
-#include <omniORB4/omniutilities.h>
 #include <omniORB4/giopEndpoint.h>
 
 OMNI_NAMESPACE_BEGIN(omni)
@@ -117,10 +117,10 @@ private:
   CORBA::ULong                           pd_n_temporary_workers;
   CORBA::ULong                           pd_n_dedicated_workers;
 
-  omnivector<giopStrand*>                pd_bidir_strands;
+  std::vector<giopStrand*>               pd_bidir_strands;
   // Strands to start serving on activate().
 
-  omnivector<giopActiveCollection*>      pd_bidir_collections;
+  std::vector<giopActiveCollection*>     pd_bidir_collections;
   // Collections to start monitoring on activate().
 
   Link                                   pd_bidir_monitors;

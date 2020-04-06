@@ -168,10 +168,10 @@ unixTransportImpl::addToIOR(const char* param, IORPublish* eps) {
 }
 
 /////////////////////////////////////////////////////////////////////////
-const omnivector<const char*>* 
+const std::vector<const char*>* 
 unixTransportImpl::getInterfaceAddress() {
   // There is no sensible interface address. Return an empty list.
-  static omnivector<const char*> empty;
+  static std::vector<const char*> empty;
   return &empty;
 }
 

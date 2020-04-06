@@ -911,7 +911,7 @@ omniOrbPOA::activate_object(PortableServer::Servant p_servant)
     // Check the servant's list of activations, to ensure that it
     // isn't already active in this POA.
 
-    omnivector<omniObjTableEntry*>::const_iterator i, last;
+    std::vector<omniObjTableEntry*>::const_iterator i, last;
     i    = p_servant->_activations().begin();
     last = p_servant->_activations().end();
 
@@ -1022,7 +1022,7 @@ omniOrbPOA::activate_object_with_id(const PortableServer::ObjectId& oid,
       // Check the servant's list of activations, to ensure that it
       // isn't already active in this POA.
 
-      omnivector<omniObjTableEntry*>::const_iterator i, last;
+      std::vector<omniObjTableEntry*>::const_iterator i, last;
       i    = p_servant->_activations().begin();
       last = p_servant->_activations().end();
 
@@ -1257,7 +1257,7 @@ omniOrbPOA::servant_to_id(PortableServer::Servant p_servant)
     // Search the servants activations, to see if it is activated in
     // this poa.
 
-    omnivector<omniObjTableEntry*>::const_iterator i, last;
+    std::vector<omniObjTableEntry*>::const_iterator i, last;
     i    = p_servant->_activations().begin();
     last = p_servant->_activations().end();
 
@@ -1334,7 +1334,7 @@ omniOrbPOA::servant_to_reference(PortableServer::Servant p_servant)
     // Search the servants identities, to see if it is
     // activated in this poa.
 
-    omnivector<omniObjTableEntry*>::const_iterator i, last;
+    std::vector<omniObjTableEntry*>::const_iterator i, last;
     i    = p_servant->_activations().begin();
     last = p_servant->_activations().end();
 
@@ -2408,7 +2408,7 @@ omniOrbPOA::servant__this(PortableServer::Servant p_servant,
     // Search the servants activations, to see if it is activated in
     // this poa.
 
-    omnivector<omniObjTableEntry*>::const_iterator i, last;
+    std::vector<omniObjTableEntry*>::const_iterator i, last;
     i    = p_servant->_activations().begin();
     last = p_servant->_activations().end();
 
@@ -3248,7 +3248,7 @@ omniOrbPOA::dispatch_to_sa(omniCallHandle& handle,
   if( !pd_policy.multiple_id ) {
     // Check the servant is not already active in this poa.
 
-    omnivector<omniObjTableEntry*>::const_iterator i, last;
+    std::vector<omniObjTableEntry*>::const_iterator i, last;
     i    = servant->_activations().begin();
     last = servant->_activations().end();
 
@@ -3502,7 +3502,7 @@ omniOrbPOA::finish_adapteractivating_child(const char* name)
 {
   ASSERT_OMNI_TRACEDMUTEX_HELD(poa_lock, 1);
 
-  omnivector<const char*>::iterator i, last;
+  std::vector<const char*>::iterator i, last;
   i = pd_adptrActvtnsInProgress.begin();
   last = pd_adptrActvtnsInProgress.end();
 
@@ -3521,7 +3521,7 @@ omniOrbPOA::is_adapteractivating_child(const char* name)
 {
   ASSERT_OMNI_TRACEDMUTEX_HELD(poa_lock, 1);
 
-  omnivector<const char*>::iterator i, last;
+  std::vector<const char*>::iterator i, last;
   i = pd_adptrActvtnsInProgress.begin();
   last = pd_adptrActvtnsInProgress.end();
 

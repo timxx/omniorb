@@ -42,8 +42,8 @@ orbOptions::findHandler(const char* k) {
 
   //  if (!pd_handlers_sorted) sortHandlers();
 
-  omnivector<orbOptions::Handler*>::iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::iterator last = pd_handlers.end();
   
   for (; i != last; i++) {
     if (strcmp((*i)->key(),k) == 0)
@@ -95,8 +95,8 @@ orbOptions::registerHandler(orbOptions::Handler& h) {
 ////////////////////////////////////////////////////////////////////////
 void
 orbOptions::reset() {
-  omnivector<HandlerValuePair*>::iterator i = pd_values.begin();
-  omnivector<HandlerValuePair*>::iterator last = pd_values.end();
+  std::vector<HandlerValuePair*>::iterator i = pd_values.begin();
+  std::vector<HandlerValuePair*>::iterator last = pd_values.end();
 
   for (; i != last; i++) {
     delete (*i);
@@ -108,8 +108,8 @@ orbOptions::reset() {
 void
 orbOptions::visit() {
 
-  omnivector<HandlerValuePair*>::iterator i = pd_values.begin();
-  omnivector<HandlerValuePair*>::iterator last = pd_values.end();
+  std::vector<HandlerValuePair*>::iterator i = pd_values.begin();
+  std::vector<HandlerValuePair*>::iterator last = pd_values.end();
   
   for (; i != last; i++) {
     (*i)->handler_->visit((*i)->value_,(*i)->source_);
@@ -172,8 +172,8 @@ orbOptions::extractInitOptions(int& argc,char** argv) {
 
   if (!pd_handlers_sorted) sortHandlers();
 
-  omnivector<orbOptions::Handler*>::iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::iterator last = pd_handlers.end();
 
   for (; i != last; i++) {
 
@@ -295,8 +295,8 @@ orbOptions::importFromEnv() {
   
   if (!pd_handlers_sorted) sortHandlers();
 
-  omnivector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
 
   for (; i != last; i++) {
     CORBA::String_var envkey;
@@ -317,8 +317,8 @@ orbOptions::usage() const {
 
   result->length(pd_handlers.size());
   
-  omnivector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
 
   int j = 0;
   for (; i != last; i++) {
@@ -343,8 +343,8 @@ orbOptions::usageArgv() const {
 
   result->length(pd_handlers.size());
   
-  omnivector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
 
   int j = 0;
   for (; i != last; i++) {
@@ -366,8 +366,8 @@ orbOptions::dumpSpecified() const {
   sequenceString_var result(new sequenceString(pd_values.size()));
   result->length(pd_values.size());
 
-  omnivector<HandlerValuePair*>::const_iterator i = pd_values.begin();
-  omnivector<HandlerValuePair*>::const_iterator last = pd_values.end();
+  std::vector<HandlerValuePair*>::const_iterator i = pd_values.begin();
+  std::vector<HandlerValuePair*>::const_iterator last = pd_values.end();
 
   int j = 0;
   for (; i != last; i++,j++) {
@@ -390,8 +390,8 @@ orbOptions::dumpCurrentSet() const {
 
   sequenceString_var result(new sequenceString());
 
-  omnivector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
-  omnivector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
+  std::vector<orbOptions::Handler*>::const_iterator i = pd_handlers.begin();
+  std::vector<orbOptions::Handler*>::const_iterator last = pd_handlers.end();
 
   for (; i != last; i++) {
     (*i)->dump(result.inout());

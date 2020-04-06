@@ -694,7 +694,7 @@ protected:
   //  Requires i < pd_n_components.
   //  Must hold DynAnyImplBase::lock.
 
-  omnivector<DynAnyImplBase*> pd_components;
+  std::vector<DynAnyImplBase*> pd_components;
   // Sequence of pointers to components that are not stored in <pd_buf>.
   // The length of this sequence is always equal to pd_n_components.
 

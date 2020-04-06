@@ -1,3 +1,43 @@
+Mon  6 Apr 09:52:05 BST 2020
+============================
+
+- Replace omnivector with std::vector.
+
+include/omniORB4/giopEndpoint.h
+include/omniORB4/internal/dynAnyImpl.h
+include/omniORB4/internal/giopRope.h
+include/omniORB4/internal/giopServer.h
+include/omniORB4/internal/objectAdapter.h
+include/omniORB4/internal/objectTable.h
+include/omniORB4/internal/orbOptions.h
+include/omniORB4/internal/poaimpl.h
+include/omniORB4/internal/transportRules.h
+include/omniORB4/omniInterceptors.h
+include/omniORB4/omniServant.h
+include/omniORB4/omniutilities.h
+src/lib/omniORB/orbcore/corbaOrb.cc
+src/lib/omniORB/orbcore/giopEndpoint.cc
+src/lib/omniORB/orbcore/giopRope.cc
+src/lib/omniORB/orbcore/giopServer.cc
+src/lib/omniORB/orbcore/http/httpTransportImpl.cc
+src/lib/omniORB/orbcore/http/httpTransportImpl.h
+src/lib/omniORB/orbcore/initRefs.cc
+src/lib/omniORB/orbcore/objectAdapter.cc
+src/lib/omniORB/orbcore/omniInternal.cc
+src/lib/omniORB/orbcore/omniServant.cc
+src/lib/omniORB/orbcore/orbOptions.cc
+src/lib/omniORB/orbcore/poa.cc
+src/lib/omniORB/orbcore/ssl/sslTransportImpl.cc
+src/lib/omniORB/orbcore/ssl/sslTransportImpl.h
+src/lib/omniORB/orbcore/tcp/tcpTransportImpl.cc
+src/lib/omniORB/orbcore/tcp/tcpTransportImpl.h
+src/lib/omniORB/orbcore/tcpSocket.cc
+src/lib/omniORB/orbcore/transportRules.cc
+src/lib/omniORB/orbcore/unix/unixTransportImpl.cc
+src/lib/omniORB/orbcore/unix/unixTransportImpl.h
+src/lib/omniORB/orbcore/uri.cc
+
+
 Mon  6 Apr 01:25:17 BST 2020
 ============================
 

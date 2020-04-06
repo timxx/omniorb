@@ -41,7 +41,7 @@ class tcpTransportImpl : public giopTransportImpl {
   giopAddress*   toAddress(const char* param);
   CORBA::Boolean isValid(const char* param);
   CORBA::Boolean addToIOR(const char* param, IORPublish* eps);
-  const omnivector<const char*>* getInterfaceAddress();
+  const std::vector<const char*>* getInterfaceAddress();
   void initialise();
 
   static CORBA::Boolean parseAddress(const char* param,
@@ -50,7 +50,7 @@ class tcpTransportImpl : public giopTransportImpl {
   // return 0 if the string is not in the valid format.
 
  private:
-  omnivector<const char*> ifAddresses;
+  std::vector<const char*> ifAddresses;
 
   tcpTransportImpl(const tcpTransportImpl&);
   tcpTransportImpl& operator=(const tcpTransportImpl&);

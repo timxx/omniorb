@@ -360,7 +360,7 @@ tcpSocket::Bind(const char*   	      	 host,
     CORBA::ULong   addrs_len = 0;
     CORBA::Boolean set_host  = 0;
 
-    const omnivector<const char*>* ifaddrs
+    const std::vector<const char*>* ifaddrs
       = giopTransportImpl::getInterfaceAddress(transport_type);
 
     if (ifaddrs && !ifaddrs->empty()) {
@@ -369,7 +369,7 @@ tcpSocket::Bind(const char*   	      	 host,
       const char* loopback4 = 0;
       const char* loopback6 = 0;
 
-      omnivector<const char*>::const_iterator i;
+      std::vector<const char*>::const_iterator i;
       for (i = ifaddrs->begin(); i != ifaddrs->end(); i++) {
 
 	if (passive_host == IPv4PASSIVE && !LibcWrapper::isip4addr(*i))

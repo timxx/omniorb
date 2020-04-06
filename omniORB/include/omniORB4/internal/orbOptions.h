@@ -292,8 +292,8 @@ class orbOptions {
 
  private:
 
-  omnivector<Handler*> pd_handlers;
-  CORBA::Boolean       pd_handlers_sorted;
+  std::vector<Handler*> pd_handlers;
+  CORBA::Boolean        pd_handlers_sorted;
   Handler* findHandler(const char* k);
   void     sortHandlers();
 
@@ -306,7 +306,7 @@ class orbOptions {
     CORBA::String_var      value_;
     Source                 source_;
   };
-  omnivector<HandlerValuePair*>   pd_values;
+  std::vector<HandlerValuePair*> pd_values;
 
   orbOptions();
   ~orbOptions();
